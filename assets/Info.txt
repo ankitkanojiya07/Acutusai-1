@@ -1,0 +1,3 @@
+After cloning the repo in your device ; 
+use this command : 
+          npm install express cors sqlite3 sequelize crypto
