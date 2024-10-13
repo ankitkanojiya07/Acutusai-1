@@ -83,6 +83,7 @@ const processSurvey = (survey) => {
 };
 
 exports.getLiveSurveys = async (req, res) => {
+  
   try {
     const surveys = await Survey.findAll({
       where: { status: "live" },

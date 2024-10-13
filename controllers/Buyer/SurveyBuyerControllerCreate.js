@@ -1,4 +1,4 @@
-const { Survey, Condition, Quotas } = require("../../models/association");
+const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
 const sequelize = require("../../config");
 
 const validateRequiredFields = (fields) => {
@@ -38,7 +38,7 @@ const validateLOIAndIR = (LOI, IR) => {
   return null;
 };
 
-const createSurveyWithQuotas = async (surveyData, quotas, transaction) => {
+const createSurveyWithQuotas = async (surveyData, quotas, qualifications, transaction) => {
   const survey = await Survey.create(surveyData, { transaction });
 
   if (quotas && Array.isArray(quotas)) {
@@ -52,6 +52,7 @@ const createSurveyWithQuotas = async (surveyData, quotas, transaction) => {
           { transaction }
         );
 
+        // If there are conditions, create them
         if (quotaData.Conditions && Array.isArray(quotaData.Conditions)) {
           await Promise.all(
             quotaData.Conditions.map((conditionData) =>
@@ -69,6 +70,21 @@ const createSurveyWithQuotas = async (surveyData, quotas, transaction) => {
     );
   }
 
+  // Qualifications are now added without associating with Quota
+  if (qualifications && Array.isArray(qualifications)) {
+    await Promise.all(
+      qualifications.map(async (qualificationData) => {
+        await Qualification.create(
+          {
+            ...qualificationData,
+            SurveyID: survey.id, // Link qualification directly to survey
+          },
+          { transaction }
+        );
+      })
+    );
+  }
+
   return survey;
 };
 
@@ -78,12 +94,19 @@ const fetchSurveyWithDetails = async (surveyId) => {
       {
         model: Quotas,
         as: "Quotas",
-        include: [{ model: Condition, as: "Conditions" }],
+        include: [
+          { model: Condition, as: "Conditions" },  // Correct alias for Conditions
+        ],
+      },
+      {
+        model: Qualification,  // No need to use alias, just refer to the model
+        as: "Qualifications",  // Match the alias defined in associations
       },
     ],
     attributes: { exclude: ["id"] },
   });
 };
+
 
 // Main Function
 exports.surveyCreate = async (req, res) => {
@@ -106,6 +129,7 @@ exports.surveyCreate = async (req, res) => {
       status,
       country,
       Quotas: quotas,
+      Qualifications: qualifications,  // Include qualifications from the request
     } = req.body;
 
     // Validate required fields
@@ -167,10 +191,10 @@ exports.surveyCreate = async (req, res) => {
         country,
       };
 
-      return await createSurveyWithQuotas(surveyData, quotas, t);
+      return await createSurveyWithQuotas(surveyData, quotas, qualifications, t);
     });
 
-    // Fetch the newly created survey with associated quotas and conditions
+    // Fetch the newly created survey with associated quotas, conditions, and qualifications
     const surveyWithDetails = await fetchSurveyWithDetails(result.id);
 
     res.status(201).json({

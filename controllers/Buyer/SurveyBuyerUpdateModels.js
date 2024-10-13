@@ -72,7 +72,7 @@ exports.updateSurvey = async (req, res) => {
     }
 
     // Respond with the updated survey data
-    res.status(200).json({
+    res.status(201).json({
       status: "success",
       data: {
         id: survey.id,

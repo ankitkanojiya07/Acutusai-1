@@ -1,6 +1,6 @@
+// surveyModel.js
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config");
-// const { v4: uuidv4 } = require('uuid');
 
 module.exports = (sequelize) => {
   const Survey = sequelize.define(
@@ -56,6 +56,9 @@ module.exports = (sequelize) => {
       },
       Completes: {
         type: DataTypes.INTEGER,
+      },
+      FID: {
+        type: DataTypes.STRING,
       },
       status: {
         type: DataTypes.STRING,

@@ -4,6 +4,12 @@ const surveyCreateController = require('../controllers/Buyer/SurveyBuyerControll
 const surveyUpdateController = require('../controllers/Buyer/SurveyBuyerUpdateModels');
 const Buyer = require('../models/BuyerModels');
 const Recon = require("../controllers/Buyer/reconciliations");
+const Feasibility = require("../controllers/Buyer/feasibility")
+// const tier1 = require("../models/tier1Models")
+// const tier2 = require("../models/tier2Models")
+// const tier3 = require("../models/tier3Models")
+// const tier4 = require("../models/tier4Models")
+// const tier5 = require("../models/tier5Models")
 
 
 const BuyerAuthChecker = async (req, res, next) => {
@@ -24,7 +30,7 @@ const BuyerAuthChecker = async (req, res, next) => {
 
 router.post('/create', BuyerAuthChecker, surveyCreateController.surveyCreate);
 router.put('/update/:id', BuyerAuthChecker, surveyUpdateController.updateSurvey);
-router.get('/ideal/:id', BuyerAuthChecker, Recon.reconcillation);
-router.get('/feasibility', BuyerAuthChecker, Recon.feasibility);
+router.post('/reconcillation/:id', BuyerAuthChecker, Recon.reconcillation);
+router.get('/feasibility', Feasibility.getTierPrice);
 
 module.exports = router;

@@ -2,8 +2,6 @@ const SupplyInfo = require('../../models/supModels');
 const sequelize = require("../../config");
 const { where } = require('sequelize');
 
-
-
 const sendSupplyData = async (req, res) => {
     try {
         const { id } = req.params; // Extract surveyId from request params

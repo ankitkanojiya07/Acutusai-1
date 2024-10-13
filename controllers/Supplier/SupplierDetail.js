@@ -1,50 +1,43 @@
-const { Survey, Condition, Quotas } = require("../../models/association");
+const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
 const SupplyInfo = require('../../models/supModels')
 const axios = require('axios');
 const Supply = require('../../models/supplyModels');
 const sequelize = require("../../config");
 const crypto = require("crypto");
 
-function encryptUrl(url) {
-  const hash = crypto.createHash("sha256"); // Using SHA-256 for hashing
-  hash.update(url);
-  const encryptedUrl = hash.digest("base64"); // Convert to base64 encoding
-  console.log(encryptUrl)
+function encryptUrl(url, hashingKey) {
+  const hmac = crypto.createHmac('sha256', hashingKey); // Using HMAC with SHA-256
+  hmac.update(url);
+  const encryptedUrl = hmac.digest('base64'); // Convert to base64 encoding
   return encryptedUrl;
 }
 
-// Example supplier side function to send token ID and URL
-function sendTokenAndUrl(tokenId, url) {
-  const urlIndex  = url.indexOf("TokenID");
-  
-  console.log(url.slice(0,urlIndex-1))
-  const encryptedUrl = encryptUrl(url.slice(0,urlIndex-1));
-  console.log(`Token ID: ${tokenId}`);
-  console.log(`Encrypted URL: ${encryptedUrl}`);
+function sendTokenAndUrl(TID, url, hashingKey) {
+  const urlIndex = url.indexOf("TID=");
 
-  // Validate if tokenId and encrypted URL match (based on your business logic)
-  if (tokenId === encryptedUrl) {
-    console.log("Token ID matches the encrypted URL.");
-  } else {
-    
-    console.log("Token ID does not match the encrypted URL.");
-  }
+  // Only encrypt the URL part before the TokenID query
+  const urlToEncrypt = url.slice(0, urlIndex-1); // Exclude "TID" and rest of URL
+  const encryptedUrl = encryptUrl(urlToEncrypt, hashingKey); // Encrypt with hashingKey
 
-} 
+  console.log("Encrypted URL: ", encryptedUrl);
+  console.log("TID: ", TID);
 
+  // Compare TID with the encrypted URL
+  return TID === encryptedUrl;
+}
 function generateApiUrl(
-  surveyId,
-  supplyId = "%SID%",
+  surveyID,
+  supplyID = "%SID%",
   PNID = "%PNID%",
-  sessionId = "%SSID%"
+  TID = "%TID%"
 ) {
-  const baseUrl = "http://localhost:3000";
-  const queryParams = `supplyId=${encodeURIComponent(
+  const baseUrl = "http://localhost:3000/api/v2/survey/";
+  const queryParams = `supplyID=${encodeURIComponent(
     supplyId
-  )}&PNId=${encodeURIComponent(
+  )}&PNID=${encodeURIComponent(
     PNID
-  )}&sessionID=${encodeURIComponent(sessionId)}`;
-  return `${baseUrl}/${surveyId}?${queryParams}`;
+  )}&TID=${encodeURIComponent(TID)}`;
+  return `${baseUrl}?${surveyID}?${queryParams}`;
 }
 
 exports.getAllSurveysDetail = async (req, res) => {
@@ -109,16 +102,18 @@ exports.getSurveyLink = async (req, res) => {
 exports.getSurveyQualification = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // Fetch survey with associated qualifications
     const survey = await Survey.findByPk(id, {
       include: [
         {
-          model: Quotas,
-          as: "Quotas",
-          include: [{ model: Condition, as: "Conditions" }],
+          model: Qualification,
+          as: "Qualifications", // Make sure this alias matches the association
         },
       ],
     });
 
+    // Check if the survey exists
     if (!survey) {
       return res.status(404).json({
         status: "error",
@@ -126,12 +121,10 @@ exports.getSurveyQualification = async (req, res) => {
       });
     }
 
+    // Return the qualifications data
     res.status(200).json({
       status: "success",
-      data: survey.Quotas.map((quota) => ({
-        quotaId: quota.id,
-        conditions: quota.Conditions,
-      })),
+      data: survey.Qualifications, // Return associated qualifications
     });
   } catch (err) {
     console.error("Error fetching survey qualification:", err);
@@ -142,39 +135,76 @@ exports.getSurveyQualification = async (req, res) => {
   }
 };
 
+const SupplyPrice = require("../../models/supplyModels");
+
 exports.redirectUser = async (req, res) => {
-  const { SurveyID, TokenID, UserID, SupplyID } = req.query;
-  const survey = await Survey.findByPk(SurveyID);
-  console.log(survey);
-  if (!survey) {
-    return res.status(404).json({
+  try {
+    const { id } = req.params;
+    const { TID, PNID, supplyID } = req.query;
+    console.log(TID);
+    const TokenId = decodeURIComponent(TID);
+    const apikey = req.headers["authorization"];
+
+    console.log(req.query);
+    console.log(id, apikey);
+
+    // Find survey by SurveyID
+    const survey = await Survey.findByPk(id);
+    // console.log(survey);
+    if (!survey) {
+      return res.status(404).json({
+        status: "error",
+        message: "Survey not found",
+      });
+    }
+
+    const supply = await SupplyPrice.findOne({
+      where: { ApiKey: apikey },
+    });
+
+    if (!supply) {
+      return res.status(404).json({
+        status: "error",
+        message: "Supply not found",
+      });
+    }
+
+    const hashingKey = supply.HashingKey; 
+    console.log(hashingKey);
+
+    
+    const fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
+
+    // Check if TokenID matches the encrypted URL
+    const isValidToken = sendTokenAndUrl(TokenId, fullUrl, hashingKey);
+
+    if (!isValidToken) {
+      return res.status(403).json({
+        status: "error",
+        message: "Invalid Token ID",
+      });
+    }
+
+    // If valid, save supply info
+    const supplyInfo = await SupplyInfo.create({
+      SurveyID: id, // Use `id` from the URL
+      UserID : PNID,
+      TID,
+      SupplyID : supplyID,
+    });
+
+    // Replace token in the redirect URL and redirect
+    const redirectUrl = survey.TestRedirectURL.replace("[%AID%]", id);
+    console.log(redirectUrl);
+    res.redirect(redirectUrl);
+  } catch (err) {
+    console.error("Error during redirection:", err);
+    res.status(500).json({
       status: "error",
-      message: "Survey not found",
+      message: "Internal server error",
     });
   }
-
-  console.log("hello")
-
-  const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-
-  const result =  sendTokenAndUrl(TokenID,fullUrl);
-  console.log(result);
-
-  const supplyInfo = await SupplyInfo.create({
-    SurveyID,
-    UserID,
-    TokenID,
-    SupplyID,
-  });
-
-  console.log(supplyInfo);
-
-
-  const redirectUrl = survey.TestRedirectURL;
-  const ok = redirectUrl.replace("[%AID%]", SurveyID);
-  res.redirect(ok);
 };
-
 exports.getSurveyQuota = async (req, res) => {
   try {
     const { id } = req.params;

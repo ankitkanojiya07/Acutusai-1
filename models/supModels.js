@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config"); 
-const SupplyInfo = sequelize.define("SupplyInfo", {
 
+const SupplyInfo = sequelize.define("SupplyInfo", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -21,13 +21,14 @@ const SupplyInfo = sequelize.define("SupplyInfo", {
   },
   TokenID: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
   },
-  status : {
-    type : DataTypes.STRING,
-    allowNull : true
+  status: {
+    type: DataTypes.STRING,
+    allowNull: true,
   }
-
+}, {
+  timestamps: true
 });
 
 module.exports = SupplyInfo;
