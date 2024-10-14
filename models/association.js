@@ -34,6 +34,11 @@ Quotas.hasMany(Condition, {
   as: "Conditions",
 });
 
+Qualification.belongsTo(Survey, {
+  foreignKey: "SurveyID", 
+  as: "Survey",
+});
+
 Condition.belongsTo(Quotas, {
   foreignKey: "SurveyQuotaID",
   as: "Quota",

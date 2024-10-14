@@ -14,4 +14,4 @@ const PORT = process.env.PORT || 3000;
   } catch (err) {
     console.error("Error syncing database:", err);
   }
-})();       
+})();          

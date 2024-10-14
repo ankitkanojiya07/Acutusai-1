@@ -13,10 +13,6 @@ module.exports = (sequelize) => {
       SurveyID: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-          model: "Surveys",
-          key: "id",
-        },
       },
       QuestionID: {
         type: DataTypes.INTEGER,

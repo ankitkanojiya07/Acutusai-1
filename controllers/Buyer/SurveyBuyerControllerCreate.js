@@ -1,4 +1,9 @@
-const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
+const {
+  Survey,
+  Condition,
+  Quotas,
+  Qualification,
+} = require("../../models/association");
 const sequelize = require("../../config");
 
 const validateRequiredFields = (fields) => {
@@ -38,7 +43,12 @@ const validateLOIAndIR = (LOI, IR) => {
   return null;
 };
 
-const createSurveyWithQuotas = async (surveyData, quotas, qualifications, transaction) => {
+const createSurveyWithQuotas = async (
+  surveyData,
+  quotas,
+  qualifications,
+  transaction
+) => {
   const survey = await Survey.create(surveyData, { transaction });
 
   if (quotas && Array.isArray(quotas)) {
@@ -95,18 +105,17 @@ const fetchSurveyWithDetails = async (surveyId) => {
         model: Quotas,
         as: "Quotas",
         include: [
-          { model: Condition, as: "Conditions" },  // Correct alias for Conditions
+          { model: Condition, as: "Conditions" }, // Correct alias for Conditions
         ],
       },
       {
-        model: Qualification,  // No need to use alias, just refer to the model
-        as: "Qualifications",  // Match the alias defined in associations
+        model: Qualification, // No need to use alias, just refer to the model
+        as: "Qualifications", // Match the alias defined in associations
       },
     ],
     attributes: { exclude: ["id"] },
   });
 };
-
 
 // Main Function
 exports.surveyCreate = async (req, res) => {
@@ -129,7 +138,7 @@ exports.surveyCreate = async (req, res) => {
       status,
       country,
       Quotas: quotas,
-      Qualifications: qualifications,  // Include qualifications from the request
+      Qualifications: qualifications, // Include qualifications from the request
     } = req.body;
 
     console.log(req.body);
@@ -159,7 +168,9 @@ exports.surveyCreate = async (req, res) => {
     if (insecureUrls.length > 0) {
       return res.status(400).json({
         status: "fail",
-        message: `Please use secure URLs (https) for: ${insecureUrls.join(", ")}`,
+        message: `Please use secure URLs (https) for: ${insecureUrls.join(
+          ", "
+        )}`,
       });
     }
 
@@ -193,7 +204,12 @@ exports.surveyCreate = async (req, res) => {
         country,
       };
 
-      return await createSurveyWithQuotas(surveyData, quotas, qualifications, t);
+      return await createSurveyWithQuotas(
+        surveyData,
+        quotas,
+        qualifications,
+        t
+      );
     });
 
     // Fetch the newly created survey with associated quotas, conditions, and qualifications
