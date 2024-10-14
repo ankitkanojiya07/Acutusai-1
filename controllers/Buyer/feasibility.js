@@ -1,12 +1,12 @@
 const { where } = require("sequelize");
 const sequelize = require("../../config");
-const Tier1 = require("../../models/tier1Models");
-const Tier2 = require("../../models/tier2Models");
-const Tier3 = require("../../models/tier3Models");
-const Tier4 = require("../../models/tier4Models");
-const BuyerInfo = require("../../models/buyerInfoModels")
-const Tier5 = require("../../models/tier5Models");
-const Tier6 = require("../../models/tier6Models");
+// const Tier1 = require("../../models/tier1Models");
+// const Tier2 = require("../../models/tier2Models");
+// const Tier3 = require("../../models/tier3Models");
+// const Tier4 = require("../../models/tier4Models");
+const BuyerInfo = require("../../models/buyerInfoModels");
+// const Tier5 = require("../../models/tier5Models");
+// const Tier6 = require("../../models/tier6Models");
 const Buyer = require("../../models/BuyerModels");
 
 function generateSecretKey(length) {
@@ -67,13 +67,17 @@ async function getTierPrice(req, res) {
         .json({ error: "LOI, IR, and Country are all required" });
     }
 
-    await BuyerInfo.create({
+    // Create the BuyerInfo entry and store FID
+    const buyerInfo = await BuyerInfo.create({
       IR,
       LOI,
-      ApiKey : authorization,
-      Country : Country,
-      InfoId : generateSecretKey(8)
-    })
+      ApiKey: authorization,
+      Country: Country,
+      FID: generateSecretKey(8),
+    });
+
+    // Extract FID from the newly created BuyerInfo
+    const FID = buyerInfo.FID;
 
     // Determine the tier based on the country
     let selectedTierModel;
@@ -112,7 +116,8 @@ async function getTierPrice(req, res) {
     // Remove the '$' sign and convert to a number
     const numericPrice = parseFloat(price.replace("$", ""));
 
-    return res.json({ LOI, IR, Country, CPI : numericPrice });
+    // Return the response with the FID
+    return res.json({ LOI, IR, Country, CPI: numericPrice, FID });
   } catch (error) {
     console.error("Error in getTierPrice:", error);
     return res.status(500).json({ error: "Internal server error" });

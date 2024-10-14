@@ -5,12 +5,6 @@ const surveyUpdateController = require('../controllers/Buyer/SurveyBuyerUpdateMo
 const Buyer = require('../models/BuyerModels');
 const Recon = require("../controllers/Buyer/reconciliations");
 const Feasibility = require("../controllers/Buyer/feasibility")
-// const tier1 = require("../models/tier1Models")
-// const tier2 = require("../models/tier2Models")
-// const tier3 = require("../models/tier3Models")
-// const tier4 = require("../models/tier4Models")
-// const tier5 = require("../models/tier5Models")
-
 
 const BuyerAuthChecker = async (req, res, next) => {
     console.log(req.headers);

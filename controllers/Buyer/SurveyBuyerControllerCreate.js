@@ -132,6 +132,8 @@ exports.surveyCreate = async (req, res) => {
       Qualifications: qualifications,  // Include qualifications from the request
     } = req.body;
 
+    console.log(req.body);
+
     // Validate required fields
     const requiredFields = {
       projectName,
@@ -196,6 +198,7 @@ exports.surveyCreate = async (req, res) => {
 
     // Fetch the newly created survey with associated quotas, conditions, and qualifications
     const surveyWithDetails = await fetchSurveyWithDetails(result.id);
+    console.log("maintenance");
 
     res.status(201).json({
       status: "success",
