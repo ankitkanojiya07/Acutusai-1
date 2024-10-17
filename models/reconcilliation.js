@@ -12,7 +12,7 @@ const Reconcillation = sequelize.define(
 
     ApiKey: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
 
     SurveyID: {

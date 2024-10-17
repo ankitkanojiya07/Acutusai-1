@@ -1,42 +1,49 @@
 const { where } = require("sequelize");
 const sequelize = require("../../config");
 const { Survey, Condition, Quotas } = require("../../models/association");
-const Recon = require("../../models/reconcilliation");
+const Rec = require("../../models/reconcilliation");
 
-exports.reconcillation = async (req, res) => {
+exports.reconciliation = async (req, res) => {
     try {
-        const { id } = req.params;
-        const apikey = req.headers['authorization'];
+        const { SurveyId } = req.params;
+        const apiKey = req.headers['authorization'];
 
-        // Validate that apikey is present
-        if (!apikey) {
+        // Check if API key is provided
+        if (!apiKey) {
             return res.status(400).json({ message: "API key is required" });
         }
 
         const { UserID } = req.body;
 
-        // Check if UserID is an array and convert it to a string if needed
+        // Update the survey status to "Complete"
+        const updatedSurvey = await Survey.update(
+            { status: "Complete" },
+            { where: { id: SurveyId } }
+        );
+
+        if (!updatedSurvey[0]) {
+            return res.status(404).json({ message: "Survey not found" });
+        }
+
+        // Ensure UserID is a string, convert from array if necessary
+        let userIdString = UserID;
         if (Array.isArray(UserID)) {
-            // Join array elements into a comma-separated string
-            UserID = UserID.join(',');
+            userIdString = UserID.join(',');
         } else if (typeof UserID !== 'string') {
             return res.status(400).json({ message: "UserID must be a string or an array" });
         }
 
-        const result = await Recon.create({
-            Apikey: apikey,
-            SurveyID: id,
-            UserID: UserID,
+        // Create a record in the Rec table
+        await Rec.create({
+            SurveyID: SurveyId,
+            UserID: userIdString,
+            ApiKey: apiKey
         });
 
-        if (result) {
-            return res.status(200).json(result);
-        } else {
-            return res.status(404).json({ message: "Record not found" });
-        }
+        res.status(200).json({ message: "Survey status updated and record created successfully" });
 
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };

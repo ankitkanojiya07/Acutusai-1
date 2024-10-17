@@ -50,6 +50,7 @@ const createSurveyWithQuotas = async (
   transaction
 ) => {
   const survey = await Survey.create(surveyData, { transaction });
+  console.log("jekkc", qualifications)
 
   if (quotas && Array.isArray(quotas)) {
     await Promise.all(
@@ -113,7 +114,7 @@ const fetchSurveyWithDetails = async (surveyId) => {
         as: "Qualifications", // Match the alias defined in associations
       },
     ],
-    attributes: { exclude: ["id"] },
+    // attributes: { exclude: [""] },
   });
 };
 

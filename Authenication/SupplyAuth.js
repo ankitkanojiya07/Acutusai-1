@@ -3,7 +3,7 @@ const router = express.Router();
 const surveyDetail = require("../controllers/Supplier/SupplierData");
 const surveyGetController = require("../controllers/Supplier/SupplierGetSurvey");
 const surveyDetailController = require("../controllers/Supplier/SupplierDetail"); // Fixed the typo
-const Supply = require("../models/supplyModels");
+const Supply = require("../models/supplyModels"); 
 
 const SupplyAuthChecker = async (req, res, next) => {
     console.log(req.headers);
@@ -27,14 +27,16 @@ router.get(
     SupplyAuthChecker,
     surveyDetailController.getAllSurveysDetail
 );
+// router.get("/detaillive/:id", surveyDetailController.getDetail);
 router.get("/live", SupplyAuthChecker, surveyGetController.getLiveSurveys);
 router.get("/", SupplyAuthChecker, surveyGetController.getAllSurveys);
 router.get(
     "/finished",
     SupplyAuthChecker,
     surveyGetController.getFinishedSurveys
-); // Fixed function reference
-router.get("/redirect/:id",  surveyDetailController.redirectUser);
+);
+// router.post("/cookies/:id", surveyDetailController.CookiesDetail)
+router.get("/redirect/:sid",  surveyDetailController.redirectUser);
 router.get(
     "/link/:id",
     SupplyAuthChecker,
@@ -51,5 +53,7 @@ router.get(
     SupplyAuthChecker,
     surveyDetailController.getSurveyQualification
 );
+
+router.get("/reporting/:id", surveyDetailController.detail)
 
 module.exports = router;

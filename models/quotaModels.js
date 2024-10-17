@@ -18,18 +18,12 @@ const Quotas = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    FieldTarget: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    
     Quota: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Prescreens: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    
     Completes: {
       type: DataTypes.INTEGER,
       allowNull: false,

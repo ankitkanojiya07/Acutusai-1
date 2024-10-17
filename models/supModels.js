@@ -7,6 +7,10 @@ const SupplyInfo = sequelize.define("SupplyInfo", {
     primaryKey: true,
     autoIncrement: true,
   },
+  SessionID : {
+    type : DataTypes.STRING,
+    allowNull : false
+  },
   SupplyID: {
     type: DataTypes.INTEGER,
     allowNull: false,

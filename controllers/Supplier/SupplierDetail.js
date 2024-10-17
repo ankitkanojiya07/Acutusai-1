@@ -1,14 +1,20 @@
-const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
-const SupplyInfo = require('../../models/supModels')
-const axios = require('axios');
-const Supply = require('../../models/supplyModels');
+const {
+  Survey,
+  Condition,
+  Quotas,
+  Qualification,
+} = require("../../models/association");
+const SupplyInfo = require("../../models/supModels");
+const axios = require("axios");
+const Supply = require("../../models/supplyModels");
 const sequelize = require("../../config");
 const crypto = require("crypto");
+const Cookies = require("../../models/cookies");
 
 function encryptUrl(url, hashingKey) {
-  const hmac = crypto.createHmac('sha256', hashingKey); // Using HMAC with SHA-256
+  const hmac = crypto.createHmac("sha256", hashingKey); // Using HMAC with SHA-256
   hmac.update(url);
-  const encryptedUrl = hmac.digest('base64'); // Convert to base64 encoding
+  const encryptedUrl = hmac.digest("base64"); // Convert to base64 encoding
   return encryptedUrl;
 }
 
@@ -16,7 +22,7 @@ function sendTokenAndUrl(TID, url, hashingKey) {
   const urlIndex = url.indexOf("TID=");
 
   // Only encrypt the URL part before the TokenID query
-  const urlToEncrypt = url.slice(0, urlIndex-1); // Exclude "TID" and rest of URL
+  const urlToEncrypt = url.slice(0, urlIndex - 1); // Exclude "TID" and rest of URL
   const encryptedUrl = encryptUrl(urlToEncrypt, hashingKey); // Encrypt with hashingKey
 
   console.log("Encrypted URL: ", encryptedUrl);
@@ -34,9 +40,7 @@ function generateApiUrl(
   const baseUrl = "http://localhost:3000/api/v2/survey/";
   const queryParams = `supplyID=${encodeURIComponent(
     supplyId
-  )}&PNID=${encodeURIComponent(
-    PNID
-  )}&TID=${encodeURIComponent(TID)}`;
+  )}&PNID=${encodeURIComponent(PNID)}&TID=${encodeURIComponent(TID)}`;
   return `${baseUrl}?${surveyID}?${queryParams}`;
 }
 
@@ -102,7 +106,7 @@ exports.getSurveyLink = async (req, res) => {
 exports.getSurveyQualification = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Fetch survey with associated qualifications
     const survey = await Survey.findByPk(id, {
       include: [
@@ -139,17 +143,17 @@ const SupplyPrice = require("../../models/supplyModels");
 
 exports.redirectUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { TID, PNID, supplyID } = req.query;
+    const { sid } = req.params;
+    const { TID, PNID, supplyID, SessionID } = req.query;
     console.log(TID);
     const TokenId = decodeURIComponent(TID);
-    const apikey = req.headers["authorization"];
+    // const apikey = req.headers["authorization"];
 
     console.log(req.query);
-    console.log(id, apikey);
+    // console.log(sid, apikey);
 
     // Find survey by SurveyID
-    const survey = await Survey.findByPk(id);
+    const survey = await Survey.findByPk(sid);
     // console.log(survey);
     if (!survey) {
       return res.status(404).json({
@@ -158,45 +162,47 @@ exports.redirectUser = async (req, res) => {
       });
     }
 
-    const supply = await SupplyPrice.findOne({
-      where: { ApiKey: apikey },
-    });
+    // const supply = await SupplyPrice.findOne({
+    //   where: { ApiKey: apikey },
+    // });
 
-    if (!supply) {
-      return res.status(404).json({
-        status: "error",
-        message: "Supply not found",
-      });
-    }
+    // if (!supply) {
+    //   return res.status(404).json({
+    //     status: "error",
+    //     message: "Supply not found",
+    //   });
+    // }
 
-    const hashingKey = supply.HashingKey; 
-    console.log(hashingKey);
+    // const hashingKey = supply.HashingKey;
+    // console.log(hashingKey);
 
-    
     const fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
 
     // Check if TokenID matches the encrypted URL
-    const isValidToken = sendTokenAndUrl(TokenId, fullUrl, hashingKey);
+    // const isValidToken = sendTokenAndUrl(TokenId, fullUrl, hashingKey);
 
-    if (!isValidToken) {
-      return res.status(403).json({
-        status: "error",
-        message: "Invalid Token ID",
-      });
-    }
+    // if (!isValidToken) {
+    //   return res.status(403).json({
+    //     status: "error",
+    //     message: "Invalid Token ID",
+    //   });
+    // }
 
     // If valid, save supply info
     const supplyInfo = await SupplyInfo.create({
-      SurveyID: id, // Use `id` from the URL
-      UserID : PNID,
+      SurveyID: sid, // Use `id` from the URL
+      UserID: PNID,
       TID,
-      SupplyID : supplyID,
+      SupplyID: supplyID,
+      SessionID,
     });
 
-    // Replace token in the redirect URL and redirect
-    const redirectUrl = survey.TestRedirectURL.replace("[%AID%]", id);
+    const redirectUrl = survey.TestRedirectURL.replace("[%AID%]", supplyInfo.id);
+    // const link = "https://consent.acutusai.com"
+    const id = supplyInfo.id;
+
     console.log(redirectUrl);
-    res.redirect(redirectUrl);
+    res.redirect(`https://consent.acutusai.com?aid=${id}`);
   } catch (err) {
     console.error("Error during redirection:", err);
     res.status(500).json({
@@ -205,6 +211,25 @@ exports.redirectUser = async (req, res) => {
     });
   }
 };
+
+exports.getDetail = async(req,res) => {
+  try{
+    const { id } = req.params;
+
+    const info = await SupplyInfo.findAll({
+      where : {
+        id : id
+      }
+    })
+    res.status(200).json({
+      status: "success",
+      info
+    });
+
+  }catch(err){
+    console.error(err)
+  }
+}
 exports.getSurveyQuota = async (req, res) => {
   try {
     const { id } = req.params;
@@ -277,7 +302,6 @@ exports.buyerData = async (req, res) => {
 
     await axios.get(Url);
 
-    
     res.status(200).json({
       status: "success",
       data: Survey,
@@ -288,5 +312,63 @@ exports.buyerData = async (req, res) => {
       status: "error",
       message: "Internal server error",
     });
+  }
+};
+
+exports.detail = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch ReportInfo using the SurveyID
+    const ReportInfo = await SupplyInfo.findAll({
+      where: {
+        SurveyID: id,
+      },
+    });
+
+    // Fetch SurveyInfo using the primary key
+    const SurveyInfo = await Survey.findByPk(id);
+
+    // Check if ReportInfo or SurveyInfo is null/undefined
+    if (!ReportInfo || !SurveyInfo) {
+      return res
+        .status(404)
+        .json({ status: "failed", message: "Data not found" });
+    }
+
+    // Add SurveyInfo details to each ReportInfo item
+    const mergedInfo = ReportInfo.map((report) => ({
+      ...report.toJSON(), // Convert report instance to plain object
+      SurveyName: SurveyInfo.SurveyName, // Add SurveyName from SurveyInfo
+      status: SurveyInfo.status, // Add status from SurveyInfo
+    }));
+
+    // Return merged information
+    return res.status(200).json(mergedInfo);
+  } catch (error) {
+    // Handle any errors
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+exports.CookiesDetail = async (req, res) => {
+  try {
+    const { id } = req.params; // 'id' is retrieved but not used in the current implementation
+    console.log(req);
+    const { panelistId, CookiesId, IpAddress, sessionID } = req.body;
+
+    // Create new cookie details in the database
+    const newCookie = await Cookies.create({
+      AID,
+      CookiesData,
+      IpAddress,
+      sessionID,
+    });
+
+    // Send success response
+    return res.status(201).json({ status: "success", data: newCookie });
+  } catch (err) {
+    // Handle errors properly
+    return res.status(500).json({ status: "error", message: err.message });
   }
 };

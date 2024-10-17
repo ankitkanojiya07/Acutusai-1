@@ -24,7 +24,7 @@ const BuyerAuthChecker = async (req, res, next) => {
 
 router.post('/create', BuyerAuthChecker, surveyCreateController.surveyCreate);
 router.put('/update/:id', BuyerAuthChecker, surveyUpdateController.updateSurvey);
-router.post('/reconcillation/:id', BuyerAuthChecker, Recon.reconcillation);
+router.post('/reconcillation/:SurveyId', BuyerAuthChecker, Recon.reconciliation);
 router.get('/feasibility', Feasibility.getTierPrice);
 
 module.exports = router;
