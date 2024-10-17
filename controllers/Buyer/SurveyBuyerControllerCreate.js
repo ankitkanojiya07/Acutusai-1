@@ -5,6 +5,8 @@ const {
   Qualification,
 } = require("../../models/association");
 const sequelize = require("../../config");
+const BuyerInfo = require("../../models/buyerInfoModels");
+const { where } = require("sequelize");
 
 const validateRequiredFields = (fields) => {
   const missingFields = Object.entries(fields)
@@ -144,6 +146,19 @@ exports.surveyCreate = async (req, res) => {
     } = req.body;
 
     console.log(req.body);
+
+    const check = await BuyerInfo.findOne({
+      where : {
+        FID : FID
+      }
+    })
+
+    if(!check){
+      return res.status(400).json({
+        status: "fail",
+        message: "Missing FID"
+      });
+    }
 
     // Validate required fields
     const requiredFields = {
