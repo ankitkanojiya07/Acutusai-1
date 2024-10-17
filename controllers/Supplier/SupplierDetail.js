@@ -33,16 +33,20 @@ function sendTokenAndUrl(TID, url, hashingKey) {
 }
 function generateApiUrl(
   surveyID,
-  supplyID = "%SID%",
+  supplyID = "%SupplyID%",
   PNID = "%PNID%",
-  TID = "%TID%"
+  SessionID = "%sessionID%",
+  TID = "%TokenID%"
 ) {
-  const baseUrl = "http://localhost:3000/api/v2/survey/";
+  const baseUrl = "https://api.acutusai.com/api/v2/survey/redirect";
   const queryParams = `supplyID=${encodeURIComponent(
-    supplyId
-  )}&PNID=${encodeURIComponent(PNID)}&TID=${encodeURIComponent(TID)}`;
-  return `${baseUrl}?${surveyID}?${queryParams}`;
+    supplyID
+  )}&PNID=${encodeURIComponent(PNID)}&SessionID=${encodeURIComponent(
+    SessionID
+  )}&TID=${encodeURIComponent(TID)}`;
+  return `${baseUrl}?surveyID=${surveyID}&${queryParams}`;
 }
+
 
 exports.getAllSurveysDetail = async (req, res) => {
   try {
@@ -147,10 +151,10 @@ exports.redirectUser = async (req, res) => {
     const { TID, PNID, supplyID, SessionID } = req.query;
     console.log(TID);
     const TokenId = decodeURIComponent(TID);
-    // const apikey = req.headers["authorization"];
+    const apikey = req.headers["authorization"];
 
     console.log(req.query);
-    // console.log(sid, apikey);
+    console.log(sid, apikey);
 
     // Find survey by SurveyID
     const survey = await Survey.findByPk(sid);
@@ -162,31 +166,31 @@ exports.redirectUser = async (req, res) => {
       });
     }
 
-    // const supply = await SupplyPrice.findOne({
-    //   where: { ApiKey: apikey },
-    // });
+    const supply = await SupplyPrice.findOne({
+      where: { ApiKey: apikey },
+    });
 
-    // if (!supply) {
-    //   return res.status(404).json({
-    //     status: "error",
-    //     message: "Supply not found",
-    //   });
-    // }
+    if (!supply) {
+      return res.status(404).json({
+        status: "error",
+        message: "Supply not found",
+      });
+    }
 
-    // const hashingKey = supply.HashingKey;
-    // console.log(hashingKey);
+    const hashingKey = supply.HashingKey;
+    console.log(hashingKey);
 
     const fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
 
     // Check if TokenID matches the encrypted URL
-    // const isValidToken = sendTokenAndUrl(TokenId, fullUrl, hashingKey);
+    const isValidToken = sendTokenAndUrl(TokenId, fullUrl, hashingKey);
 
-    // if (!isValidToken) {
-    //   return res.status(403).json({
-    //     status: "error",
-    //     message: "Invalid Token ID",
-    //   });
-    // }
+    if (!isValidToken) {
+      return res.status(403).json({
+        status: "error",
+        message: "Invalid Token ID",
+      });
+    }
 
     // If valid, save supply info
     const supplyInfo = await SupplyInfo.create({

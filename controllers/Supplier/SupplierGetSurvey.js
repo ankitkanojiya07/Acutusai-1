@@ -1,21 +1,23 @@
-const { Survey, Condition, Quotas } = require("../../models/association");
+const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
 const sequelize = require("../../config");
 const crypto = require("crypto");
 
 function generateApiUrl(
-  surveyId,
-  supplyId = "%SID%",
+  surveyID,
+  supplyID = "%SupplyID%",
   PNID = "%PNID%",
-  sessionId = "%SSID%"
+  SessionID = "%sessionID%",
+  TID = "%TokenID%"
 ) {
-  const baseUrl = "http://localhost:3000";
-  const queryParams = `supplyId=${encodeURIComponent(
-    supplyId
-  )}&PNId=${encodeURIComponent(
-    PNID
-  )}&sessionID=${encodeURIComponent(sessionId)}`;
-  return `${baseUrl}/${surveyId}?${queryParams}`;
+  const baseUrl = "https://api.acutusai.com/api/v2/survey/redirect";
+  const queryParams = `supplyID=${encodeURIComponent(
+    supplyID
+  )}&PNID=${encodeURIComponent(PNID)}&SessionID=${encodeURIComponent(
+    SessionID
+  )}&TID=${encodeURIComponent(TID)}`;
+  return `${baseUrl}?surveyID=${surveyID}&${queryParams}`;
 }
+
 
 
 exports.getAllSurveys = async (req, res) => {
@@ -83,11 +85,26 @@ const processSurvey = (survey) => {
 };
 
 exports.getLiveSurveys = async (req, res) => {
-  
   try {
     const surveys = await Survey.findAll({
       where: { status: "live" },
       attributes: { exclude: ["ClientSurveyLiveURL", "TestRedirectURL"] },
+      include: [
+        {
+          model: Quotas,
+          as: "Quotas",
+          include: [
+            {
+              model: Condition,
+              as: "Conditions"
+            }
+          ]
+        },
+        {
+          model: Qualification,
+          as: "Qualifications"
+        }
+      ]
     });
 
     console.log("Fetched surveys:", surveys.length);
