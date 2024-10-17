@@ -158,7 +158,7 @@ exports.redirectUser = async (req, res) => {
 
     // Find survey by SurveyID
     const survey = await Survey.findByPk(sid);
-    // console.log(survey);
+    console.log(survey);
     if (!survey) {
       return res.status(404).json({
         status: "error",
@@ -182,7 +182,6 @@ exports.redirectUser = async (req, res) => {
 
     const fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
 
-    // Check if TokenID matches the encrypted URL
     const isValidToken = sendTokenAndUrl(TokenId, fullUrl, hashingKey);
 
     if (!isValidToken) {
@@ -202,11 +201,11 @@ exports.redirectUser = async (req, res) => {
     });
 
     const redirectUrl = survey.TestRedirectURL.replace("[%AID%]", supplyInfo.id);
-    // const link = "https://consent.acutusai.com"
+    
     const id = supplyInfo.id;
 
     console.log(redirectUrl);
-    res.redirect(`https://consent.acutusai.com?aid=${id}`);
+    res.redirect(`https://consent.acutusai.com?aid=${id}&sessionid=${SessionID}&sid=${sid}`);
   } catch (err) {
     console.error("Error during redirection:", err);
     res.status(500).json({
@@ -220,7 +219,7 @@ exports.getDetail = async(req,res) => {
   try{
     const { id } = req.params;
 
-    const info = await SupplyInfo.findAll({
+    const info = await Survey.findOne({
       where : {
         id : id
       }
@@ -358,14 +357,14 @@ exports.detail = async (req, res) => {
 exports.CookiesDetail = async (req, res) => {
   try {
     const { id } = req.params; // 'id' is retrieved but not used in the current implementation
-    console.log(req);
-    const { panelistId, CookiesId, IpAddress, sessionID } = req.body;
+    console.log(req.connection.remoteAddress);
+    const { panelistId,  IpAddress, sessionID } = req.body;
 
     // Create new cookie details in the database
     const newCookie = await Cookies.create({
-      AID,
-      CookiesData,
-      IpAddress,
+      AID : panelistId,
+      CookiesData : "data",
+      IpAddress : req.connection.remoteAddress,
       sessionID,
     });
 

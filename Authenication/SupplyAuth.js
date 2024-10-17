@@ -27,7 +27,7 @@ router.get(
     SupplyAuthChecker,
     surveyDetailController.getAllSurveysDetail
 );
-// router.get("/detaillive/:id", surveyDetailController.getDetail);
+router.get("/detaillive/:id", surveyDetailController.getDetail);
 router.get("/live", SupplyAuthChecker, surveyGetController.getLiveSurveys);
 router.get("/", SupplyAuthChecker, surveyGetController.getAllSurveys);
 router.get(
@@ -35,7 +35,7 @@ router.get(
     SupplyAuthChecker,
     surveyGetController.getFinishedSurveys
 );
-// router.post("/cookies/:id", surveyDetailController.CookiesDetail)
+router.post("/cookies/:id", surveyDetailController.CookiesDetail)
 router.get("/redirect/:sid",  surveyDetailController.redirectUser);
 router.get(
     "/link/:id",
