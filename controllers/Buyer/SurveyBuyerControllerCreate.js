@@ -138,6 +138,7 @@ exports.surveyCreate = async (req, res) => {
       Completes,
       status,
       country,
+      FID,
       Quotas: quotas,
       Qualifications: qualifications, // Include qualifications from the request
     } = req.body;
@@ -200,6 +201,7 @@ exports.surveyCreate = async (req, res) => {
         TestRedirectURL,
         IsActive,
         Quota,
+        FID,
         LOI,
         IR,
         country,
