@@ -1,13 +1,13 @@
 const { where } = require("sequelize");
 const sequelize = require("../../config");
-const Tier1 = require("../../models/tier1Models");
-const Tier2 = require("../../models/tier2Models");
-const Tier3 = require("../../models/tier3Models");
-const Tier4 = require("../../models/tier4Models");
-const BuyerInfo = require("../../models/buyerInfoModels");
-const Tier5 = require("../../models/tier5Models");
-const Tier6 = require("../../models/tier6Models");
-const Buyer = require("../../models/BuyerModels");
+// const Tier1 = require("../../models/tier1Models");
+// const Tier2 = require("../../models/tier2Models");
+// const Tier3 = require("../../models/tier3Models");
+// const Tier4 = require("../../models/tier4Models");
+// const BuyerInfo = require("../../models/buyerInfoModels");
+// const Tier5 = require("../../models/tier5Models");
+// const Tier6 = require("../../models/tier6Models");
+// const Buyer = require("../../models/BuyerModels");
 
 function generateSecretKey(length) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

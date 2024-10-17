@@ -203,8 +203,6 @@ exports.surveyCreate = async (req, res) => {
       const surveyData = {
         projectName,
         SurveyName,
-        SurveyStatusCode,
-        CountryLanguageID,
         IndustryID,
         status,
         StudyTypeID,
