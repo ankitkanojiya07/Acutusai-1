@@ -16,7 +16,7 @@ const Quotas = sequelize.define(
     },
     SurveyQuotaType: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     
     Quota: {
@@ -26,7 +26,7 @@ const Quotas = sequelize.define(
     
     Completes: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     IsActive: {
       type: DataTypes.BOOLEAN,
