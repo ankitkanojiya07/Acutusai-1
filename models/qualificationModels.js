@@ -32,7 +32,7 @@ module.exports = (sequelize) => {
       },
     },
     {
-      timestamps: true,
+     
       tableName: "Qualifications",
     }
   );

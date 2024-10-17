@@ -73,9 +73,6 @@ module.exports = (sequelize) => {
       country: {
         type: DataTypes.STRING,
       },
-      endedAt: {
-        type: DataTypes.DATE,
-      },
     },
     {
       timestamps: true, // Keeps createdAt and updatedAt columns

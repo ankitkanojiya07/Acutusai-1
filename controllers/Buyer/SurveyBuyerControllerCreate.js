@@ -125,8 +125,6 @@ exports.surveyCreate = async (req, res) => {
   try {
     const {
       projectName,
-      SurveyStatusCode,
-      CountryLanguageID,
       IndustryID,
       StudyTypeID,
       ClientCPI,
