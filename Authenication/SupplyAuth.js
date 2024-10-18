@@ -28,8 +28,8 @@ router.get(
     surveyDetailController.getAllSurveysDetail
 );
 router.get("/detaillive/:id", surveyDetailController.getDetail);
-router.get("/live", SupplyAuthChecker, surveyGetController.getLiveSurveys);
-router.get("/", SupplyAuthChecker, surveyGetController.getAllSurveys);
+// router.get("/live", SupplyAuthChecker, surveyGetController.);
+router.get("/", SupplyAuthChecker, surveyGetController.getLiveSurveys);
 router.get(
     "/finished",
     SupplyAuthChecker,

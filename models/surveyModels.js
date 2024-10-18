@@ -14,14 +14,7 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      SurveyStatusCode: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      CountryLanguageID: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
+      
       IndustryID: {
         type: DataTypes.INTEGER,
         allowNull: false,

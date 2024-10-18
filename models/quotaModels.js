@@ -14,10 +14,6 @@ const Quotas = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    SurveyQuotaType: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
     
     Quota: {
       type: DataTypes.INTEGER,
