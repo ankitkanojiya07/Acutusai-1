@@ -116,7 +116,7 @@ const fetchSurveyWithDetails = async (surveyId) => {
         as: "Qualifications", // Match the alias defined in associations
       },
     ],
-    // attributes: { exclude: [""] },
+   
   });
 };
 
