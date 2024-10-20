@@ -1,6 +1,7 @@
 const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
 const sequelize = require("../../config");
 const crypto = require("crypto");
+const Supply = require('../../models/supplyModels');
 
 function generateApiUrl(
   surveyID,
@@ -74,17 +75,59 @@ exports.getAllSurveys = async (req, res) => {
 // };
 
 // Handle request to get all live surveys
-const processSurvey = (survey) => {
-  const { id, ...surveyData } = survey.toJSON();
+const RateCard = require("../../models/SupplierRateCard");
+
+const generateCPI = async (IR, LOI,  apiKey) => {
+  try {
+    console.log("hhsd",apiKey);
+    const sup = await Supply.findOne({
+      where : {
+        ApiKey : apiKey
+      }
+    })
+
+    console.log(sup.SupplierID)
+    const rateCard = await RateCard.findOne({
+      where: {
+        IR: LOI,  // IR and LOI should not be mixed here unless intentional
+        
+        SupplyID: sup.SupplierID,
+       
+      },
+    });
+
+    console.log(rateCard);
+
+    // Return some calculated CPI based on rateCard
+    return rateCard ? rateCard.get('IR') : null; 
+  } catch (err) {
+    console.error("Error in generateCPI:", err);
+    return null; // Return null or a default value in case of error
+  }
+};
+
+const processSurvey = async (survey, apiKey) => {
+  const { id, IR, LOI, ...surveyData } = survey.toJSON();
+
+  // Generate Survey CPI using the async function and pass the API key
+  const SurveyCPI = await generateCPI(IR, LOI, apiKey);
+
   return {
     ...surveyData,
     id,
     LiveURL: generateApiUrl(id),
     TestURL: generateApiUrl(id),
+    SurveyCPI,  // Append SurveyCPI to the result
   };
 };
 
 exports.getLiveSurveys = async (req, res) => {
+  const apiKey = req.headers.authorization;  // Get API key from request headers
+
+  if (!apiKey) {
+    return res.status(403).json({ message: "No API key provided" });
+  }
+
   try {
     const surveys = await Survey.findAll({
       where: { status: "live" },
@@ -109,7 +152,8 @@ exports.getLiveSurveys = async (req, res) => {
 
     console.log("Fetched surveys:", surveys.length);
 
-    const responseData = surveys.map(processSurvey);
+    // Use Promise.all to handle asynchronous processing for all surveys and pass API key
+    const responseData = await Promise.all(surveys.map(survey => processSurvey(survey, apiKey)));
 
     console.log("Processed surveys:", responseData.length);
 
@@ -126,6 +170,7 @@ exports.getLiveSurveys = async (req, res) => {
     });
   }
 };
+
 
 exports.getFinishedSurveys = async (req, res) => {
   try {

@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const surveyDetail = require("../controllers/Supplier/SupplierData");
 const surveyGetController = require("../controllers/Supplier/SupplierGetSurvey");
-const surveyDetailController = require("../controllers/Supplier/SupplierDetail"); // Fixed the typo
+const surveyDetailController = require("../controllers/Supplier/SupplierDetail");
+const surveyPriceController = require("../controllers/Supplier/SupplierPriceCard");
+
+ // Fixed the typo
 const Supply = require("../models/supplyModels"); 
 
 const SupplyAuthChecker = async (req, res, next) => {
@@ -34,6 +37,10 @@ router.get(
     "/finished",
     SupplyAuthChecker,
     surveyGetController.getFinishedSurveys
+);
+router.get(
+    "/price",
+    surveyPriceController.priceChart
 );
 router.post("/cookies/:id", surveyDetailController.CookiesDetail)
 router.get("/redirect/:sid",  surveyDetailController.redirectUser);
