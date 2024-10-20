@@ -131,7 +131,7 @@ exports.getLiveSurveys = async (req, res) => {
   try {
     const surveys = await Survey.findAll({
       where: { status: "live" },
-      attributes: { exclude: ["ClientSurveyLiveURL", "TestRedirectURL", "FID", "SurveyStatusCode", "CountryLanguageID"] },
+      attributes: { exclude: ["ClientSurveyLiveURL", "TestRedirectURL", "FID", "SurveyStatusCode", "CountryLanguageID", "ClientCPI"] },
       include: [
         {
           model: Quotas,
