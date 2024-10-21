@@ -24,13 +24,14 @@ const SupplyAuthChecker = async (req, res, next) => {
         res.status(500).json({ message: "Server error", err });
     }
 };
-
+router.get("/:id", surveyDetailController.fetchSurvey);
 router.get(
     "/detail/:id",
     SupplyAuthChecker,
     surveyDetailController.getAllSurveysDetail
 );
 router.get("/detaillive/:id", surveyDetailController.getDetail);
+
 // router.get("/live", SupplyAuthChecker, surveyGetController.);
 router.get("/", SupplyAuthChecker, surveyGetController.getLiveSurveys);
 router.get(
@@ -62,5 +63,6 @@ router.get(
 );
 
 router.get("/reporting/:id", surveyDetailController.detail)
+router.get("/complete/:id", surveyDetailController.Complete )
 
 module.exports = router;

@@ -81,6 +81,27 @@ exports.getAllSurveysDetail = async (req, res) => {
   }
 };
 
+exports.fetchSurvey = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const survey = await Survey.findOne({
+      where: {
+        id: id
+      }
+    });
+    console.log(survey);
+
+    if (survey) {
+      res.status(200).json({data : survey});
+    } else {
+      return res.status(404).json({ message: 'Survey not found' });
+    }
+    
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+}
+
 exports.getSurveyLink = async (req, res) => {
   try {
     const { id } = req.params;
@@ -329,7 +350,7 @@ exports.detail = async (req, res) => {
       },
     });
 
-    // Fetch SurveyInfo using the primary key
+
     const SurveyInfo = await Survey.findByPk(id);
 
     // Check if ReportInfo or SurveyInfo is null/undefined
@@ -353,6 +374,42 @@ exports.detail = async (req, res) => {
     return res.status(500).json({ status: "error", message: error.message });
   }
 };
+
+exports.Complete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const CompInfo = await SupplyInfo.findAll({
+      where: {
+        status: "Complete"
+      }
+    });
+    const TermInfo = await SupplyInfo.findAll({
+      where: {
+        status: "Terminate"
+      }
+    });
+
+    const EntrantInfo = await SupplyInfo.findAll({
+      where : {
+        SurveyID : id
+      }
+    })
+
+    const conversionRate = CompInfo.length / (CompInfo.length + TermInfo.length)
+    const DropOffRate  = (EntrantInfo.length - CompInfo.length ) / EntrantInfo.length
+    const incidenceRate = CompInfo.length / (CompInfo.length + TermInfo.length)
+
+    res.status(200).json({ Compcount: CompInfo.length, Termcount : TermInfo.length, conversionRate : conversionRate, EntrantInfo : EntrantInfo.length, DropOffRate : DropOffRate, incidenceRate : incidenceRate });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
 
 exports.CookiesDetail = async (req, res) => {
   try {
