@@ -13,9 +13,9 @@ function generateApiUrl(
   const baseUrl = "https://api.qmapi.com/api/v2/survey/redirect";
   const queryParams = `supplyID=${encodeURIComponent(
     supplyID
-  )}&PNID=${encodeURIComponent(PNID)}&SessionID=${encodeURIComponent(
+  )}&PNID=[${encodeURIComponent(PNID)}]&SessionID=[${encodeURIComponent(
     SessionID
-  )}&TID=${encodeURIComponent(TID)}`;
+  )}]&TID=[${encodeURIComponent(TID)}]`;
   return `${baseUrl}/${surveyID}?${queryParams}`;
 }
 
