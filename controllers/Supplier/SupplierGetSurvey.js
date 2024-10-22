@@ -16,7 +16,7 @@ function generateApiUrl(
   )}&PNID=${encodeURIComponent(PNID)}&SessionID=${encodeURIComponent(
     SessionID
   )}&TID=${encodeURIComponent(TID)}`;
-  return `${baseUrl}?surveyID=${surveyID}&${queryParams}`;
+  return `${baseUrl}/${surveyID}?${queryParams}`;
 }
 
 

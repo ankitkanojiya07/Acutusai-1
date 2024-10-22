@@ -44,7 +44,7 @@ router.get(
     surveyPriceController.priceChart
 );
 router.post("/cookies/:id", surveyDetailController.CookiesDetail)
-router.get("/redirect/:sid",  surveyDetailController.redirectUser);
+router.get("/redirect/sid",  surveyDetailController.redirectUser);
 router.get(
     "/link/:id",
     SupplyAuthChecker,
