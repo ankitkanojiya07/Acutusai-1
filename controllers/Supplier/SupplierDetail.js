@@ -414,19 +414,20 @@ var getIP = require('ipware')().get_ip;
 
 exports.CookiesDetail = async (req, res) => {
   try {
-    var ipInfo = getIP(req);
-    console.log(ipInfo);
+    // var ipInfo = getIP(req);
+    // console.log(ipInfo);
     const { id } = req.params; 
-    console.log("idea",req.connection.remoteAddress);
-    console.log(req.headers)
+    // console.log("idea",req.connection.remoteAddress);
+    // console.log(req.headers)
     const ip = requestIp.getClientIp(req)
-    const { panelistId, sessionID } = req.body;
+    const { panelistId, sessionID, ipAddress } = req.body;
+    console.log(ipAddress)
 
     // Create new cookie details in the database
     const newCookie = await Cookies.create({
       AID : panelistId,
       CookiesData : "data",
-      IpAddress : req.connection.remoteAddress,
+      IpAddress : ipAddress,
       sessionID,
     });
 
