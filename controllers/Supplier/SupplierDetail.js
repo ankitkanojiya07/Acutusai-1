@@ -416,9 +416,9 @@ exports.CookiesDetail = async (req, res) => {
   try {
     var ipInfo = getIP(req);
     console.log(ipInfo);
-    const { id } = req.params; // 'id' is retrieved but not used in the current implementation
-    console.log(req.socket.remoteAddress);
-    console.log(req.headers['x-forwarded-for'])
+    const { id } = req.params; 
+    console.log("idea",req.connection.remoteAddress);
+    console.log(req.headers)
     const ip = requestIp.getClientIp(req)
     const { panelistId, sessionID } = req.body;
 
@@ -426,7 +426,7 @@ exports.CookiesDetail = async (req, res) => {
     const newCookie = await Cookies.create({
       AID : panelistId,
       CookiesData : "data",
-      IpAddress : ipInfo,
+      IpAddress : req.connection.remoteAddress,
       sessionID,
     });
 
