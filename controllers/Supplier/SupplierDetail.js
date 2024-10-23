@@ -4,6 +4,7 @@ const {
   Quotas,
   Qualification,
 } = require("../../models/association");
+const requestIp = require('request-ip')
 const SupplyInfo = require("../../models/supModels");
 const axios = require("axios");
 const Supply = require("../../models/supplyModels");
@@ -408,23 +409,27 @@ exports.Complete = async (req, res) => {
 };
 
 
+var getIP = require('ipware')().get_ip;
 
 
 exports.CookiesDetail = async (req, res) => {
   try {
+    var ipInfo = getIP(req);
+    console.log(ipInfo);
     const { id } = req.params; // 'id' is retrieved but not used in the current implementation
-    console.log(req.connection.remoteAddress);
-    const { panelistId,  IpAddress, sessionID } = req.body;
+    console.log(req.socket.remoteAddress);
+    console.log(req.headers['x-forwarded-for'])
+    const ip = requestIp.getClientIp(req)
+    const { panelistId, sessionID } = req.body;
 
     // Create new cookie details in the database
     const newCookie = await Cookies.create({
       AID : panelistId,
       CookiesData : "data",
-      IpAddress : req.connection.remoteAddress,
+      IpAddress : ipInfo,
       sessionID,
     });
 
-    // Send success response
     return res.status(201).json({ status: "success", data: newCookie });
   } catch (err) {
     // Handle errors properly

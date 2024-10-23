@@ -5,7 +5,6 @@ const surveyGetController = require("../controllers/Supplier/SupplierGetSurvey")
 const surveyDetailController = require("../controllers/Supplier/SupplierDetail");
 const surveyPriceController = require("../controllers/Supplier/SupplierPriceCard");
 
- // Fixed the typo
 const Supply = require("../models/supplyModels"); 
 
 const SupplyAuthChecker = async (req, res, next) => {
@@ -24,6 +23,7 @@ const SupplyAuthChecker = async (req, res, next) => {
         res.status(500).json({ message: "Server error", err });
     }
 };
+
 router.get("/:id", surveyDetailController.fetchSurvey);
 router.get(
     "/detail/:id",
@@ -43,6 +43,7 @@ router.get(
     "/price",
     surveyPriceController.priceChart
 );
+
 router.post("/cookies/:id", surveyDetailController.CookiesDetail)
 router.get("/redirect/sid",  surveyDetailController.redirectUser);
 router.get(
