@@ -32,6 +32,8 @@ router.get(
 );
 router.get("/detaillive/:id", surveyDetailController.getDetail);
 
+
+
 // router.get("/live", SupplyAuthChecker, surveyGetController.);
 router.get("/", SupplyAuthChecker, surveyGetController.getLiveSurveys);
 router.get(

@@ -286,12 +286,15 @@ exports.getSurveyQuota = async (req, res) => {
 
 exports.buyerData = async (req, res) => {
   try {
-    const { AID, status, TokenID } = req.query;
+    const { PID, MID, TokenId } = req.query;
+    const { status } = req.params;
+    console.log(status);
     console.log("Request Query:", req.query);
 
     const Sup = await SupplyInfo.findOne({
-      where: { id: AID },
+      where: { id: PID },
     });
+    console.log("hjhbh",Sup.SupplyID);
 
     if (!Sup) {
       return res.status(404).json({
@@ -302,7 +305,7 @@ exports.buyerData = async (req, res) => {
 
     const SupplyO = await SupplyInfo.update(
       { status },
-      { where: { id: AID }, returning: true }
+      { where: { id: PID }, returning: true }
     );
     const Survey = await Supply.findOne({
       where: { SupplierID: Sup.SupplyID },
@@ -325,7 +328,7 @@ exports.buyerData = async (req, res) => {
     const Url = `${Survey.StatusLink}/comp?query=${status}`;
     console.log("Making request to:", Url);
 
-    await axios.get(Url);
+    await axios.post(Url);
 
     res.status(200).json({
       status: "success",
