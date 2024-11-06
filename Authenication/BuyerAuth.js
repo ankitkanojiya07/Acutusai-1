@@ -5,6 +5,7 @@ const surveyUpdateController = require('../controllers/Buyer/SurveyBuyerUpdateMo
 const Buyer = require('../models/BuyerModels');
 const Recon = require("../controllers/Buyer/reconciliations");
 const Feasibility = require("../controllers/Buyer/feasibility")
+const Hook = require("../controllers/Buyer/webHook")
 
 const BuyerAuthChecker = async (req, res, next) => {
     console.log(req.headers);
@@ -26,5 +27,6 @@ router.post('/create', BuyerAuthChecker, surveyCreateController.surveyCreate);
 router.put('/update/:id', BuyerAuthChecker, surveyUpdateController.updateSurvey);
 router.post('/reconcillation/:SurveyId', BuyerAuthChecker, Recon.reconciliation);
 router.get('/feasibility', Feasibility.getTierPrice);
+router.post('/callback', Hook.createSurvey)
 
 module.exports = router;
