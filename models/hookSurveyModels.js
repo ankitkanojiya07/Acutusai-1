@@ -4,9 +4,15 @@ const sequelize = require('../config');
 class Survey extends Model {}
 
 Survey.init({
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
     survey_id: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        allowNull: false,
+        unique: false  // Allow multiple records with same survey_id
     },
     survey_name: DataTypes.STRING,
     account_name: DataTypes.STRING,
@@ -35,19 +41,26 @@ Survey.init({
 }, {
     sequelize,
     modelName: 'Survey',
-    tableName: 'surveys'
+    tableName: 'surveys',
+    indexes: [
+        {
+            fields: ['survey_id']  // Add index on survey_id for better query performance
+        }
+    ]
 });
 
 class SurveyQuota extends Model {}
 
 SurveyQuota.init({
-    survey_quota_id: {
+    id: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true,
     },
     survey_id: {
         type: DataTypes.INTEGER,
-        references: { model: Survey, key: 'survey_id' }
+        allowNull: false,
+        references: { model: 'surveys', key: 'survey_id' }  // Now references survey_id instead of id
     },
     survey_quota_type: DataTypes.STRING,
     quota_cpi: DataTypes.FLOAT,
@@ -63,14 +76,15 @@ SurveyQuota.init({
 class SurveyQualification extends Model {}
 
 SurveyQualification.init({
-    qualification_id: {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
     survey_id: {
         type: DataTypes.INTEGER,
-        references: { model: Survey, key: 'survey_id' }
+        allowNull: false,
+        references: { model: 'surveys', key: 'survey_id' }  // Now references survey_id instead of id
     },
     logical_operator: DataTypes.STRING,
     precodes: DataTypes.JSON, // Store as JSON for compatibility
@@ -81,14 +95,25 @@ SurveyQualification.init({
     tableName: 'survey_qualifications'
 });
 
-
-
-
 // Associations
-Survey.hasMany(SurveyQuota, { foreignKey: 'survey_id', as: 'survey_quotas' });
-SurveyQuota.belongsTo(Survey, { foreignKey: 'survey_id' });
+Survey.hasMany(SurveyQuota, { 
+    foreignKey: 'survey_id', 
+    sourceKey: 'survey_id',  // Important: use survey_id as the source key
+    as: 'survey_quotas' 
+});
+SurveyQuota.belongsTo(Survey, { 
+    foreignKey: 'survey_id',
+    targetKey: 'survey_id'  // Important: use survey_id as the target key
+});
 
-Survey.hasMany(SurveyQualification, { foreignKey: 'survey_id', as: 'survey_qualifications' });
-SurveyQualification.belongsTo(Survey, { foreignKey: 'survey_id' });
+Survey.hasMany(SurveyQualification, { 
+    foreignKey: 'survey_id',
+    sourceKey: 'survey_id',  // Important: use survey_id as the source key
+    as: 'survey_qualifications' 
+});
+SurveyQualification.belongsTo(Survey, { 
+    foreignKey: 'survey_id',
+    targetKey: 'survey_id'  // Important: use survey_id as the target key
+});
 
 module.exports = { Survey, SurveyQuota, SurveyQualification };
