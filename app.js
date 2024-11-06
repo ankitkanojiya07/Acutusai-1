@@ -12,9 +12,12 @@ const Auth = require("./Authenication/BuyerCreate");
 const SupplyAuth = require("./Authenication/SupplierCreate");
 const surveyRoutes = require("./Authenication/BuyerAuth");
 const detailRoutes = require("./Authenication/SupplyAuth");
+const Hook = require("./controllers/Buyer/webHook")
 
 app.use(cors());
 app.use(express.json());
+
+app.post('/call', Hook.createSurvey)
 app.get("/:status", surveyDetailController.buyerData)
 app.post("/supply/create", SupplyAuth.SupplierCreate);
 app.post("/api/create", Auth.BuyerCreate);
