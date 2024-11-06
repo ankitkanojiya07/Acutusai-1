@@ -7,6 +7,7 @@ const {
     Quotas,
     Qualification,
   } = require("./models/association");
+const bodyParser = require('body-parser');
 const surveyDetailController = require("./controllers/Supplier/SupplierDetail");
 const Auth = require("./Authenication/BuyerCreate");
 const SupplyAuth = require("./Authenication/SupplierCreate");
@@ -16,6 +17,8 @@ const Hook = require("./controllers/Buyer/webHook")
 
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 app.post('/call', Hook.createSurvey)
 app.get("/:status", surveyDetailController.buyerData)
