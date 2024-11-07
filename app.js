@@ -17,8 +17,8 @@ const Hook = require("./controllers/Buyer/webHook")
 
 app.use(cors());
 app.use(express.json());
-app.use(bodyParser.json({ limit: '100mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
+app.use(bodyParser.json({ limit: '500mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '500mb' }));
 
 app.post('/call', Hook.createSurvey)
 app.get("/:status", surveyDetailController.buyerData)
