@@ -1,24 +1,18 @@
-const express = require("express");
-const cors = require("cors");
-const app = express();
-const {
-    Survey,
-    Condition,
-    Quotas,
-    Qualification,
-  } = require("./models/association");
-const bodyParser = require('body-parser');
-const surveyDetailController = require("./controllers/Supplier/SupplierDetail");
-const Auth = require("./Authenication/BuyerCreate");
+
 const SupplyAuth = require("./Authenication/SupplierCreate");
 const surveyRoutes = require("./Authenication/BuyerAuth");
 const detailRoutes = require("./Authenication/SupplyAuth");
 const Hook = require("./controllers/Buyer/webHook")
+console.log(process.memoryUsage());
 
 app.use(cors());
-app.use(express.json());
-app.use(bodyParser.json({ limit: '500mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '500mb' }));
+// app.use(express.json());
+app.use(bodyParser({limit: '50mb'}));
+//app.use(express.bodyParser({limit: '50mb'}));
+// app.use(express.urlencoded({ limit: '500mb', extended: true }));
+//app.use(bodyParser.json({ limit: 500*1024*1024, extended: true }));
+//app.use(bodyParser.urlencoded({ limit: 500*1024*1024, extended: true }));
+
 
 app.post('/call', Hook.createSurvey)
 app.get("/:status", surveyDetailController.buyerData)
@@ -28,3 +22,4 @@ app.use("/api/v1/survey", surveyRoutes);
 app.use("/api/v2/survey", detailRoutes);
 
 module.exports = app;
+                                     
