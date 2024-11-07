@@ -2,6 +2,7 @@ const { Survey, SurveyQuota, SurveyQualification } = require('../../models/hookS
 
 async function createSurvey(req, res) {
     try {
+        console.log('Request payload size (Content-Length):', req.headers['content-length']);
         const surveys = req.body;
         console.log(surveys[0])// Expecting an array of survey objects
 
