@@ -2,7 +2,8 @@ const { Survey, SurveyQuota, SurveyQualification } = require('../../models/hookS
 
 async function createSurvey(req, res) {
     try {
-        const surveys = req.body;  // Expecting an array of survey objects
+        const surveys = req.body;
+        console.log(surveys[0])// Expecting an array of survey objects
 
         const createdSurveys = await Promise.all(surveys.map(async (surveyData) => {
             const {
