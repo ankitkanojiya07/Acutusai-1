@@ -65,10 +65,21 @@ async function createSurvey(req, res) {
 
                 // Add associated SurveyQuotas if provided
                 if (survey_quotas) {
-                    await Promise.all(survey_quotas.map(async (quota) => {
-                        await ResearchSurveyQuota.create({ ...quota, survey_id: newSurvey.survey_id });
-                    }));
+                    const quotaPromises = survey_quotas.map((quota) => {
+                        // Ensure upsert is based on survey_quota_id and survey_id
+                        return ResearchSurveyQuota.upsert({
+                            ...quota,
+                            survey_id: newSurvey.survey_id // Explicitly add the survey_id to each quota
+                        }, {
+                            // Use both survey_quota_id and survey_id for the unique constraint
+                            conflictFields: ['survey_quota_id', 'survey_id']
+                        });
+                    });
+                
+                    await Promise.all(quotaPromises); // Ensures all promises are resolved
                 }
+                
+                
 
                 // Add associated SurveyQualifications if provided
                 if (survey_qualifications) {

@@ -62,6 +62,7 @@ SurveyQuota.init({
         allowNull: false,
         references: { model: 'surveys', key: 'survey_id' }  // Now references survey_id instead of id
     },
+    survey_quota_id : DataTypes.INTEGER,
     survey_quota_type: DataTypes.STRING,
     quota_cpi: DataTypes.FLOAT,
     conversion: DataTypes.FLOAT,

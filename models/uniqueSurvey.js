@@ -1,10 +1,12 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config'); 
+const sequelize = require('../config');
 
+// Survey model
 class ResearchSurvey extends Model {}
 
 ResearchSurvey.init({
     id: {
+        
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -12,7 +14,7 @@ ResearchSurvey.init({
     survey_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        unique: false 
+        unique: false
     },
     survey_name: DataTypes.STRING,
     account_name: DataTypes.STRING,
@@ -22,7 +24,7 @@ ResearchSurvey.init({
     bid_length_of_interview: DataTypes.INTEGER,
     bid_incidence: DataTypes.FLOAT,
     collects_pii: DataTypes.BOOLEAN,
-    survey_group_ids: DataTypes.JSON, // Store as JSON for MariaDB compatibility
+    survey_group_ids: DataTypes.JSON,
     is_live: DataTypes.BOOLEAN,
     survey_quota_calc_type: DataTypes.STRING,
     is_only_supplier_in_group: DataTypes.BOOLEAN,
@@ -36,7 +38,7 @@ ResearchSurvey.init({
     earnings_per_click: DataTypes.FLOAT,
     length_of_interview: DataTypes.INTEGER,
     termination_length_of_interview: DataTypes.INTEGER,
-    respondent_pids: DataTypes.JSON, // Store as JSON for MariaDB compatibility
+    respondent_pids: DataTypes.JSON,
     message_reason: DataTypes.STRING
 }, {
     sequelize,
@@ -49,6 +51,7 @@ ResearchSurvey.init({
     ]
 });
 
+// SurveyQuota model
 class ResearchSurveyQuota extends Model {}
 
 ResearchSurveyQuota.init({
@@ -60,19 +63,26 @@ ResearchSurveyQuota.init({
     survey_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: 'research_surveys', key: 'survey_id' }  // Now references survey_id instead of id
+        references: { model: ResearchSurvey, key: 'survey_id' } // Corrected model reference
+    },
+    survey_quota_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unique: true
     },
     survey_quota_type: DataTypes.STRING,
     quota_cpi: DataTypes.FLOAT,
     conversion: DataTypes.FLOAT,
     number_of_respondents: DataTypes.INTEGER,
-    questions: DataTypes.JSON // Store questions array as JSON
+    questions: DataTypes.JSON
 }, {
     sequelize,
     modelName: 'ResearchSurveyQuota',
-    tableName: 'research_survey_quotas'  // Changed table name
+    tableName: 'research_survey_quotas' ,
+    indexes: [{ fields: ['survey_id', 'survey_quota_id'] }]
 });
 
+// SurveyQualification model
 class ResearchSurveyQualification extends Model {}
 
 ResearchSurveyQualification.init({
@@ -84,36 +94,36 @@ ResearchSurveyQualification.init({
     survey_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: 'research_surveys', key: 'survey_id' }  // Now references survey_id instead of id
+        references: { model: ResearchSurvey, key: 'survey_id' } // Corrected model reference
     },
     logical_operator: DataTypes.STRING,
-    precodes: DataTypes.JSON, // Store as JSON for compatibility
+    precodes: DataTypes.JSON,
     question_id: DataTypes.INTEGER
 }, {
     sequelize,
     modelName: 'ResearchSurveyQualification',
-    tableName: 'research_survey_qualifications'  // Changed table name
+    tableName: 'research_survey_qualifications' 
 });
 
 // Associations
 ResearchSurvey.hasMany(ResearchSurveyQuota, { 
     foreignKey: 'survey_id', 
-    sourceKey: 'survey_id',  // Important: use survey_id as the source key
-    as: 'survey_quotas' 
+    sourceKey: 'survey_id', 
+    as: 'survey_quotas'
 });
 ResearchSurveyQuota.belongsTo(ResearchSurvey, { 
     foreignKey: 'survey_id',
-    targetKey: 'survey_id'  // Important: use survey_id as the target key
+    targetKey: 'survey_id'
 });
 
 ResearchSurvey.hasMany(ResearchSurveyQualification, { 
-    foreignKey: 'survey_id',
-    sourceKey: 'survey_id',  // Important: use survey_id as the source key
-    as: 'survey_qualifications' 
+    foreignKey: 'survey_id', 
+    sourceKey: 'survey_id', 
+    as: 'survey_qualifications'
 });
 ResearchSurveyQualification.belongsTo(ResearchSurvey, { 
-    foreignKey: 'survey_id',
-    targetKey: 'survey_id'  // Important: use survey_id as the target key
+    foreignKey: 'survey_id', 
+    targetKey: 'survey_id'
 });
 
 module.exports = { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification };
