@@ -1,4 +1,16 @@
-
+const express = require("express");
+const cors = require("cors");
+console.log("hsdnas");
+const app = express();
+const {
+    Survey,
+    Condition,
+    Quotas,
+    Qualification,
+  } = require("./models/association");
+const bodyParser = require('body-parser');
+const surveyDetailController = require("./controllers/Supplier/SupplierDetail");
+const Auth = require("./Authenication/BuyerCreate");
 const SupplyAuth = require("./Authenication/SupplierCreate");
 const surveyRoutes = require("./Authenication/BuyerAuth");
 const detailRoutes = require("./Authenication/SupplyAuth");
