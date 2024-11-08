@@ -78,6 +78,8 @@ async function createSurvey(req, res) {
                 }
 
                 return newSurvey;
+            }else {
+                console.log("message reason ", message_reason)
             }
 
             console.log("No action taken for survey_id:", survey_id);
