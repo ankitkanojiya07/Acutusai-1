@@ -204,19 +204,21 @@ exports.redirectUser = async (req, res) => {
       });
     }
     console.log("yes");
+    
     // If valid, save supply info
     const supplyInfo = await SupplyInfo.create({
       UserID: PNID,
-      TID,
+      TID : TID,
       SupplyID: SupplyID,
-      SessionID,
+      SessionID : SessionID,
+      IPAddress : req.ip
     });
 
     const id = supplyInfo.id;
     console.log(id);
 
     // console.log(redirectUrl);
-    res.redirect(`https://consent.qmapi.com/${id}`);
+    res.redirect(`http://localhost:5174/${id}`);
   } catch (err) {
     console.error("Error during redirection:", err);
     res.status(500).json({
