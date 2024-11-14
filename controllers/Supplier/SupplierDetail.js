@@ -23,7 +23,8 @@ function sendTokenAndUrl(TID, url, hashingKey) {
   const urlIndex = url.indexOf("TID=");
 
   // Only encrypt the URL part before the TokenID query
-  const urlToEncrypt = url.slice(0, urlIndex - 1); // Exclude "TID" and rest of URL
+  const urlToEncrypt = url.slice(0, urlIndex - 1);
+  console.log(urlToEncrypt); // Exclude "TID" and rest of URL
   const encryptedUrl = encryptUrl(urlToEncrypt, hashingKey); // Encrypt with hashingKey
 
   console.log("Encrypted URL: ", encryptedUrl);
