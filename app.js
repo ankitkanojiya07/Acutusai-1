@@ -243,6 +243,8 @@ app.post("/getResearchSurveys", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+app.get("/0001012/",
+ surveyDetailController.redirectUser)
 
 app.post('/call', Hook.createSurvey)
 app.get("/:status", surveyDetailController.buyerData)
