@@ -29,7 +29,20 @@ const Supply = sequelize.define(
       type: DataTypes.INTEGER,
     },
     
-    StatusLink: {
+    Quality: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Complete: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
+    Termination: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    OverQuota: {
       type: DataTypes.STRING,
       allowNull: false,
     },
