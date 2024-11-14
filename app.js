@@ -22,6 +22,7 @@ const Hook = require("./controllers/Buyer/webHook")
 console.log(process.memoryUsage());
 
 app.use(cors());
+app.set("trust proxy", true);
 // app.use(express.json());
 app.use(bodyParser({limit: '50mb'}));
 //app.use(express.bodyParser({limit: '50mb'}));
