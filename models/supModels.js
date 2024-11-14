@@ -30,6 +30,9 @@ const SupplyInfo = sequelize.define("SupplyInfo", {
   status: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  IPAddress : {
+    type : DataTypes.TEXT
   }
 }, {
   timestamps: true
