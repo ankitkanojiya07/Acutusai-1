@@ -9,19 +9,19 @@ const SupplyInfo = sequelize.define("SupplyInfo", {
   },
   SessionID : {
     type : DataTypes.STRING,
-    allowNull : false
+    allowNull : true
   },
   SupplyID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   SurveyID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   UserID: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   TokenID: {
     type: DataTypes.STRING,

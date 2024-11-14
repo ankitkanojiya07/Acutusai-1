@@ -23,7 +23,8 @@ function sendTokenAndUrl(TID, url, hashingKey) {
   const urlIndex = url.indexOf("TID=");
 
   // Only encrypt the URL part before the TokenID query
-  const urlToEncrypt = url.slice(0, urlIndex - 1); // Exclude "TID" and rest of URL
+  const urlToEncrypt = url.slice(0, urlIndex - 1);
+  console.log(urlToEncrypt); // Exclude "TID" and rest of URL
   const encryptedUrl = encryptUrl(urlToEncrypt, hashingKey); // Encrypt with hashingKey
 
   console.log("Encrypted URL: ", encryptedUrl);
@@ -169,41 +170,41 @@ const SupplyPrice = require("../../models/supplyModels");
 
 exports.redirectUser = async (req, res) => {
   try {
-    const { sid } = req.params;
-    const { TID, PNID, supplyID, SessionID } = req.query;
+    // const { sid } = req.params;
+    const { TID, PNID, SessionID,SupplyID} = req.query;
     console.log(TID);
     const TokenId = decodeURIComponent(TID);
-    const apikey = req.headers["authorization"];
+    // const apikey = req.headers["authorization"];
 
-    console.log(req.query);
-    console.log(sid, apikey);
+    // console.log(req.query);
+    // console.log(sid, apikey);
 
     // Find survey by SurveyID
-    const survey = await Survey.findByPk(sid);
-    console.log(survey);
-    if (!survey) {
-      return res.status(404).json({
-        status: "error",
-        message: "Survey not found",
-      });
-    }
+    // const survey = await Survey.findByPk(sid);
+    // console.log(survey);
+    // if (!survey) {
+    //   return res.status(404).json({
+    //     status: "error",
+    //     message: "Survey not found",
+    //   });
+    // }
 
-    const supply = await SupplyPrice.findOne({
-      where: { ApiKey: apikey },
-    });
+    // const supply = await SupplyPrice.findOne({
+    //   where: { ApiKey: apikey },
+    // });
 
-    if (!supply) {
-      return res.status(404).json({
-        status: "error",
-        message: "Supply not found",
-      });
-    }
+    // if (!supply) {
+    //   return res.status(404).json({
+    //     status: "error",
+    //     message: "Supply not found",
+    //   });
+    // }
 
-    const hashingKey = supply.HashingKey;
+    const hashingKey = "aditya";
     console.log(hashingKey);
 
     const fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
-
+console.log(fullUrl);
     const isValidToken = sendTokenAndUrl(TokenId, fullUrl, hashingKey);
 
     if (!isValidToken) {
@@ -215,19 +216,19 @@ exports.redirectUser = async (req, res) => {
 
     // If valid, save supply info
     const supplyInfo = await SupplyInfo.create({
-      SurveyID: sid, // Use `id` from the URL
       UserID: PNID,
       TID,
-      SupplyID: supplyID,
+      SupplyID: SupplyID,
       SessionID,
     });
 
-    const redirectUrl = survey.TestRedirectURL.replace("[%AID%]", supplyInfo.id);
+    // const redirectUrl = survey.TestRedirectURL.replace("[%AID%]", supplyInfo.id);
     
     const id = supplyInfo.id;
+    console.log(id)
 
-    console.log(redirectUrl);
-    res.redirect(`https://consent.acutusai.com?aid=${id}&sessionid=${SessionID}&sid=${sid}`);
+    // console.log(redirectUrl);
+    res.redirect(`http://localhost:5174/${id}`);
   } catch (err) {
     console.error("Error during redirection:", err);
     res.status(500).json({
@@ -419,11 +420,11 @@ exports.CookiesDetail = async (req, res) => {
   try {
     // var ipInfo = getIP(req);
     // console.log(ipInfo);
-    const { id } = req.params; 
+    const { aid } = req.params; 
     // console.log("idea",req.connection.remoteAddress);
     // console.log(req.headers)
-    const ip = requestIp.getClientIp(req)
-    const { panelistId, sessionID, ipAddress } = req.body;
+    // const ip = requestIp.getClientIp(req)
+    const { panelistId, ipAddress } = req.body;
     console.log(ipAddress)
 
     // Create new cookie details in the database
@@ -431,7 +432,7 @@ exports.CookiesDetail = async (req, res) => {
       AID : panelistId,
       CookiesData : "data",
       IpAddress : ipAddress,
-      sessionID,
+     
     });
 
     return res.status(201).json({ status: "success", data: newCookie });
