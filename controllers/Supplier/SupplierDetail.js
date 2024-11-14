@@ -171,40 +171,30 @@ const SupplyPrice = require("../../models/supplyModels");
 exports.redirectUser = async (req, res) => {
   try {
     // const { sid } = req.params;
-    const { TID, PNID, SessionID,SupplyID} = req.query;
+    const { TID, PNID, SessionID, SupplyID } = req.query;
     console.log(TID);
+
+    console.log("ipaddress", req.ip);
     const TokenId = decodeURIComponent(TID);
-    // const apikey = req.headers["authorization"];
+   
+    const supply = await SupplyPrice.findOne({
+      where: { SupplierID: SupplyID },
+    });
 
-    // console.log(req.query);
-    // console.log(sid, apikey);
+    console.log(supply);
 
-    // Find survey by SurveyID
-    // const survey = await Survey.findByPk(sid);
-    // console.log(survey);
-    // if (!survey) {
-    //   return res.status(404).json({
-    //     status: "error",
-    //     message: "Survey not found",
-    //   });
-    // }
+    if (!supply) {
+      return res.status(404).json({
+        status: "error",
+        message: "Supply not found",
+      });
+    }
 
-    // const supply = await SupplyPrice.findOne({
-    //   where: { ApiKey: apikey },
-    // });
-
-    // if (!supply) {
-    //   return res.status(404).json({
-    //     status: "error",
-    //     message: "Supply not found",
-    //   });
-    // }
-
-    const hashingKey = "aditya";
+    const hashingKey = supply.HashingKey;
     console.log(hashingKey);
 
     const fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
-console.log(fullUrl);
+    console.log(fullUrl);
     const isValidToken = sendTokenAndUrl(TokenId, fullUrl, hashingKey);
 
     if (!isValidToken) {
@@ -213,7 +203,7 @@ console.log(fullUrl);
         message: "Invalid Token ID",
       });
     }
-
+    console.log("yes");
     // If valid, save supply info
     const supplyInfo = await SupplyInfo.create({
       UserID: PNID,
@@ -222,13 +212,11 @@ console.log(fullUrl);
       SessionID,
     });
 
-    // const redirectUrl = survey.TestRedirectURL.replace("[%AID%]", supplyInfo.id);
-    
     const id = supplyInfo.id;
-    console.log(id)
+    console.log(id);
 
     // console.log(redirectUrl);
-    res.redirect(`https://consent.qmapi.com/${id}`);
+    res.redirect(`http://localhost:5174/${id}`);
   } catch (err) {
     console.error("Error during redirection:", err);
     res.status(500).json({
