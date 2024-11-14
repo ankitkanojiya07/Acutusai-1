@@ -218,7 +218,7 @@ exports.redirectUser = async (req, res) => {
     console.log(id);
 
     // console.log(redirectUrl);
-    res.redirect(`http://localhost:5174/${id}`);
+    res.redirect(`https://consent.qmapi.com/${id}`);
   } catch (err) {
     console.error("Error during redirection:", err);
     res.status(500).json({
