@@ -31,6 +31,36 @@ app.use(bodyParser({limit: '50mb'}));
 //app.use(bodyParser.urlencoded({ limit: 500*1024*1024, extended: true }));
 
 
+// const associate = async (value, score, survey_qualifications,survey_id,earnings_per_click) => {
+//   let marks = 0; 
+
+//   survey_qualifications.forEach((item) => {
+//     const question_id = item.question_id;
+//     const precodes = item.precodes;
+
+
+//     if (question_id in score ){
+//       if (precodes.includes(String(score[question_id]))){
+//         marks += 1
+
+//       }
+//     }
+//   });
+
+//   // If marks are found, assign to value
+//   if (marks > 0) {
+//     value["survey_id"] = survey_id;
+//     value["score"] = marks;
+//     value["earnings_per_click"] = earnings_per_click
+//   }
+
+//   return value;
+// };
+
+// const axios = require("axios");
+// const { literal } = require("sequelize");
+
+// Function to enhance survey data with Gemini AI
 const associate = async (value, score, survey_qualifications,survey_id,earnings_per_click) => {
   let marks = 0; 
 
@@ -76,7 +106,7 @@ const enhanceDataWithAI = async (originalData) => {
       { headers: { "Content-Type": "application/json" } }
     );
 
-    console.log(response.data?.candidates?.[0]?.content?.parts?.[0]?.text);
+    // console.log(response.data?.candidates?.[0]?.content?.parts?.[0]?.text);
 
     // Extract and parse the AI response
     const aiResponse = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -181,7 +211,7 @@ app.get("/val", async (req, res) => {
 
     // Enhance data with Gemini AI
     const enhancedData = await enhanceDataWithAI(arr);
-    console.log(enchancedData);
+    // console.log(enchancedData);
     res.status(200).json(enhancedData);
   } catch (error) {
     console.error("Error fetching questions:", error);
