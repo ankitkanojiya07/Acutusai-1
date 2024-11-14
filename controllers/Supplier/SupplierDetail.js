@@ -275,16 +275,13 @@ exports.getSurveyQuota = async (req, res) => {
 
 exports.buyerData = async (req, res) => {
   try {
-    const { PID, MID, TokenId } = req.query;
+    const { PNID, MID, TokenID } = req.query;
     const { status } = req.params;
-    console.log(status);
+    console.log("Received status:", status);
     console.log("Request Query:", req.query);
 
-    const Sup = await SupplyInfo.findOne({
-      where: { id: PID },
-    });
-    console.log("hjhbh",Sup.SupplyID);
-
+    // Fetch the supply information
+    const Sup = await SupplyInfo.findOne({ where: { id: PNID } });
     if (!Sup) {
       return res.status(404).json({
         status: "error",
@@ -292,45 +289,49 @@ exports.buyerData = async (req, res) => {
       });
     }
 
-    const SupplyO = await SupplyInfo.update(
-      { status },
-      { where: { id: PID }, returning: true }
-    );
-    const Survey = await Supply.findOne({
+    console.log("SupplyID is:", Sup.SupplyID);
+
+    // Update the status of the supply
+    const info = await SupplyInfo.update({ status }, { where: { id: PNID } });
+    console.log("Update Info:", info);
+
+    // Fetch the supplier information
+    const Supplier = await Supply.findOne({
       where: { SupplierID: Sup.SupplyID },
     });
-
-    if (!Survey) {
+    if (!Supplier) {
       return res.status(404).json({
         status: "error",
-        message: "Survey not found",
+        message: "Supplier not found",
       });
     }
 
-    if (!Survey.StatusLink) {
-      return res.status(400).json({
-        status: "error",
-        message: "StatusLink not found",
-      });
+    console.log("Supplier Termination URL:", Supplier.Termination);
+
+    // Redirect based on status
+    let redirectUrl;
+    if (status === "complete") {
+      redirectUrl = `${Supplier.Complete}?AID=${PNID}`;
+    } else if (status === "terminate") {
+      redirectUrl = `${Supplier.Termination}?AID=${PNID}`;
+    } else if (status === "overquota") {
+      redirectUrl = `${Supplier.OverQuota}?AID=${PNID}`;
+    } else {
+      redirectUrl = `${Supplier.Quality}?AID=${PNID}`;
     }
 
-    const Url = `${Survey.StatusLink}/comp?query=${status}`;
-    console.log("Making request to:", Url);
-
-    await axios.post(Url);
-
-    res.status(200).json({
-      status: "success",
-      data: Survey,
-    });
+    // Perform server-side redirect
+    console.log("Redirecting to:", redirectUrl);
+    return res.redirect(redirectUrl);
   } catch (err) {
-    console.error("Error fetching buyer data:", err);
+    console.error("Error occurred:", err);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
     });
   }
 };
+
 
 exports.detail = async (req, res) => {
   try {
