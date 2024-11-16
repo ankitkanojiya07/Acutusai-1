@@ -36,6 +36,8 @@ ResearchSurvey.init({
     overall_completes: DataTypes.INTEGER,
     mobile_conversion: DataTypes.FLOAT,
     earnings_per_click: DataTypes.FLOAT,
+    livelink : DataTypes.TEXT,
+    testlink : DataTypes.TEXT,
     length_of_interview: DataTypes.INTEGER,
     termination_length_of_interview: DataTypes.INTEGER,
     respondent_pids: DataTypes.JSON,

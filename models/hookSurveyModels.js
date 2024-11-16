@@ -35,6 +35,8 @@ Survey.init({
     mobile_conversion: DataTypes.FLOAT,
     earnings_per_click: DataTypes.FLOAT,
     length_of_interview: DataTypes.INTEGER,
+    livelink : DataTypes.TEXT,
+    testlink : DataTypes.TEXT,
     termination_length_of_interview: DataTypes.INTEGER,
     respondent_pids: DataTypes.JSON, // Store as JSON for MariaDB compatibility
     message_reason: DataTypes.STRING
@@ -42,6 +44,7 @@ Survey.init({
     sequelize,
     modelName: 'Survey',
     tableName: 'surveys',
+    
     indexes: [
         {
             fields: ['survey_id']  // Add index on survey_id for better query performance
