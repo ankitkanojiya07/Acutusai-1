@@ -61,7 +61,7 @@ app.use(bodyParser({limit: '50mb'}));
 // const { literal } = require("sequelize");
 
 // Function to enhance survey data with Gemini AI
-const associate = async (value, score, survey_qualifications,survey_id,earnings_per_click) => {
+const associate = async (value, score, survey_qualifications,survey_id,earnings_per_click,livelink) => {
   let marks = 0; 
 
   survey_qualifications.forEach((item) => {
@@ -82,6 +82,7 @@ const associate = async (value, score, survey_qualifications,survey_id,earnings_
     value["survey_id"] = survey_id;
     value["score"] = marks;
     value["earnings_per_click"] = earnings_per_click
+    value["livelink"] = livelink
   }
 
   return value;
@@ -230,7 +231,7 @@ app.post("/getResearchSurveys", async (req, res) => {
     // Expecting the request body to be parsed correctly
 
     const surveys = await ResearchSurvey.findAll({
-      attributes: ["earnings_per_click", "conversion", "survey_id"],
+      attributes: ["earnings_per_click", "conversion", "survey_id","livelink", "testlink"],
       include: [
         {
           model: ResearchSurveyQualification,
@@ -248,8 +249,7 @@ app.post("/getResearchSurveys", async (req, res) => {
         SELECT COUNT(DISTINCT question_id) 
         FROM research_survey_qualifications AS sq
         WHERE sq.survey_id = ResearchSurvey.survey_id 
-        AND sq.question_id IN (42, 43, 96)
-      ) = 3`),
+        `),
       limit: 10000,
       order: [
         ["earnings_per_click", "DESC"],
@@ -262,7 +262,7 @@ app.post("/getResearchSurveys", async (req, res) => {
       // console.log(item.survey_id);
     //   let val = { survey_id: item.survey_id };
       let value = {};
-      await associate(value, score, item.survey_qualifications,item.survey_id,item.earnings_per_click);
+      await associate(value, score, item.survey_qualifications,item.survey_id,item.earnings_per_click, item.livelink);
       if (Object.keys(value).length) result.push(value);
     }
 
