@@ -1,34 +1,39 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config"); 
 
-const Question = sequelize.define("USQualification", {
-    Question_ID: {
+const UQualification = sequelize.define("Qualification", {
+    country_language: {
       type: DataTypes.INTEGER,
     },
-    Label: {
+    country_language_code: {
       type: DataTypes.STRING,
-      allowNull: true,
+      
     },
-    Type: {
-      type: DataTypes.STRING,
-      allowNull: true,
+    question_id: {
+      type: DataTypes.INTEGER,
+      
     },
-    Question: {
+    name: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      
     },
-    Answer: {
+    type: {
       type: DataTypes.TEXT,
-      allowNull: true,
     },
-    Precodes: {
+    question: {
+      type: DataTypes.TEXT,
+    },
+    answer: {
+      type: DataTypes.TEXT,
+    },
+    precode: {
       type: DataTypes.TEXT,
     },
     
 
   }, {
-    tableName: "USQualification",
-    timestamps: true,
+    tableName: "Qualification",
+    timestamps : false
   });
 
-module.exports = Question;
+module.exports = UQualification;

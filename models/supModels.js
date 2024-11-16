@@ -19,6 +19,8 @@ const SupplyInfo = sequelize.define("SupplyInfo", {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  mid : DataTypes.TEXT,
+  hash : DataTypes.TEXT,
   UserID: {
     type: DataTypes.STRING,
     allowNull: true,

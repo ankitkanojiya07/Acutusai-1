@@ -19,6 +19,8 @@ const SupplyAuth = require("./Authenication/SupplierCreate");
 const surveyRoutes = require("./Authenication/BuyerAuth");
 const detailRoutes = require("./Authenication/SupplyAuth");
 const Hook = require("./controllers/Buyer/webHook")
+const SupplyInfo = require("./models/supModels")
+const UQualification = require("./models/USQualification")
 console.log(process.memoryUsage());
 
 app.use(cors());
@@ -30,6 +32,19 @@ app.use(bodyParser({limit: '50mb'}));
 //app.use(bodyParser.json({ limit: 500*1024*1024, extended: true }));
 //app.use(bodyParser.urlencoded({ limit: 500*1024*1024, extended: true }));
 
+app.get("/ad", async (req, res) => {
+  try {
+    const rest = await UQualification.findAll({
+      attributes: { exclude: ["id"] },
+      where: {
+        country_language_code: "ENG-US",
+      },
+    });
+    res.status(200).json(rest);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // const associate = async (value, score, survey_qualifications,survey_id,earnings_per_click) => {
 //   let marks = 0; 
@@ -63,7 +78,8 @@ app.use(bodyParser({limit: '50mb'}));
 // Function to enhance survey data with Gemini AI
 const associate = async (value, score, survey_qualifications,survey_id,earnings_per_click,livelink) => {
   let marks = 0; 
-
+  // console.log(value, score, survey_qualifications,survey_id,earnings_per_click,livelink)
+// 
   survey_qualifications.forEach((item) => {
     const question_id = item.question_id;
     const precodes = item.precodes;
@@ -72,7 +88,7 @@ const associate = async (value, score, survey_qualifications,survey_id,earnings_
     if (question_id in score ){
       if (precodes.includes(String(score[question_id]))){
         marks += 1
-
+        console.log(marks)
       }
     }
   });
@@ -84,6 +100,8 @@ const associate = async (value, score, survey_qualifications,survey_id,earnings_
     value["earnings_per_click"] = earnings_per_click
     value["livelink"] = livelink
   }
+
+  // console.log("value  is ", value)
 
   return value;
 };
@@ -139,23 +157,7 @@ const generateAIPrompt = (originalData) => {
     7. Keep a question professional looking and make it in atleast 49 words
     8. Hispanic answer wer incomplete 
     No , not of Hispanic, Latino, or Spanish origin	1
-      Yes, Mexican, Mexican American, Chicano	2
-      Yes, Cuban	3
-      Yes, another Hispanic, Latino, or Spanish origin *** Argentina 	4
-      Yes, another Hispanic, Latino, or Spanish origin *** Colombia 	5
-      Yes, another Hispanic, Latino, or Spanish origin *** Ecuador 	6
-      Yes, another Hispanic, Latino, or Spanish origin *** El Salvadore 	7
-      Yes, another Hispanic, Latino, or Spanish origin *** Guatemala 	8
-      Yes, another Hispanic, Latino, or Spanish origin *** Nicaragua 	9
-      Yes, another Hispanic, Latino, or Spanish origin *** Panama 	10
-      Yes, another Hispanic, Latino, or Spanish origin *** Peru 	11
-      Yes, another Hispanic, Latino, or Spanish origin *** Spain 	12
-      Yes, another Hispanic, Latino, or Spanish origin *** Venezuela 	13
-      Yes, another Hispanic, Latino, or Spanish origin *** Other Country	14
-      Prefer not to answer	15
-      Yes, Puerto Rican	16
 
-      can you format them properly in  hispanic
 
     Original survey data:
     ${JSON.stringify(originalData, null, 2)}
@@ -167,6 +169,7 @@ const generateAIPrompt = (originalData) => {
 // `/val` endpoint to fetch and enhance survey questions
 app.get("/val", async (req, res) => {
   try {
+    // Fetch question usage data
     const questionUsage = await ResearchSurveyQualification.findAll({
       attributes: [
         "question_id",
@@ -184,36 +187,59 @@ app.get("/val", async (req, res) => {
 
     const arr = [];
 
+    // Process each question usage data
     for (const item of questionUsage) {
-      const questionData = await Question.findAll({
-        attributes: ["Question", "Answer", "Precodes", "Question_ID", "Type"],
-        where: { Question_ID: item.question_id || 42 },
+      const questionData = await UQualification.findAll({
+        attributes: { exclude: ["id"] },
+        where: { question_id: item.question_id , country_language : 9},
       });
+      console.log(questionData)
 
-      const processedQuestions = questionData.map((question) => {
-        const answers = question.Answer ? question.Answer.split("_") : [];
-        const precodes = question.Precodes ? question.Precodes.split("_") : [];
+      // Function to process the fetched survey data
+      const processedSurvey = (surveyData) => {
+        const questionMap = {};
 
-        const answerOptions = answers.map((ans, index) => ({
-          answer: ans.trim(),
-          precode: precodes[index]?.trim() || "",
-        }));
+        // Group answers by question_id
+        surveyData.forEach((entry) => {
+          const {
+            question_id,
+            question,
+            type,
+            answer,
+            precode,
+            country_language,
+            country_language_code,
+          } = entry;
 
-        return {
-          Question: question.Question,
-          Question_ID: question.Question_ID,
-          Options: answerOptions,
-          question_type: question.Type,
-        };
-      });
+          if (!questionMap[question_id]) {
+            questionMap[question_id] = {
+              Question: question,
+              Question_ID: question_id,
+              Type: type,
+              country_language,
+              country_language_code,
+              Options: [],
+            };
+          }
 
-      arr.push(...processedQuestions);
+          // Add the answer to the options list
+          questionMap[question_id].Options.push({
+            answer: answer.trim(),
+            precode: precode.toString(),
+          });
+        });
+
+        return Object.values(questionMap);
+      };
+
+      // Push processed data into the array
+      arr.push(...processedSurvey(questionData));
+      console.log(arr)
     }
 
-    // Enhance data with Gemini AI
-    const enhancedData = await enhanceDataWithAI(arr);
-    // console.log(enchancedData);
-    res.status(200).json(enhancedData);
+    console.log(arr);
+    // const enhancedData = enhanceDataWithAI(arr)
+    res.status(200).json(arr);
   } catch (error) {
     console.error("Error fetching questions:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -226,12 +252,28 @@ app.post("/getResearchSurveys", async (req, res) => {
     const { score } = req.body;
     let arr = [];
     for (const key in score) {
-      arr.push(Number(key));
+      arr.push(Number(key)); // Convert keys to numbers and store them in arr
     }
-    // Expecting the request body to be parsed correctly
+    const scoreList = arr.join(',');
+    console.log(scoreList) // Create a comma-separated string of scores
 
     const surveys = await ResearchSurvey.findAll({
-      attributes: ["earnings_per_click", "conversion", "survey_id","livelink", "testlink"],
+      attributes: [
+        "survey_id",
+        "earnings_per_click",
+        "conversion",
+        "livelink",
+        "testlink",
+        // [
+        //   literal(`(
+        //     SELECT COUNT(DISTINCT sq.question_id)
+        //     FROM research_survey_qualifications AS sq
+        //     WHERE sq.survey_id = "ResearchSurvey"."survey_id"
+        //     AND sq.question_id IN (${scoreList})
+        //   )`),
+        //   'matching_questions_count'
+        // ]
+      ],
       include: [
         {
           model: ResearchSurveyQualification,
@@ -239,34 +281,28 @@ app.post("/getResearchSurveys", async (req, res) => {
           attributes: ["question_id", "precodes"],
           where: {
             question_id: {
-              [Op.in]: arr,
+              [Op.in]: arr, // Use the array here
             },
           },
-          required: true,
+          required: false,
         },
       ],
-      where: literal(`(
-        SELECT COUNT(DISTINCT question_id) 
-        FROM research_survey_qualifications AS sq
-        WHERE sq.survey_id = ResearchSurvey.survey_id 
-        `),
+      // having: literal(`matching_questions_count = ${arr.length}`),
+      // group: ['ResearchSurvey.survey_id', 'survey_qualifications.survey_id', 'survey_qualifications.question_id'],
       limit: 10000,
       order: [
         ["earnings_per_click", "DESC"],
         ["conversion", "DESC"],
       ],
     });
+    console.log(surveys)
 
     let result = [];
     for (const item of surveys) {
-      // console.log(item.survey_id);
-    //   let val = { survey_id: item.survey_id };
       let value = {};
-      await associate(value, score, item.survey_qualifications,item.survey_id,item.earnings_per_click, item.livelink);
+      await associate(value, score, item.survey_qualifications, item.survey_id, item.earnings_per_click, item.livelink);
       if (Object.keys(value).length) result.push(value);
     }
-
-    console.log(result)
 
     res.status(200).json(result);
   } catch (error) {
@@ -274,6 +310,13 @@ app.post("/getResearchSurveys", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// app.post("/v", async(req,res) => {
+//   const data = req.body ;
+//   console.log(req.body)
+//   const info = await SupplyInfo.findOne({id : data.id})
+//   const a = info.update(data)
+//   res.status(200).json(a)
+// })
 app.get("/0001012/",
  surveyDetailController.redirectUser)
 
