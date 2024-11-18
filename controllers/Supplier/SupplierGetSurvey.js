@@ -1,5 +1,9 @@
 const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
+const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
+
 const sequelize = require("../../config");
+const { Op } = require("sequelize");
+
 const crypto = require("crypto");
 const Supply = require('../../models/supplyModels');
 
@@ -129,37 +133,42 @@ exports.getLiveSurveys = async (req, res) => {
   }
 
   try {
-    const surveys = await Survey.findAll({
-      where: { status: "live" },
-      attributes: { exclude: ["ClientSurveyLiveURL", "TestRedirectURL", "FID", "SurveyStatusCode", "CountryLanguageID", "ClientCPI"] },
+    const surveys = await ResearchSurvey.findAll({
+      where: {
+        is_live: 1,
+        message_reason: { [Op.ne]: "deactivated" }
+      },
       include: [
         {
-          model: Quotas,
-          as: "Quotas",
-          include: [
-            {
-              model: Condition,
-              as: "Conditions"
-            }
-          ]
+          model: ResearchSurveyQuota,
+          as: "survey_quotas",
         },
         {
-          model: Qualification,
-          as: "Qualifications"
+          model: ResearchSurveyQualification,
+          as: "survey_qualifications"
         }
       ]
     });
-
-    console.log("Fetched surveys:", surveys.length);
+    
+    // Perform the CPI calculation for each survey
+    const processedSurveys = surveys.map(survey => {
+      const surveyData = survey.toJSON(); // Convert to plain object
+      surveyData.cpi = surveyData.cpi * 0.8; // Calculate 20% of CPI
+      return surveyData;
+    });
+    
+    
+    console.log(processedSurveys);
+    
 
     // Use Promise.all to handle asynchronous processing for all surveys and pass API key
-    const responseData = await Promise.all(surveys.map(survey => processSurvey(survey, apiKey)));
+    // const responseData = await Promise.all(surveys.map(survey => processSurvey(survey, apiKey)));
 
-    console.log("Processed surveys:", responseData.length);
+    // console.log("Processed surveys:", responseData.length);
 
     res.status(200).json({
       status: "success",
-      data: responseData,
+      data: processedSurveys,
     });
   } catch (err) {
     console.error("Error in getLiveSurveys:", err);

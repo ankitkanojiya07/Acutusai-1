@@ -5,6 +5,8 @@ const {
   Qualification,
 } = require("../../models/association");
 const requestIp = require('request-ip')
+const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
+
 const SupplyInfo = require("../../models/supModels");
 const axios = require("axios");
 const Supply = require("../../models/supplyModels");
@@ -135,13 +137,19 @@ exports.getSurveyQualification = async (req, res) => {
     const { id } = req.params;
 
     // Fetch survey with associated qualifications
-    const survey = await Survey.findByPk(id, {
+    const survey = await ResearchSurvey.findAll( {
+      where :{
+        survey_id : id
+
+      },
+      attributes: ['survey_id', 'survey_name'],
       include: [
         {
-          model: Qualification,
-          as: "Qualifications", // Make sure this alias matches the association
+          model: ResearchSurveyQualification,
+          as: "survey_qualifications", // Make sure this alias matches the association
         },
       ],
+      
     });
 
     // Check if the survey exists
@@ -155,7 +163,7 @@ exports.getSurveyQualification = async (req, res) => {
     // Return the qualifications data
     res.status(200).json({
       status: "success",
-      data: survey.Qualifications, // Return associated qualifications
+      data: survey, // Return associated qualifications
     });
   } catch (err) {
     console.error("Error fetching survey qualification:", err);
@@ -249,8 +257,12 @@ exports.getDetail = async(req,res) => {
 exports.getSurveyQuota = async (req, res) => {
   try {
     const { id } = req.params;
-    const survey = await Survey.findByPk(id, {
-      include: [{ model: Quotas, as: "Quotas" }], // Capitalized 'Quotas'
+    const survey = await ResearchSurvey.findOne({
+      where : {
+        survey_id : id
+      },
+      attributes: ['survey_id', 'survey_name'],
+      include: [{ model: ResearchSurveyQuota, as: "survey_quotas" }], // Capitalized 'Quotas'
     });
 
     if (!survey) {
@@ -262,9 +274,7 @@ exports.getSurveyQuota = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      data: {
-        Quota: survey.Quotas,
-      },
+      data : survey
     });
   } catch (err) {
     console.error("Error fetching survey quota:", err);

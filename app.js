@@ -255,9 +255,13 @@ app.post("/getResearchSurveys", async (req, res) => {
       arr.push(Number(key)); // Convert keys to numbers and store them in arr
     }
     const scoreList = arr.join(',');
-    console.log(scoreList) // Create a comma-separated string of scores
+    // console.log(scoreList) // Create a comma-separated string of scores
 
     const surveys = await ResearchSurvey.findAll({
+      where: {
+        is_live: 1,
+        message_reason: { [Op.ne]: "deactivated" }
+      },
       attributes: [
         "survey_id",
         "earnings_per_click",
