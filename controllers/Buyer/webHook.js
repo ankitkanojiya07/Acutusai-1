@@ -15,7 +15,10 @@ async function fetchLinksFromLucid(survey_id) {
     const response = await axios.get(url, { headers });
     
     if (response.status === 200 && response.data && response.data.SupplierLink) {
-      const { LiveLink, TestLink } = response.data.SupplierLink;
+      const { LiveLink, TestLink, DefaultLink } = response.data.SupplierLink;
+      if (DefaultLink === null ){
+        return {livelink : "Not", testlink : "Not"}
+      }
       console.log(response.data.SupplierLink)
       return {
         livelink: LiveLink || null,
@@ -89,9 +92,15 @@ async function createSurvey(req, res) {
 
     // Fetch links before creating the survey
     const links = await fetchLinksFromLucid(survey_id);
-    console.log(links)
-    const livelink = links ? links.livelink : "null";
-    const testlink = links ? links.testlink : "null";
+    console.log(links);
+    const livelink = links ? links.livelink : null;
+    const testlink = links ? links.testlink : null;
+
+    // Skip the survey if live link or test link is "Not"
+    if (livelink === "Not" || testlink === "Not") {
+        console.log(`Skipping survey_id ${survey_id} due to missing links.`);
+        return null; // Skip this survey
+    }
 
     const newSurvey = await ResearchSurvey.create({
         survey_id, survey_name, account_name, country_language, industry, study_type,
@@ -103,7 +112,6 @@ async function createSurvey(req, res) {
     });
 
     if (survey_quotas) {
-        
         await Promise.all(survey_quotas.map(async (quota) => {
             await ResearchSurveyQuota.create({ ...quota, survey_id: newSurvey.survey_id });
         }));
@@ -116,6 +124,8 @@ async function createSurvey(req, res) {
     }
 
     return newSurvey;
+
+
 }
 else {
                 console.log("No action taken for survey_id:", survey_id);
