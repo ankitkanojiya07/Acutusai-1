@@ -175,6 +175,82 @@ exports.getSurveyQualification = async (req, res) => {
 };
 
 const SupplyPrice = require("../../models/supplyModels");
+const { console } = require("inspector");
+
+exports.redirectToSurvey = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const isTest = req.path.includes("/test");
+
+    // Extract query parameters
+    const { supplyID: SupplyID, PNID, SessionID, TID } = req.query;
+
+    if (!SupplyID || !PNID || !SessionID || !TID ) {
+      return res.status(400).json({ message: "Missing required query parameters" });
+    }
+    console.log(req.query)
+
+
+    // Find the survey information
+    const response = await ResearchSurvey.findOne({
+      attributes: isTest ? ["testlink", "survey_id"] : ["survey_id"],
+      where: { survey_id: sid },
+    });
+    console.log(response)
+
+    if (!response) {
+      return res.status(404).json({ message: "Survey not found" });
+    }
+
+    // Find supply information
+    const supply = await Supply.findOne({
+      where: { SupplierID: SupplyID },
+    });
+
+    console.log(supply)
+    if (!supply) {
+      return res.status(404).json({
+        status: "error",
+        message: "Supply not found",
+      });
+    }
+
+    const hashingKey = supply.HashingKey;
+
+    // Construct the full URL for validation
+    const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+
+    // Validate token using the hashing key
+    const isValidToken = sendTokenAndUrl(TokenID, fullUrl, hashingKey);
+
+    if (!isValidToken) {
+      return res.status(403).json({
+        status: "error",
+        message: "Invalid Token ID",
+      });
+    }
+
+    // Save supply information
+    const supplyInfo = await SupplyInfo.create({
+      UserID: PNID,
+      TID,
+      SupplyID,
+      SessionID,
+      IPAddress: req.ip,
+    });
+
+    // Generate query parameters for redirect
+    const queryParams = `?prescreen=false${isTest ? "&test=true" : ""}`;
+    res.redirect(`https://consent.qmapi.com/${response.survey_id}${queryParams}`);
+  } catch (err) {
+    console.error("Error redirecting to survey:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+// Routes
+
 
 exports.redirectUser = async (req, res) => {
   try {

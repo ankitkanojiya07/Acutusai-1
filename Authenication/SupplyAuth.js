@@ -24,6 +24,9 @@ const SupplyAuthChecker = async (req, res, next) => {
     }
 };
 
+router.get("/redirect/:sid", surveyDetailController.redirectToSurvey);
+router.get("/redirect/:sid/test",  surveyDetailController.redirectToSurvey);
+
 router.get("/:id", surveyDetailController.fetchSurvey);
 router.get(
     "/detail/:id",
@@ -47,7 +50,7 @@ router.get(
 );
 
 router.post("/cookies/:id", surveyDetailController.CookiesDetail)
-router.get("/redirect/sid",  surveyDetailController.redirectUser);
+
 router.get(
     "/link/:id",
     SupplyAuthChecker,

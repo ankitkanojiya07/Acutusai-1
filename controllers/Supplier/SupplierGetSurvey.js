@@ -8,21 +8,35 @@ const crypto = require("crypto");
 const Supply = require('../../models/supplyModels');
 
 function generateApiUrl(
-  surveyID,
-  supplyID = "SupplyID",
-  PNID = "PNID",
-  SessionID = "sessionID",
+  survey_id,
+  supply_id = "SupplyID",
+  AID = "AID",
+  Session_id = "sessionID",
   TID = "TokenID"
 ) {
-  const baseUrl = "https://api.qmapi.com/api/v2/survey/redirect";
-  const queryParams = `supplyID=[%${encodeURIComponent(
-    supplyID
-  )}%]&PNID=[%${encodeURIComponent(PNID)}%]&SessionID=[%${encodeURIComponent(
-    SessionID
+  const baseUrl = "https://super-duper-broccoli-q7p7qq74v455f44pq-3000.app.github.dev/api/v2/survey/redirect";
+  const queryParams = `SupplyID=[%${encodeURIComponent(
+    supply_id
+  )}%]&PNID=[%${encodeURIComponent(AID)}%]&SessionID=[%${encodeURIComponent(
+    Session_id 
   )}%]&TID=[%${encodeURIComponent(TID)}%]`;
-  return `${baseUrl}/${surveyID}?${queryParams}`;
+  return `${baseUrl}/${survey_id}?${queryParams}`;
 }
-
+function generateTestUrl(
+  survey_id,
+  supply_id = "SupplyID",
+  AID = "AID",
+  Session_id = "sessionID",
+  TID = "TokenID"
+) {
+  const baseUrl = "https://super-duper-broccoli-q7p7qq74v455f44pq-3001.app.github.dev/api/v2/survey/redirect";
+  const queryParams = `supplyID=[%${encodeURIComponent(
+    supply_id
+  )}%]&PNID=[%${encodeURIComponent(AID)}%]&SessionID=[%${encodeURIComponent(
+    Session_id 
+  )}%]&TID=[%${encodeURIComponent(TID)}%]`;
+  return `${baseUrl}/${survey_id}/test?${queryParams}`;
+}
 
 
 exports.getAllSurveys = async (req, res) => {
@@ -153,7 +167,10 @@ exports.getLiveSurveys = async (req, res) => {
     // Perform the CPI calculation for each survey
     const processedSurveys = surveys.map(survey => {
       const surveyData = survey.toJSON(); // Convert to plain object
-      surveyData.cpi = surveyData.cpi * 0.8; // Calculate 20% of CPI
+      surveyData.cpi = surveyData.cpi * 0.8;
+      surveyData.livelink = generateApiUrl(surveyData.survey_id);
+      surveyData.testlink = generateTestUrl(surveyData.survey_id)
+
       return surveyData;
     });
     
