@@ -260,7 +260,8 @@ app.post("/getResearchSurveys", async (req, res) => {
     const surveys = await ResearchSurvey.findAll({
       where: {
         is_live: 1,
-        message_reason: { [Op.ne]: "deactivated" }
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink : { [Op.ne] : null }
       },
       attributes: [
         "survey_id",
