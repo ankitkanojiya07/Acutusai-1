@@ -16,6 +16,7 @@ async function fetchLinksFromLucid(survey_id) {
     
     if (response.status === 200 && response.data && response.data.SupplierLink) {
       const { LiveLink, TestLink } = response.data.SupplierLink;
+      console.log(response.data.SupplierLink)
       return {
         livelink: LiveLink || null,
         testlink: TestLink || null
