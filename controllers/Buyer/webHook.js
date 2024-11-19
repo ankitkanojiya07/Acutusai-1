@@ -4,32 +4,31 @@ const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = req
 
 // Function to fetch livelink and testlink from Lucid API
 async function fetchLinksFromLucid(survey_id) {
-    const url = `https://api.samplicio.us/Supply/v1/SupplierLinks/Create/${survey_id}/6588`;
-    const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };
-    const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'A8B96D8F-AB75-4C8C-B692-BE7AC2665BA7',
-        'Accept': 'text/plain'
-    };
+  const url = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'A8B96D8F-AB75-4C8C-B692-BE7AC2665BA7',
+    'Accept': 'text/plain'
+  };
 
-    try {
-        const response = await axios.post(url, params, { headers });
-        if (response.status === 200 && response.data) {
-            const { LiveLink, TestLink } = response.data.SupplierLink;
-            const livelink = LiveLink;
-            const testlink = TestLink
-            console.log(response.data,livelink)
-            return { livelink, testlink };
-        }
-        
-        console.error('Failed to fetch links:', response.data);
-        return null;
-    } catch (error) {
-        console.error('Error fetching links from Lucid:', error.message);
-        return null;
+  try {
+    const response = await axios.get(url, { headers });
+    
+    if (response.status === 200 && response.data && response.data.SupplierLink) {
+      const { LiveLink, TestLink } = response.data.SupplierLink;
+      return {
+        livelink: LiveLink || null,
+        testlink: TestLink || null
+      };
     }
+    
+    console.error('Failed to fetch links:', response.data);
+    return { livelink: null, testlink: null };
+  } catch (error) {
+    console.error('Error fetching links from Lucid:', error.message);
+    return { livelink: null, testlink: null };
+  }
 }
-
 async function createSurvey(req, res) {
     try {
         console.log('Request payload size (Content-Length):', req.headers['content-length']);
