@@ -93,8 +93,8 @@ async function createSurvey(req, res) {
     // Fetch links before creating the survey
     const links = await fetchLinksFromLucid(survey_id);
     console.log(links);
-    const livelink = links.livelink ;
-    const testlink = links.testlink ;
+    const livelink = links ? links.livelink : null;
+    const testlink = links ? links.testlink : null;
 
     // Skip the survey if live link or test link is "Not"
     if (livelink === "Not" || testlink === "Not") {
@@ -124,9 +124,8 @@ async function createSurvey(req, res) {
     }
 
     return newSurvey;
-
-
 }
+
 else {
                 console.log("No action taken for survey_id:", survey_id);
                 return null;
