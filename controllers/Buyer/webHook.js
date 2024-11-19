@@ -4,7 +4,9 @@ const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = req
 
 // Function to fetch livelink and testlink from Lucid API
 async function fetchLinksFromLucid(survey_id) {
-  const url = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
+  const postUrl = `https://api.samplicio.us/Supply/v1/SupplierLinks/Create/${survey_id}/6588`;
+  const getUrl = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
+  const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': 'A8B96D8F-AB75-4C8C-B692-BE7AC2665BA7',
@@ -12,27 +14,35 @@ async function fetchLinksFromLucid(survey_id) {
   };
 
   try {
-    const response = await axios.get(url, { headers });
-    
-    if (response.status === 200 && response.data && response.data.SupplierLink) {
-      const { LiveLink, TestLink, DefaultLink } = response.data.SupplierLink;
-      if (DefaultLink === null ){
-        return {livelink : "Not", testlink : "Not"}
+    // Attempt to first fetch data via GET request
+    const response = await axios.get(getUrl, { params, headers });
+
+    // If GET fails, try POST request
+    if (response.status !== 200 || !response.data.SupplierLink) {
+      console.log('GET request failed, trying POST request...');
+      const postResponse = await axios.post(postUrl, { survey_id }, { headers });
+      if (postResponse.status === 200 && postResponse.data.SupplierLink) {
+        const { LiveLink, TestLink, DefaultLink } = postResponse.data.SupplierLink;
+        return {
+          livelink: DefaultLink === null ? "Not" : LiveLink || null,
+          testlink: TestLink || null
+        };
       }
-      console.log(response.data.SupplierLink)
-      return {
-        livelink: LiveLink || null,
-        testlink: TestLink || null
-      };
     }
-    
-    console.error('Failed to fetch links:', response.data);
-    return { livelink: null, testlink: null };
+
+    // If GET is successful or POST returns valid data
+    const { LiveLink, TestLink, DefaultLink } = response.data.SupplierLink;
+    return {
+      livelink: DefaultLink === null ? "Not" : LiveLink || null,
+      testlink: TestLink || null
+    };
+
   } catch (error) {
     console.error('Error fetching links from Lucid:', error.message);
     return { livelink: null, testlink: null };
   }
 }
+
 async function createSurvey(req, res) {
     try {
         console.log('Request payload size (Content-Length):', req.headers['content-length']);
