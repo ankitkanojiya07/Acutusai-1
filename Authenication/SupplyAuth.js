@@ -23,6 +23,10 @@ const SupplyAuthChecker = async (req, res, next) => {
         res.status(500).json({ message: "Server error", err });
     }
 };
+router.get(
+    "/price",
+    surveyPriceController.createRateCard
+);
 
 router.get("/:id", surveyDetailController.fetchSurvey);
 router.get(
@@ -41,13 +45,11 @@ router.get(
     SupplyAuthChecker,
     surveyGetController.getFinishedSurveys
 );
-router.get(
-    "/price",
-    surveyPriceController.priceChart
-);
+
 
 router.post("/cookies/:id", surveyDetailController.CookiesDetail)
-router.get("/redirect/sid",  surveyDetailController.redirectUser);
+router.get("/redirect/:sid",  surveyDetailController.redirectToSurvey);
+router.get("/redirect/:sid/test",  surveyDetailController.redirectToSurvey);
 router.get(
     "/link/:id",
     SupplyAuthChecker,
