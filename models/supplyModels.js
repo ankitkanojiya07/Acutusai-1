@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config");
+const { RateCard } = require("./SupplierRateCard");
 
 const Supply = sequelize.define(
   "Supply",
@@ -28,7 +29,7 @@ const Supply = sequelize.define(
     SupplierID: {
       type: DataTypes.INTEGER,
     },
-    
+    RateCard : DataTypes.INTEGER,
     Quality: {
       type: DataTypes.STRING,
       allowNull: false,
