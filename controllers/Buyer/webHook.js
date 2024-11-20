@@ -5,7 +5,7 @@ const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = req
 // Function to fetch livelink and testlink from Lucid API
 async function fetchLinksFromLucid(survey_id) {
   const postUrl = `https://api.samplicio.us/Supply/v1/SupplierLinks/Create/${survey_id}/6588`;
-  const getUrl = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
+  // const getUrl = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
   const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };
   const headers = {
     'Content-Type': 'application/json',
@@ -15,27 +15,27 @@ async function fetchLinksFromLucid(survey_id) {
 
   try {
     // Attempt to first fetch data via GET request
-    const response = await axios.get(getUrl, { params, headers });
+    // const response = await axios.get(getUrl, { params, headers });
 
     // If GET fails, try POST request
-    if (response.status !== 200 || !response.data.SupplierLink) {
+    // if (response.status !== 200 || !response.data.SupplierLink) {
       console.log('GET request failed, trying POST request...');
       const postResponse = await axios.post(postUrl, { survey_id }, { headers });
-      if (postResponse.status === 200 && postResponse.data.SupplierLink) {
+      // if (postResponse.status === 200 && postResponse.data.SupplierLink) {
         const { LiveLink, TestLink, DefaultLink } = postResponse.data.SupplierLink;
         return {
           livelink: DefaultLink === null ? "Not" : LiveLink || null,
           testlink: TestLink || null
         };
-      }
+      // }
     }
 
     // If GET is successful or POST returns valid data
-    const { LiveLink, TestLink, DefaultLink } = response.data.SupplierLink;
-    return {
-      livelink: DefaultLink === null ? "Not" : LiveLink || null,
-      testlink: TestLink || null
-    };
+    // const { LiveLink, TestLink, DefaultLink } = response.data.SupplierLink;
+    // return {
+    //   livelink: DefaultLink === null ? "Not" : LiveLink || null,
+    //   testlink: TestLink || null
+    // };
 
   } catch (error) {
     console.error('Error fetching links from Lucid:', error.message);
