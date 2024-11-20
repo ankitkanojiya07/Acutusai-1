@@ -29,6 +29,7 @@ const SupplyInfo = sequelize.define("SupplyInfo", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  task :DataTypes.STRING,
   status: {
     type: DataTypes.STRING,
     allowNull: true,
