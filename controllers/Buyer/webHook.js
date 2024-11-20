@@ -50,6 +50,31 @@ async function createSurvey(req, res) {
             } = surveyData;
 
             let existingSurvey = await ResearchSurvey.findOne({ where: { survey_id } });
+          if (existingSurvey && message_reason === "reactivated") {
+    console.log("Reactivating survey...");
+    
+    // Fetch links before reactivating
+   
+    await existingSurvey.update({
+        
+        message_reason
+    });
+    
+    console.log(`Survey ${survey_id} reactivated successfully.`);
+    return existingSurvey;
+}
+
+if (existingSurvey && message_reason === "deactivated") {
+    console.log("Deactivating survey...");
+    
+    await existingSurvey.update({
+        message_reason
+    });
+    
+    console.log(`Survey ${survey_id} deactivated successfully.`);
+    return existingSurvey;
+}
+
 
             if (existingSurvey && message_reason === "updated") {
                 console.log("Updating existing survey...");
