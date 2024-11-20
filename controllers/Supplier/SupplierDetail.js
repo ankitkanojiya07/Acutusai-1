@@ -263,7 +263,7 @@ exports.redirectToSurvey = async (req, res) => {
 
     // Redirect to the encrypted link
     const queryParams = `?prescreen=false${isTest ? "&test=true" : ""}`;
-    res.redirect(`http://localhost:5173/${info.id}${queryParams}&${sensitiveData}`);
+    res.redirect(`https://consent.qmapi.com/${info.id}${queryParams}&${sensitiveData}`);
   } catch (err) {
     // Uncomment for debugging: console.error("Error redirecting to survey:", err);
     res.status(500).json({ message: "Internal server error" });
