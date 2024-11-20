@@ -400,7 +400,7 @@ exports.buyerData = async (req, res) => {
     console.log("SupplyID is:", Sup.SupplyID);
 
     // Update the status of the supply
-    const info = await SupplyInfo.update({ status, staus : task }, { where: { id: PNID } });
+    const info = await SupplyInfo.update({ status, task }, { where: { id: PNID } });
     console.log("Update Info:", info);
 
     // Fetch the supplier information
