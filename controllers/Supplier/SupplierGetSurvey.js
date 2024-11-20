@@ -1,26 +1,40 @@
 const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
-
+const { RateEntry }= require("../../models/SupplierRateCard");
 const sequelize = require("../../config");
 const { Op } = require("sequelize");
-
 const crypto = require("crypto");
 const Supply = require('../../models/supplyModels');
 
 function generateApiUrl(
-  surveyID,
-  supplyID = "SupplyID",
-  PNID = "PNID",
-  SessionID = "sessionID",
+  survey_id,
+  supply_id = "SupplyID",
+  AID = "AID",
+  Session_id = "sessionID",
+  TID = "TokenID"
+) {
+  const baseUrl = "https://api.qmapi.com/api/v2/survey/redirect";
+  const queryParams = `SupplyID=[%${encodeURIComponent(
+    supply_id
+  )}%]&PNID=[%${encodeURIComponent(AID)}%]&SessionID=[%${encodeURIComponent(
+    Session_id 
+  )}%]&TID=[%${encodeURIComponent(TID)}%]`;
+  return `${baseUrl}/${survey_id}?${queryParams}`;
+}
+function generateTestUrl(
+  survey_id,
+  supply_id = "SupplyID",
+  AID = "AID",
+  Session_id = "sessionID",
   TID = "TokenID"
 ) {
   const baseUrl = "https://api.qmapi.com/api/v2/survey/redirect";
   const queryParams = `supplyID=[%${encodeURIComponent(
-    supplyID
-  )}%]&PNID=[%${encodeURIComponent(PNID)}%]&SessionID=[%${encodeURIComponent(
-    SessionID
+    supply_id
+  )}%]&PNID=[%${encodeURIComponent(AID)}%]&SessionID=[%${encodeURIComponent(
+    Session_id 
   )}%]&TID=[%${encodeURIComponent(TID)}%]`;
-  return `${baseUrl}/${surveyID}?${queryParams}`;
+  return `${baseUrl}/${survey_id}/test?${queryParams}`;
 }
 
 
@@ -124,47 +138,77 @@ const processSurvey = async (survey, apiKey) => {
     SurveyCPI,  // Append SurveyCPI to the result
   };
 };
+async function getRate(rateCard, LOI, IR) {
+  try {
+    console.log("Transfer", rateCard, LOI, IR);
+
+    const rateEntries = await RateEntry.findOne({
+      where: {
+        rateCardId: rateCard,
+        irMin: { [Op.lte]: IR },
+        irMax: { [Op.gte]: IR },
+        loiMin: { [Op.lte]: LOI },
+        loiMax: { [Op.gte]: LOI },
+      },
+    });
+
+    if (!rateEntries) {
+      throw new Error(`Rate not found for IR ${IR} and LOI ${LOI} in rate card ${rateCard}`);
+    }
+
+    console.log(rateEntries.rate);
+    return rateEntries.rate;
+  } catch (error) {
+    console.error("Error in getRate:", error.message);
+    throw error;
+  }
+}
 
 exports.getLiveSurveys = async (req, res) => {
-  const apiKey = req.headers.authorization;  // Get API key from request headers
+  const apiKey = req.headers.authorization;
 
   if (!apiKey) {
     return res.status(403).json({ message: "No API key provided" });
   }
 
   try {
+    const Rate = await Supply.findOne({
+      attributes: ["apikey", "RateCard"],
+      where: { ApiKey: apiKey },
+    });
+
+    if (!Rate) {
+      return res.status(403).json({ message: "Invalid API key" });
+    }
+
     const surveys = await ResearchSurvey.findAll({
       where: {
         is_live: 1,
-        message_reason: { [Op.ne]: "deactivated" }
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink: { [Op.ne]: "" },
       },
       include: [
-        {
-          model: ResearchSurveyQuota,
-          as: "survey_quotas",
-        },
-        {
-          model: ResearchSurveyQualification,
-          as: "survey_qualifications"
-        }
-      ]
+        { model: ResearchSurveyQuota, as: "survey_quotas" },
+        { model: ResearchSurveyQualification, as: "survey_qualifications" },
+      ],
+      limit: 50,
     });
-    
-    // Perform the CPI calculation for each survey
-    const processedSurveys = surveys.map(survey => {
-      const surveyData = survey.toJSON(); // Convert to plain object
-      surveyData.cpi = surveyData.cpi * 0.8; // Calculate 20% of CPI
-      return surveyData;
-    });
-    
-    
-    console.log(processedSurveys);
-    
 
-    // Use Promise.all to handle asynchronous processing for all surveys and pass API key
-    // const responseData = await Promise.all(surveys.map(survey => processSurvey(survey, apiKey)));
+    const processedSurveys = await Promise.all(
+      surveys.map(async (survey) => {
+        const surveyData = survey.toJSON();
+        const LOI = surveyData.bid_length_of_interview;
+        const IR = surveyData.bid_incidence;
 
-    // console.log("Processed surveys:", responseData.length);
+        const value = await getRate(Rate.RateCard, LOI, IR);
+
+        surveyData.cpi = value;
+        surveyData.livelink = generateApiUrl(surveyData.survey_id);
+        surveyData.testlink = generateTestUrl(surveyData.survey_id);
+
+        return surveyData;
+      })
+    );
 
     res.status(200).json({
       status: "success",
