@@ -20,7 +20,7 @@ async function fetchLinksFromLucid(survey_id) {
     // If GET fails, try POST request
     // if (response.status !== 200 || !response.data.SupplierLink) {
       console.log('GET request failed, trying POST request...');
-      const postResponse = await axios.post(postUrl, { survey_id }, { headers });
+      const postResponse = await axios.post(postUrl, params, { headers });
       // if (postResponse.status === 200 && postResponse.data.SupplierLink) {
         const { LiveLink, TestLink, DefaultLink } = postResponse.data.SupplierLink;
         return {
