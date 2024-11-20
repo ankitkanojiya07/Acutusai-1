@@ -54,13 +54,22 @@ async function createSurvey(req, res) {
             if (existingSurvey && message_reason === "updated") {
                 console.log("Updating existing survey...");
 
+                // Fetch links before updating
+                const links = await fetchLinksFromLucid(survey_id);
+                if (!links || links.livelink === null) {
+                    console.log(`Skipping update for survey_id ${survey_id} due to null livelink`);
+                    return null;
+                }
+
                 await existingSurvey.update({
                     survey_name, account_name, country_language, industry, study_type,
                     bid_length_of_interview, bid_incidence, collects_pii, survey_group_ids, is_live,
                     survey_quota_calc_type, is_only_supplier_in_group, cpi, total_client_entrants,
                     total_remaining, completion_percentage, conversion, overall_completes, mobile_conversion,
                     earnings_per_click, length_of_interview, termination_length_of_interview, respondent_pids,
-                    message_reason
+                    message_reason,
+                    livelink: links.livelink,
+                    testlink: links.testlink
                 });
 
                 if (survey_quotas) {
@@ -77,59 +86,49 @@ async function createSurvey(req, res) {
                     }));
                 }
 
-
-                // Fetch and update links from Lucid
-                // const links = await fetchLinksFromLucid(survey_id);
-                // if (links) {
-                //     await existingSurvey.update(links);
-                // }
-
                 return existingSurvey;
             }
 
             if (!existingSurvey && message_reason === "new") {
-    console.log("Creating new survey...");
+                console.log("Creating new survey...");
 
-    // Fetch links before creating the survey
-    const links = await fetchLinksFromLucid(survey_id);
-    console.log(links);
-    const livelink = links ? links.livelink : null;
-    const testlink = links ? links.testlink : null;
+                // Fetch links before creating the survey
+                const links = await fetchLinksFromLucid(survey_id);
+                
+                // Skip if links are null or livelink is null/"Not"
+                if (!links || links.livelink === null || links.livelink === "Not") {
+                    console.log(`Skipping survey_id ${survey_id} due to null or invalid livelink`);
+                    return null;
+                }
 
-    // Skip the survey if live link or test link is "Not"
-    if (livelink === "Not" || testlink === "Not") {
-        console.log(`Skipping survey_id ${survey_id} due to missing links.`);
-        return null; // Skip this survey
-    }
+                const newSurvey = await ResearchSurvey.create({
+                    survey_id, survey_name, account_name, country_language, industry, study_type,
+                    bid_length_of_interview, bid_incidence, collects_pii, survey_group_ids, is_live,
+                    survey_quota_calc_type, is_only_supplier_in_group, cpi, total_client_entrants,
+                    total_remaining, completion_percentage, conversion, overall_completes, mobile_conversion,
+                    earnings_per_click, length_of_interview, termination_length_of_interview, respondent_pids,
+                    message_reason, 
+                    livelink: links.livelink,
+                    testlink: links.testlink
+                });
 
-    const newSurvey = await ResearchSurvey.create({
-        survey_id, survey_name, account_name, country_language, industry, study_type,
-        bid_length_of_interview, bid_incidence, collects_pii, survey_group_ids, is_live,
-        survey_quota_calc_type, is_only_supplier_in_group, cpi, total_client_entrants,
-        total_remaining, completion_percentage, conversion, overall_completes, mobile_conversion,
-        earnings_per_click, length_of_interview, termination_length_of_interview, respondent_pids,
-        message_reason, livelink, testlink
-    });
+                if (survey_quotas) {
+                    await Promise.all(survey_quotas.map(async (quota) => {
+                        await ResearchSurveyQuota.create({ ...quota, survey_id: newSurvey.survey_id });
+                    }));
+                }
 
-    if (survey_quotas) {
-        await Promise.all(survey_quotas.map(async (quota) => {
-            await ResearchSurveyQuota.create({ ...quota, survey_id: newSurvey.survey_id });
-        }));
-    }
+                if (survey_qualifications) {
+                    await Promise.all(survey_qualifications.map(async (qualification) => {
+                        await ResearchSurveyQualification.create({ ...qualification, survey_id: newSurvey.survey_id });
+                    }));
+                }
 
-    if (survey_qualifications) {
-        await Promise.all(survey_qualifications.map(async (qualification) => {
-            await ResearchSurveyQualification.create({ ...qualification, survey_id: newSurvey.survey_id });
-        }));
-    }
-
-    return newSurvey;
-}
-
-else {
-                console.log("No action taken for survey_id:", survey_id);
-                return null;
+                return newSurvey;
             }
+
+            console.log("No action taken for survey_id:", survey_id);
+            return null;
         }));
 
         res.status(201).json({
