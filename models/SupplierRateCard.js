@@ -1,93 +1,63 @@
-
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config");
 
-const SupplierRateCard = sequelize.define(
-  "SupplierRateCard",
-  {
-    IR: {
-      type: DataTypes.INTEGER,
-      AllowNull: false,
-      primaryKey: true,
-    },
-    AccountID : {
-        type : DataTypes.STRING
-    },
-    AccountName : {
-        type : DataTypes.STRING
-    },
-    SupplyID : {
-        type : DataTypes.STRING
-    },
+const RateCard = sequelize.define('RateCard', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  rateCardName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+});
 
-    1: {
-      type: DataTypes.STRING,
-    },
-    2: {
-      type: DataTypes.STRING,
-    },
-    3: {
-      type: DataTypes.STRING,
-    },
-    4: {
-      type: DataTypes.STRING,
-    },
-    5: {
-      type: DataTypes.STRING,
-    },
-    6: {
-      type: DataTypes.STRING,
-    },
-    7: {
-      type: DataTypes.STRING,
-    },
-    8: {
-      type: DataTypes.STRING,
-    },
-    9: {
-      type: DataTypes.STRING,
-    },
-    10: {
-      type: DataTypes.STRING,
-    },
-    15: {
-      type: DataTypes.STRING,
-    },
-    20: {
-      type: DataTypes.STRING,
-    },
-    25: {
-      type: DataTypes.STRING,
-    },
-    30: {
-      type: DataTypes.STRING,
-    },
-    40: {
-      type: DataTypes.STRING,
-    },
-    50: {
-      type: DataTypes.STRING,
-    },
-    60: {
-      type: DataTypes.STRING,
-    },
-    70: {
-      type: DataTypes.STRING,
-    },
-    80: {
-      type: DataTypes.STRING,
-    },
-    90: {
-      type: DataTypes.STRING,
-    },
-    100: {
-      type: DataTypes.STRING,
+const RateEntry = sequelize.define('RateEntry', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  rateCardId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'RateCards',
+      key: 'id',
     },
   },
-  {
-    tableName: "SupplyRateCard",
-    timestamps: false,
-  }
-);
+  irMin: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  irMax: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  loiMin: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  loiMax: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  rate: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
+});
 
-module.exports = SupplierRateCard;
+// Associations
+RateCard.hasMany(RateEntry, {
+  foreignKey: 'rateCardId',
+  as: 'entries',
+});
+
+RateEntry.belongsTo(RateCard, {
+  foreignKey: 'rateCardId',
+  as: 'rateCard',
+});
+
+module.exports = { RateCard, RateEntry };
