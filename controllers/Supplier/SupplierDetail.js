@@ -380,16 +380,27 @@ exports.getSurveyQuota = async (req, res) => {
   }
 };
 
+const { Op } = require("sequelize");
 exports.buyerData = async (req, res) => {
   try {
-    const { PNID, MID, TokenID } = req.query;
+    const { PID, MID, TokenID } = req.query;
     const { status } = req.params;
-    console.log("Received status:", status);
-    console.log("Request Query:", req.query);
-    let task = req.body + req.params ;
 
-    // Fetch the supply information
-    const Sup = await SupplyInfo.findOne({ where: { id: PNID } });
+    // Validate input parameters
+    if (!PID || !status) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required parameters",
+      });
+    }
+
+    // First, fetch supply information
+    const Sup = await SupplyInfo.findOne({ 
+      where: { id: PID },
+      attributes: ['SupplyID'] 
+    });
+
+    // Check if supply exists
     if (!Sup) {
       return res.status(404).json({
         status: "error",
@@ -397,16 +408,13 @@ exports.buyerData = async (req, res) => {
       });
     }
 
-    console.log("SupplyID is:", Sup.SupplyID);
-
-    // Update the status of the supply
-    const info = await SupplyInfo.update({ status, task }, { where: { id: PNID } });
-    console.log("Update Info:", info);
-
-    // Fetch the supplier information
+    // Then, fetch supplier information
     const Supplier = await Supply.findOne({
       where: { SupplierID: Sup.SupplyID },
+      attributes: ['Complete', 'Termination', 'OverQuota', 'Quality']
     });
+
+    // Check if supplier exists
     if (!Supplier) {
       return res.status(404).json({
         status: "error",
@@ -414,32 +422,36 @@ exports.buyerData = async (req, res) => {
       });
     }
 
-    console.log("Supplier Termination URL:", Supplier.Termination);
+    // Prepare update data
+    const updateData = { 
+      status, 
+      task: JSON.stringify(req.body) 
+    };
 
-    // Redirect based on status
-    let redirectUrl;
-    if (status === "complete") {
-      redirectUrl = `${Supplier.Complete}?AID=${PNID}`;
-    } else if (status === "terminate") {
-      redirectUrl = `${Supplier.Termination}?AID=${PNID}`;
-    } else if (status === "overquota") {
-      redirectUrl = `${Supplier.OverQuota}?AID=${PNID}`;
-    } else {
-      redirectUrl = `${Supplier.Quality}?AID=${PNID}`;
-    }
+    // Update supply info
+    await SupplyInfo.update(updateData, { where: { id: PID } });
+
+    // Determine redirect URL based on status
+    const statusRedirectMap = {
+      'complete': Supplier.Complete,
+      'terminate': Supplier.Termination,
+      'overquota': Supplier.OverQuota,
+      'default': Supplier.Quality
+    };
+
+    const redirectUrl = `${statusRedirectMap[status] || statusRedirectMap['default']}?AID=${PID}`;
 
     // Perform server-side redirect
-    console.log("Redirecting to:", redirectUrl);
     return res.redirect(redirectUrl);
+
   } catch (err) {
-    console.error("Error occurred:", err);
+    console.error("Buyer Data Error:", err);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
     });
   }
 };
-
 
 exports.detail = async (req, res) => {
   try {
