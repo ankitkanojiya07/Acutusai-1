@@ -80,11 +80,7 @@ if (existingSurvey && message_reason === "deactivated") {
                 console.log("Updating existing survey...");
 
                 // Fetch links before updating
-                const links = await fetchLinksFromLucid(survey_id);
-                if (!links || links.livelink === null) {
-                    console.log(`Skipping update for survey_id ${survey_id} due to null livelink`);
-                    return null;
-                }
+                
 
                 await existingSurvey.update({
                     survey_name, account_name, country_language, industry, study_type,
@@ -93,8 +89,7 @@ if (existingSurvey && message_reason === "deactivated") {
                     total_remaining, completion_percentage, conversion, overall_completes, mobile_conversion,
                     earnings_per_click, length_of_interview, termination_length_of_interview, respondent_pids,
                     message_reason,
-                    livelink: links.livelink,
-                    testlink: links.testlink
+                    
                 });
 
                 if (survey_quotas) {
