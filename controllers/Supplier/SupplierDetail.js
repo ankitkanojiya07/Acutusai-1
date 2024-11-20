@@ -386,6 +386,7 @@ exports.buyerData = async (req, res) => {
     const { status } = req.params;
     console.log("Received status:", status);
     console.log("Request Query:", req.query);
+    let task = req.body + req.params ;
 
     // Fetch the supply information
     const Sup = await SupplyInfo.findOne({ where: { id: PNID } });
@@ -399,7 +400,7 @@ exports.buyerData = async (req, res) => {
     console.log("SupplyID is:", Sup.SupplyID);
 
     // Update the status of the supply
-    const info = await SupplyInfo.update({ status }, { where: { id: PNID } });
+    const info = await SupplyInfo.update({ status, staus : task }, { where: { id: PNID } });
     console.log("Update Info:", info);
 
     // Fetch the supplier information
