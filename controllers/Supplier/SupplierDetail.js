@@ -176,6 +176,101 @@ exports.getSurveyQualification = async (req, res) => {
 
 const SupplyPrice = require("../../models/supplyModels");
 
+
+
+// Utility function for encryption
+function encryptData(data, secretKey) {
+  const algorithm = "aes-256-cbc";
+  const iv = crypto.randomBytes(16); // Initialization vector
+  const cipher = crypto.createCipheriv(algorithm, crypto.scryptSync(secretKey, "salt", 32), iv);
+
+  let encrypted = cipher.update(data, "utf8", "base64");
+  encrypted += cipher.final("base64");
+
+  return `${iv.toString("base64")}:${encrypted}`;
+}
+
+// Main function
+exports.redirectToSurvey = async (req, res) => {
+  try {
+    console.log("generateApiUrl called with:", req.query);
+
+    const { sid } = req.params;
+    const isTest = req.path.includes("/test");
+    const { SupplyID, PNID, SessionID, TID } = req.query;
+
+    if (!SupplyID || !PNID || !SessionID || !TID) {
+      return res.status(400).json({ message: "Missing required query parameters" });
+    }
+
+    const TokenID = decodeURIComponent(TID);
+
+    // Fetch survey details
+    const response = await ResearchSurvey.findOne({
+      attributes: isTest ? ["testlink", "survey_id"] : ["survey_id", "livelink"],
+      where: { survey_id: sid },
+    });
+
+    if (!response) {
+      return res.status(404).json({ message: "Survey not found" });
+    }
+
+    let livelink = isTest ? response.testlink : response.livelink;
+
+    // Generate livelink via external API if missing
+   
+
+    // Validate livelink format
+    const indexOfSid = livelink.indexOf("SID");
+    if (indexOfSid === -1) {
+      return res.status(400).json({ message: "Invalid livelink format" });
+    }
+
+    const sensitiveData = livelink.slice(indexOfSid);
+    console.log("sensitivedata",sensitiveData)
+
+    // Encrypt sensitive part
+    // const secretKey = "acutusai";
+    // const encryptedData = encryptData(sensitiveData, secretKey);
+
+    // Reconstruct the encrypted link
+    // const encryptedLink = `${livelink.slice(0, indexOfSid)}${encryptedData}`;
+
+    // Validate token using hashing key
+    const supply = await Supply.findOne({ where: { SupplierID: SupplyID } });
+
+    if (!supply) {
+      return res.status(404).json({ status: "error", message: "Supply not found" });
+    }
+
+    const hashingKey = supply.HashingKey;
+    const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+    const isValidToken = sendTokenAndUrl(TokenID, fullUrl, hashingKey);
+
+    if (!isValidToken) {
+      return res.status(403).json({ status: "error", message: "Invalid Token ID" });
+    }
+
+    // Save supply information
+    const info  = await SupplyInfo.create({
+      UserID: PNID,
+      TID,
+      SupplyID,
+      SurveyID: response.survey_id,
+      SessionID,
+      IPAddress: req.ip,
+    });
+
+    // Redirect to the encrypted link
+    const queryParams = `?prescreen=false${isTest ? "&test=true" : ""}`;
+    res.redirect(`http://localhost:5173/${info.id}${queryParams}&${sensitiveData}`);
+  } catch (err) {
+    // Uncomment for debugging: console.error("Error redirecting to survey:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 exports.redirectUser = async (req, res) => {
   try {
     // const { sid } = req.params;

@@ -6,12 +6,14 @@ const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const Question = require("./models/USQualification");
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('./models/uniqueSurvey');
-const {
-    Survey,
-    Condition,
-    Quotas,
-    Qualification,
-  } = require("./models/association");
+// const {
+//     Survey,
+//     Condition,
+//     Quotas,
+//     Qualification,
+//   } = require("./models/association");
+
+
 const bodyParser = require('body-parser');
 const surveyDetailController = require("./controllers/Supplier/SupplierDetail");
 const Auth = require("./Authenication/BuyerCreate");
@@ -31,7 +33,96 @@ app.use(bodyParser({limit: '50mb'}));
 // app.use(express.urlencoded({ limit: '500mb', extended: true }));
 //app.use(bodyParser.json({ limit: 500*1024*1024, extended: true }));
 //app.use(bodyParser.urlencoded({ limit: 500*1024*1024, extended: true }));
+// const axios = require('axios');
 
+async function fetchLinksFromLucid(survey_id) {
+  const url = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
+    const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'A8B96D8F-AB75-4C8C-B692-BE7AC2665BA7',
+    'Accept': 'text/plain'
+  };
+
+  try {
+    const response = await axios.get(url, params=params, { headers });
+    
+    if (response.status === 200 && response.data && response.data.SupplierLink) {
+      const { LiveLink, TestLink } = response.data.SupplierLink;
+      return {
+        livelink: LiveLink || null,
+        testlink: TestLink || null
+      };
+    }
+    
+    console.error('Failed to fetch links:', response.data);
+    return { livelink: null, testlink: null };
+  } catch (error) {
+    console.error('Error fetching links from Lucid:', error.message);
+    return { livelink: null, testlink: null };
+  }
+}
+
+app.get("/gh", async (req, res) => {
+  try {
+    // Fetch all surveys with a null livelink
+    const surveys = await ResearchSurvey.findAll({
+      attributes: ["livelink", "testlink", "survey_id"],
+      where: {
+        livelink: null
+      },
+      limit: 400
+    });
+
+
+    if (!surveys || surveys.length === 0) {
+      return res.json({ status: "success", message: "No surveys to update" });
+    }
+
+    // Process each survey to fetch links and update the database
+    const updatedSurveys = await Promise.all(
+      surveys.map(async (survey) => {
+        const surveyData = survey.toJSON();
+        
+        // Fetch livelink and testlink from external API
+        const { livelink, testlink } = await fetchLinksFromLucid(surveyData.survey_id);
+
+        // Update survey in the database
+        await ResearchSurvey.update(
+          {
+            livelink,
+            testlink
+          },
+          {
+            where: {
+              survey_id: surveyData.survey_id
+            }
+          }
+        );
+
+        return {
+          survey_id: surveyData.survey_id,
+          livelink,
+          testlink
+        };
+      })
+    );
+
+    res.json({ 
+      status: "success", 
+      updatedSurveys,
+      count: updatedSurveys.length
+    });
+  } catch (error) {
+    console.error("Error processing surveys:", error);
+    res.status(500).json({ 
+      status: "error", 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+});
 app.get("/ad", async (req, res) => {
   try {
     const rest = await UQualification.findAll({
@@ -260,8 +351,7 @@ app.post("/getResearchSurveys", async (req, res) => {
     const surveys = await ResearchSurvey.findAll({
       where: {
         is_live: 1,
-        message_reason: { [Op.ne]: "deactivated" },
-        livelink : { [Op.ne] : null }
+        message_reason: { [Op.ne]: "deactivated" }
       },
       attributes: [
         "survey_id",
@@ -325,12 +415,13 @@ app.post("/getResearchSurveys", async (req, res) => {
 app.get("/0001012/",
  surveyDetailController.redirectUser)
 
+ app.use("/api/v1/survey", surveyRoutes);
+ app.use("/api/v2/survey", detailRoutes);
+ 
 app.post('/call', Hook.createSurvey)
 app.get("/:status", surveyDetailController.buyerData)
 app.post("/supply/create", SupplyAuth.SupplierCreate);
 app.post("/api/create", Auth.BuyerCreate);
-app.use("/api/v1/survey", surveyRoutes);
-app.use("/api/v2/survey", detailRoutes);
 
 module.exports = app;
                                      
