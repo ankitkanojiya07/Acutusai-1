@@ -199,13 +199,10 @@ exports.redirectToSurvey = async (req, res) => {
     const isTest = req.path.includes("/test");
     const { SupplyID, PNID, SessionID, TID } = req.query;
 
-    if (!SupplyID || !PNID || !SessionID || !TID) {
-      return res.status(400).json({ message: "Missing required query parameters" });
-    }
+   
 
     const TokenID = decodeURIComponent(TID);
 
-    // Fetch survey details
     const response = await ResearchSurvey.findOne({
       attributes: isTest ? ["testlink", "survey_id"] : ["survey_id", "livelink"],
       where: { survey_id: sid },
@@ -216,29 +213,23 @@ exports.redirectToSurvey = async (req, res) => {
     }
 
     let livelink = isTest ? response.testlink : response.livelink;
+    if (!livelink) {
+      return res.status(400).json({ message: "Live or test link not found for the survey" });
+    }
 
-    // Generate livelink via external API if missing
-   
+    if (isTest) {
+      return res.redirect(livelink);
+    }
 
-    // Validate livelink format
     const indexOfSid = livelink.indexOf("SID");
     if (indexOfSid === -1) {
-      return res.status(400).json({ message: "Invalid livelink format" });
+      return res.status(400).json({ message: "Invalid livelink format, missing SID parameter" });
     }
 
     const sensitiveData = livelink.slice(indexOfSid);
-    console.log("sensitivedata",sensitiveData)
+    console.log("Sensitive Data:", sensitiveData);
 
-    // Encrypt sensitive part
-    // const secretKey = "acutusai";
-    // const encryptedData = encryptData(sensitiveData, secretKey);
-
-    // Reconstruct the encrypted link
-    // const encryptedLink = `${livelink.slice(0, indexOfSid)}${encryptedData}`;
-
-    // Validate token using hashing key
     const supply = await Supply.findOne({ where: { SupplierID: SupplyID } });
-
     if (!supply) {
       return res.status(404).json({ status: "error", message: "Supply not found" });
     }
@@ -252,9 +243,9 @@ exports.redirectToSurvey = async (req, res) => {
     }
 
     // Save supply information
-    const info  = await SupplyInfo.create({
+    const info = await SupplyInfo.create({
       UserID: PNID,
-      TID,
+      TID: TokenID,
       SupplyID,
       SurveyID: response.survey_id,
       SessionID,
@@ -263,12 +254,16 @@ exports.redirectToSurvey = async (req, res) => {
 
     // Redirect to the encrypted link
     const queryParams = `?prescreen=false${isTest ? "&test=true" : ""}`;
-    res.redirect(`https://consent.qmapi.com/${info.id}${queryParams}&${sensitiveData}`);
+    const redirectUrl = `http://localhost:5173/${info.id}${queryParams}&${sensitiveData}`;
+    console.log("Redirecting to:", redirectUrl);
+    res.redirect(redirectUrl);
+
   } catch (err) {
-    // Uncomment for debugging: console.error("Error redirecting to survey:", err);
+    console.error("Error redirecting to survey:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 exports.redirectUser = async (req, res) => {
