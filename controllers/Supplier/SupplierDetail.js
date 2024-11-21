@@ -456,15 +456,21 @@ exports.buyerData = async (req, res) => {
 exports.detail = async (req, res) => {
   try {
     const { id } = req.params;
-
     // Fetch ReportInfo using the SurveyID
     const ReportInfo = await SupplyInfo.findAll({
+      attributes : ["createdAt", "updatedAt", "status", "id", "UserID","SupplyID","SurveyID"],
       where: {
-        SurveyID: id,
+        SupplyID: id,
       },
     });
+    const surveyIDs = ReportInfo.map((report) => report.SurveyID);
+    console.log(surveyIDs)
 
-    const SurveyInfo = await Survey.findByPk(id);
+    const SurveyInfo = await ResearchSurvey.findOne({
+      where :{
+        survey_id : surveyIDs
+      }
+    });
 
     // Check if ReportInfo or SurveyInfo is null/undefined
     if (!ReportInfo || !SurveyInfo) {
@@ -475,9 +481,18 @@ exports.detail = async (req, res) => {
 
     // Add SurveyInfo details to each ReportInfo item
     const mergedInfo = ReportInfo.map((report) => ({
-      ...report.toJSON(), // Convert report instance to plain object
-      SurveyName: SurveyInfo.SurveyName, // Add SurveyName from SurveyInfo
-      status: SurveyInfo.status, // Add status from SurveyInfo
+      panelistId : report.UserID,
+      AID : report.id,
+      createdAt: report.createdAt,
+      updatedAt: report.updatedAt,
+      status: report.status,
+      SurveyID: SurveyInfo.survey_id, 
+      SurveyName: SurveyInfo.survey_name, 
+      status: SurveyInfo.islive,
+      cpi: SurveyInfo.cpi,
+      country_language : SurveyInfo.country_language,
+      IR : SurveyInfo.bid_incidence,
+      LOI : SurveyInfo.bid_length_of_interview
     }));
 
     // Return merged information
