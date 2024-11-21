@@ -29,7 +29,7 @@ function generateTestUrl(
   TID = "TokenID"
 ) {
   const baseUrl = "https://api.qmapi.com/api/v2/survey/redirect";
-  const queryParams = `supplyID=[%${encodeURIComponent(
+  const queryParams = `SupplyID=[%${encodeURIComponent(
     supply_id
   )}%]&PNID=[%${encodeURIComponent(AID)}%]&SessionID=[%${encodeURIComponent(
     Session_id 
