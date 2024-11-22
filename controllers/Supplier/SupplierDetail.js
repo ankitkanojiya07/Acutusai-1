@@ -376,79 +376,82 @@ exports.getSurveyQuota = async (req, res) => {
 };
 
 const { Op } = require("sequelize");
+
 exports.buyerData = async (req, res) => {
   try {
     const { PID, MID, TokenID, ClientStatus, InitialStatus } = req.query;
     const { status } = req.params;
 
-    // Validate input parameters
+    // Validate required query parameters
     if (!PID || !status) {
       return res.status(400).json({
         status: "error",
-        message: "Missing required parameters",
+        message: "Missing required parameters: PID and status",
       });
     }
 
-    // First, fetch supply information
-    const Sup = await SupplyInfo.findOne({ 
+    // Fetch supply information
+    const supply = await SupplyInfo.findOne({ 
       where: { id: PID },
-      attributes: ['SupplyID'] 
+      attributes: ['SupplyID']
     });
 
     // Check if supply exists
-    if (!Sup) {
+    if (!supply) {
       return res.status(404).json({
         status: "error",
         message: "Supply not found",
       });
     }
 
-    // Then, fetch supplier information
-    const Supplier = await Supply.findOne({
-      where: { SupplierID: Sup.SupplyID },
+    // Fetch supplier information
+    const supplier = await Supply.findOne({
+      where: { SupplierID: supply.SupplyID },
       attributes: ['Complete', 'Termination', 'OverQuota', 'Quality']
     });
 
     // Check if supplier exists
-    if (!Supplier) {
+    if (!supplier) {
       return res.status(404).json({
         status: "error",
         message: "Supplier not found",
       });
     }
 
-    // Prepare update data
+    // Prepare data to update the supply info
     const updateData = { 
       status, 
       task: JSON.stringify(req.body), 
-      InitialStatus: InitialStatus,
-      ClientStatus : ClientStatus
+      InitialStatus,
+      ClientStatus
     };
 
-    // Update supply info
+    // Update the supply information
     await SupplyInfo.update(updateData, { where: { id: PID } });
 
-    // Determine redirect URL based on status
+    // Map status to the respective redirect URL
     const statusRedirectMap = {
-      'complete': Supplier.Complete,
-      'terminate': Supplier.Termination,
-      'overquota': Supplier.OverQuota,
-      'default': Supplier.Quality
+      'complete': supplier.Complete,
+      'terminate': supplier.Termination,
+      'overquota': supplier.OverQuota,
+      'default': supplier.Quality
     };
 
+    // Get the redirect URL
     const redirectUrl = `${statusRedirectMap[status] || statusRedirectMap['default']}?AID=${PID}`;
 
-    // Perform server-side redirect
+    // Perform the redirect
     return res.redirect(redirectUrl);
 
   } catch (err) {
     console.error("Buyer Data Error:", err);
-    res.status(500).json({
+    return res.status(500).json({
       status: "error",
       message: "Internal server error",
     });
   }
 };
+
 
 exports.detail = async (req, res) => {
   try {
