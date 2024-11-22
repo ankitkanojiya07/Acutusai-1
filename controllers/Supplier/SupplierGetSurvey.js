@@ -180,14 +180,22 @@ exports.getLiveSurveys = async (req, res) => {
     }
 
     const surveys = await ResearchSurvey.findAll({
+      attributes: { exclude: ["account_name", "survey_name"] },
       where: {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
         livelink: { [Op.ne]: "" },
       },
       include: [
-        { model: ResearchSurveyQuota, as: "survey_quotas",attributes: { exclude: ['quota_cpi'] }  },
-        { model: ResearchSurveyQualification, as: "survey_qualifications" },
+        {
+          model: ResearchSurveyQuota,
+          as: "survey_quotas",
+          attributes: { exclude: ["quota_cpi"] },
+        },
+        {
+          model: ResearchSurveyQualification,
+          as: "survey_qualifications",
+        },
       ],
       limit: 50,
     });
@@ -201,13 +209,11 @@ exports.getLiveSurveys = async (req, res) => {
         const value = await getRate(Rate.RateCard, LOI, IR);
         const cut = JSON.parse(surveyData.revenue_per_interview);
 
-
         // Skip surveys where the value is not greater than CPI.
         if (value >= Number(cut.value)) {
           console.log(value, surveyData.cpi);
           return null;
-      }
-      
+        }
 
         surveyData.cpi = value;
         surveyData.revenue_per_interview = value;
@@ -217,9 +223,13 @@ exports.getLiveSurveys = async (req, res) => {
         return surveyData;
       })
     );
+
+    // Filter out null surveys
+    const validSurveys = processedSurveys.filter((survey) => survey !== null);
+
     res.status(200).json({
       status: "success",
-      data: processedSurveys,
+      data: validSurveys,
     });
   } catch (err) {
     console.error("Error in getLiveSurveys:", err);
@@ -230,6 +240,7 @@ exports.getLiveSurveys = async (req, res) => {
     });
   }
 };
+
 
 
 exports.getFinishedSurveys = async (req, res) => {
