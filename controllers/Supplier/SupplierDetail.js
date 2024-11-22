@@ -254,7 +254,7 @@ exports.redirectToSurvey = async (req, res) => {
 
     // Redirect to the encrypted link
     const queryParams = `?prescreen=false${isTest ? "&test=true" : ""}`;
-    const redirectUrl = `http://localhost:5173/${info.id}${queryParams}&${sensitiveData}`;
+    const redirectUrl = `https://consent.qmapi.com/${info.id}${queryParams}&${sensitiveData}`;
     console.log("Redirecting to:", redirectUrl);
     res.redirect(redirectUrl);
 
