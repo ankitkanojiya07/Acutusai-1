@@ -199,15 +199,24 @@ exports.getLiveSurveys = async (req, res) => {
         const IR = surveyData.bid_incidence;
 
         const value = await getRate(Rate.RateCard, LOI, IR);
+        const cut = JSON.parse(surveyData.revenue_per_interview);
+
+
+        // Skip surveys where the value is not greater than CPI.
+        if (value >= Number(cut.value)) {
+          console.log(value, surveyData.cpi);
+          return null;
+      }
+      
 
         surveyData.cpi = value;
+        surveyData.revenue_per_interview = value;
         surveyData.livelink = generateApiUrl(surveyData.survey_id);
         surveyData.testlink = generateTestUrl(surveyData.survey_id);
 
         return surveyData;
       })
     );
-
     res.status(200).json({
       status: "success",
       data: processedSurveys,
