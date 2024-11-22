@@ -29,6 +29,7 @@ ResearchSurvey.init({
     survey_quota_calc_type: DataTypes.STRING,
     is_only_supplier_in_group: DataTypes.BOOLEAN,
     cpi: DataTypes.FLOAT,
+    revenue_per_interview : DataTypes.JSON,
     total_client_entrants: DataTypes.INTEGER,
     total_remaining: DataTypes.INTEGER,
     completion_percentage: DataTypes.FLOAT,

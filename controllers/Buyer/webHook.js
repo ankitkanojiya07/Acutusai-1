@@ -4,33 +4,33 @@ const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = req
 
 // Function to fetch livelink and testlink from Lucid API
 async function fetchLinksFromLucid(survey_id) {
-  const postUrl = `https://api.samplicio.us/Supply/v1/SupplierLinks/Create/${survey_id}/6588`;
-  const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'A8B96D8F-AB75-4C8C-B692-BE7AC2665BA7',
-    'Accept': 'text/plain'
-  };
+    const postUrl = `https://api.samplicio.us/Supply/v1/SupplierLinks/Create/${survey_id}/6588`;
+    const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'A8B96D8F-AB75-4C8C-B692-BE7AC2665BA7',
+        'Accept': 'text/plain',
+    };
 
-  try {
-    console.log('Attempting POST request...');
-    const postResponse = await axios.post(postUrl, params, { headers });
+    try {
+        console.log('Attempting POST request...');
+        const postResponse = await axios.post(postUrl, params, { headers });
 
-    if (postResponse.status === 200 && postResponse.data.SupplierLink) {
-      const { LiveLink, TestLink, DefaultLink } = postResponse.data.SupplierLink;
-      return {
-        livelink: DefaultLink === null ? "Not" : LiveLink || null,
-        testlink: TestLink || null
-      };
+        if (postResponse.status === 200 && postResponse.data.SupplierLink) {
+            const { LiveLink, TestLink, DefaultLink } = postResponse.data.SupplierLink;
+            return {
+                livelink: DefaultLink === null ? "Not" : LiveLink || null,
+                testlink: TestLink || null,
+            };
+        }
+
+        console.error('POST request did not return valid SupplierLink data.');
+        return { livelink: null, testlink: null };
+
+    } catch (error) {
+        console.error('Error fetching links from Lucid:', error.message);
+        return { livelink: null, testlink: null };
     }
-    
-    console.error('POST request did not return valid SupplierLink data.');
-    return { livelink: null, testlink: null };
-
-  } catch (error) {
-    console.error('Error fetching links from Lucid:', error.message);
-    return { livelink: null, testlink: null };
-  }
 }
 
 async function createSurvey(req, res) {
@@ -46,50 +46,35 @@ async function createSurvey(req, res) {
                 survey_quota_calc_type, is_only_supplier_in_group, cpi, total_client_entrants,
                 total_remaining, completion_percentage, conversion, overall_completes, mobile_conversion,
                 earnings_per_click, length_of_interview, termination_length_of_interview, respondent_pids,
-                message_reason, survey_quotas, survey_qualifications
+                message_reason, revenue_per_interview, survey_quotas, survey_qualifications,
             } = surveyData;
 
             let existingSurvey = await ResearchSurvey.findOne({ where: { survey_id } });
-          if (existingSurvey && message_reason === "reactivated") {
-    console.log("Reactivating survey...");
-    
-    // Fetch links before reactivating
-   
-    await existingSurvey.update({
-        
-        message_reason
-    });
-    
-    console.log(`Survey ${survey_id} reactivated successfully.`);
-    return existingSurvey;
-}
 
-if (existingSurvey && message_reason === "deactivated") {
-    console.log("Deactivating survey...");
-    
-    await existingSurvey.update({
-        message_reason
-    });
-    
-    console.log(`Survey ${survey_id} deactivated successfully.`);
-    return existingSurvey;
-}
+            if (existingSurvey && message_reason === "reactivated") {
+                console.log("Reactivating survey...");
+                await existingSurvey.update({ message_reason });
+                console.log(`Survey ${survey_id} reactivated successfully.`);
+                return existingSurvey;
+            }
 
+            if (existingSurvey && message_reason === "deactivated") {
+                console.log("Deactivating survey...");
+                await existingSurvey.update({ message_reason });
+                console.log(`Survey ${survey_id} deactivated successfully.`);
+                return existingSurvey;
+            }
 
             if (existingSurvey && message_reason === "updated") {
                 console.log("Updating existing survey...");
 
-                // Fetch links before updating
-                
-
                 await existingSurvey.update({
                     survey_name, account_name, country_language, industry, study_type,
-                    bid_length_of_interview, bid_incidence, collects_pii, survey_group_ids, is_live,
+                    bid_length_of_interview, revenue_per_interview, bid_incidence, collects_pii, survey_group_ids, is_live,
                     survey_quota_calc_type, is_only_supplier_in_group, cpi, total_client_entrants,
                     total_remaining, completion_percentage, conversion, overall_completes, mobile_conversion,
                     earnings_per_click, length_of_interview, termination_length_of_interview, respondent_pids,
                     message_reason,
-                    
                 });
 
                 if (survey_quotas) {
@@ -114,7 +99,7 @@ if (existingSurvey && message_reason === "deactivated") {
 
                 // Fetch links before creating the survey
                 const links = await fetchLinksFromLucid(survey_id);
-                
+
                 // Skip if links are null or livelink is null/"Not"
                 if (!links || links.livelink === null || links.livelink === "Not") {
                     console.log(`Skipping survey_id ${survey_id} due to null or invalid livelink`);
@@ -127,9 +112,9 @@ if (existingSurvey && message_reason === "deactivated") {
                     survey_quota_calc_type, is_only_supplier_in_group, cpi, total_client_entrants,
                     total_remaining, completion_percentage, conversion, overall_completes, mobile_conversion,
                     earnings_per_click, length_of_interview, termination_length_of_interview, respondent_pids,
-                    message_reason, 
+                    message_reason, revenue_per_interview,
                     livelink: links.livelink,
-                    testlink: links.testlink
+                    testlink: links.testlink,
                 });
 
                 if (survey_quotas) {
@@ -153,7 +138,7 @@ if (existingSurvey && message_reason === "deactivated") {
 
         res.status(201).json({
             message: 'Surveys created or updated successfully',
-            surveys: createdOrUpdatedSurveys.filter(s => s !== null)
+            surveys: createdOrUpdatedSurveys.filter(s => s !== null),
         });
     } catch (error) {
         console.error('Error creating or updating surveys:', error);

@@ -1,7 +1,7 @@
 const sequelize = require("./config");
 const app = require("./app");
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3008;
 
 (async () => {
   try {
@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3001;
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (err) {
+    
     console.error("Error syncing database:", err);
   }
 })();          
