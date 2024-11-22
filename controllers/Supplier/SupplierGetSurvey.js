@@ -186,7 +186,7 @@ exports.getLiveSurveys = async (req, res) => {
         livelink: { [Op.ne]: "" },
       },
       include: [
-        { model: ResearchSurveyQuota, as: "survey_quotas" },
+        { model: ResearchSurveyQuota, as: "survey_quotas",attributes: { exclude: ['quota_cpi'] }  },
         { model: ResearchSurveyQualification, as: "survey_qualifications" },
       ],
       limit: 50,
