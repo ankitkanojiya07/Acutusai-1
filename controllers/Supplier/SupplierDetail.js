@@ -378,7 +378,7 @@ exports.getSurveyQuota = async (req, res) => {
 const { Op } = require("sequelize");
 exports.buyerData = async (req, res) => {
   try {
-    const { PID, MID, TokenID } = req.query;
+    const { PID, MID, TokenID, ClientStatus, InitialStatus } = req.query;
     const { status } = req.params;
 
     // Validate input parameters
@@ -420,7 +420,9 @@ exports.buyerData = async (req, res) => {
     // Prepare update data
     const updateData = { 
       status, 
-      task: JSON.stringify(req.body) 
+      task: JSON.stringify(req.body), 
+      InitialStatus: InitialStatus,
+      ClientStatus : ClientStatus
     };
 
     // Update supply info

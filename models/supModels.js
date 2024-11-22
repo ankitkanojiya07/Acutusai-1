@@ -25,6 +25,12 @@ const SupplyInfo = sequelize.define("SupplyInfo", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  ClientStatus : {
+    type:DataTypes.STRING
+  },
+  InitialStatus : {
+    type:DataTypes.STRING
+  },
   TokenID: {
     type: DataTypes.STRING,
     allowNull: true,
