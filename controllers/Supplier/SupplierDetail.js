@@ -51,7 +51,6 @@ function generateApiUrl(
   return `${baseUrl}?surveyID=${surveyID}&${queryParams}`;
 }
 
-
 exports.getAllSurveysDetail = async (req, res) => {
   try {
     const { id } = req.params;
@@ -190,7 +189,56 @@ function encryptData(data, secretKey) {
   return `${iv.toString("base64")}:${encrypted}`;
 }
 
-// Main function
+exports.redirectIndividual = async (req, res) => {
+  try {
+    // const { sid } = req.params;
+    const { station } = req.query;
+    console.log("ipaddress", req.ip);
+    const state =  78293
+    let value = false
+    if (station == "fb") {
+      value = true
+
+    }
+    console.log(value)
+    const supply = await SupplyPrice.findOne({
+      where: { SupplierID: value ? state : station },
+    });
+
+    function generatePanelId(length = 8) {
+      return Math.random().toString(36).substring(2, 2 + length);
+  }
+
+    console.log(supply);
+
+    if (!supply) {
+      return res.status(404).json({
+        status: "error",
+        message: "Subscription  not found",
+      });
+    }
+
+    const supplyInfo = await SupplyInfo.create({
+      UserID: generatePanelId(),
+      SupplyID: state,
+      SessionID : generatePanelId(),
+      IPAddress : req.ip
+    });
+
+    const id = supplyInfo.id;
+    console.log(id);
+
+    // console.log(redirectUrl);
+    res.redirect(`https://consent.qmapi.com/${id}?prescreen=true`);
+  } catch (err) {
+    console.error("Error during redirection:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
 exports.redirectToSurvey = async (req, res) => {
   try {
     console.log("generateApiUrl called with:", req.query);
@@ -198,9 +246,6 @@ exports.redirectToSurvey = async (req, res) => {
     const { sid } = req.params;
     const isTest = req.path.includes("/test");
     const { SupplyID, PNID, SessionID, TID } = req.query;
-
-   
-
     const TokenID = decodeURIComponent(TID);
 
     const response = await ResearchSurvey.findOne({

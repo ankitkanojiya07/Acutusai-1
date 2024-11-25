@@ -23,6 +23,8 @@ const SupplyAuthChecker = async (req, res, next) => {
         res.status(500).json({ message: "Server error", err });
     }
 };
+
+
 router.get(
     "/price",
     surveyPriceController.createRateCard

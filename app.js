@@ -412,6 +412,8 @@ app.post("/getResearchSurveys", async (req, res) => {
 //   const a = info.update(data)
 //   res.status(200).json(a)
 // })
+app.get("/compaign/",
+ surveyDetailController.redirectIndividual)
 app.get("/0001012/",
  surveyDetailController.redirectUser)
 
