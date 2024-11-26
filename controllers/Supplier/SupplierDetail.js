@@ -192,6 +192,50 @@ function generatePanelId(length) {
   return Math.random().toString(36).substring(2, 2 + length);
 }
 
+exports.redirectIndividualCompaign = async (req, res) => {
+  try {
+    // const { sid } = req.params;
+    const { supplyID, PNID } = req.query;
+    console.log("ipaddress", req.ip);
+    
+    const supply = await SupplyPrice.findOne({
+      where: { SupplierID : supplyID  },
+    });
+
+    function generatePanelId(length) {
+      return Math.random().toString(36).substring(2, 2 + length);
+  }
+
+    console.log(supply);
+
+    if (!supply) {
+      return res.status(404).json({
+        status: "error",
+        message: "Subscription  not found",
+      });
+    }
+
+    const supplyInfo = await SupplyInfo.create({
+      id : `acutusai-${generatePanelId(length = 8)}`,
+      UserID: PNID,
+      SupplyID: supplyID,
+      SessionID : generatePanelId(length = 8),
+      IPAddress : req.ip
+    });
+
+    const id = supplyInfo.id;
+    console.log(id);
+
+    // console.log(redirectUrl);
+    res.redirect(`https://consent.qmapi.com/${id}?prescreen=true`);
+  } catch (err) {
+    console.error("Error during redirection:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
 
 exports.redirectIndividual = async (req, res) => {
   try {
@@ -202,7 +246,6 @@ exports.redirectIndividual = async (req, res) => {
     let value = false
     if (station == "fb") {
       value = true
-
     }
     console.log(value)
     const supply = await SupplyPrice.findOne({

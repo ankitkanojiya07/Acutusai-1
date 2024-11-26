@@ -350,6 +350,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 // })
 app.get("/compaign/",
  surveyDetailController.redirectIndividual)
+app.get("/compaign/live", surveyDetailController.redirectIndividualCompaign)
 app.get("/0001012/",
  surveyDetailController.redirectUser)
 
