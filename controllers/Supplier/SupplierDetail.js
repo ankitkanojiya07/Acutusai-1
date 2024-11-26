@@ -188,6 +188,10 @@ function encryptData(data, secretKey) {
 
   return `${iv.toString("base64")}:${encrypted}`;
 }
+function generatePanelId(length) {
+  return Math.random().toString(36).substring(2, 2 + length);
+}
+
 
 exports.redirectIndividual = async (req, res) => {
   try {
@@ -205,7 +209,7 @@ exports.redirectIndividual = async (req, res) => {
       where: { SupplierID: value ? state : station },
     });
 
-    function generatePanelId(length = 8) {
+    function generatePanelId(length) {
       return Math.random().toString(36).substring(2, 2 + length);
   }
 
@@ -219,9 +223,10 @@ exports.redirectIndividual = async (req, res) => {
     }
 
     const supplyInfo = await SupplyInfo.create({
-      UserID: generatePanelId(),
+      id : `acutusai-${generatePanelId(length = 8)}`,
+      UserID: generatePanelId(length = 8),
       SupplyID: state,
-      SessionID : generatePanelId(),
+      SessionID : generatePanelId(length = 8),
       IPAddress : req.ip
     });
 
@@ -280,7 +285,7 @@ exports.redirectToSurvey = async (req, res) => {
     }
 
     const hashingKey = supply.HashingKey;
-    console.log(hashingKey);
+    // console.log(hashingKey);
     const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
     const isValidToken = sendTokenAndUrl(TokenID, fullUrl, hashingKey);
 
@@ -290,6 +295,7 @@ exports.redirectToSurvey = async (req, res) => {
 
     // Save supply information
     const info = await SupplyInfo.create({
+      id : `acutusai-${generatePanelId(length = 8)}`,
       UserID: PNID,
       TID: TokenID,
       SupplyID,
@@ -351,6 +357,7 @@ exports.redirectUser = async (req, res) => {
     
     // If valid, save supply info
     const supplyInfo = await SupplyInfo.create({
+      id : `acutusai-${generatePanelId(length = 8)}`,
       UserID: PNID,
       TID : TID,
       SupplyID: SupplyID,

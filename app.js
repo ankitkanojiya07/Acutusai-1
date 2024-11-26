@@ -6,14 +6,6 @@ const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const Question = require("./models/USQualification");
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('./models/uniqueSurvey');
-// const {
-//     Survey,
-//     Condition,
-//     Quotas,
-//     Qualification,
-//   } = require("./models/association");
-
-
 const bodyParser = require('body-parser');
 const surveyDetailController = require("./controllers/Supplier/SupplierDetail");
 const Auth = require("./Authenication/BuyerCreate");
@@ -24,16 +16,10 @@ const Hook = require("./controllers/Buyer/webHook")
 const SupplyInfo = require("./models/supModels")
 const UQualification = require("./models/USQualification")
 console.log(process.memoryUsage());
-
 app.use(cors());
 app.set("trust proxy", true);
 // app.use(express.json());
 app.use(bodyParser({limit: '50mb'}));
-//app.use(express.bodyParser({limit: '50mb'}));
-// app.use(express.urlencoded({ limit: '500mb', extended: true }));
-//app.use(bodyParser.json({ limit: 500*1024*1024, extended: true }));
-//app.use(bodyParser.urlencoded({ limit: 500*1024*1024, extended: true }));
-// const axios = require('axios');
 
 async function fetchLinksFromLucid(survey_id) {
   const url = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
@@ -137,40 +123,8 @@ app.get("/ad", async (req, res) => {
   }
 });
 
-// const associate = async (value, score, survey_qualifications,survey_id,earnings_per_click) => {
-//   let marks = 0; 
-
-//   survey_qualifications.forEach((item) => {
-//     const question_id = item.question_id;
-//     const precodes = item.precodes;
-
-
-//     if (question_id in score ){
-//       if (precodes.includes(String(score[question_id]))){
-//         marks += 1
-
-//       }
-//     }
-//   });
-
-//   // If marks are found, assign to value
-//   if (marks > 0) {
-//     value["survey_id"] = survey_id;
-//     value["score"] = marks;
-//     value["earnings_per_click"] = earnings_per_click
-//   }
-
-//   return value;
-// };
-
-// const axios = require("axios");
-// const { literal } = require("sequelize");
-
-// Function to enhance survey data with Gemini AI
 const associate = async (value, score, survey_qualifications,survey_id,earnings_per_click,livelink) => {
   let marks = 0; 
-  // console.log(value, score, survey_qualifications,survey_id,earnings_per_click,livelink)
-// 
   survey_qualifications.forEach((item) => {
     const question_id = item.question_id;
     const precodes = item.precodes;
@@ -184,7 +138,6 @@ const associate = async (value, score, survey_qualifications,survey_id,earnings_
     }
   });
 
-  // If marks are found, assign to value
   if (marks > 0) {
     value["survey_id"] = survey_id;
     value["score"] = marks;
@@ -192,15 +145,12 @@ const associate = async (value, score, survey_qualifications,survey_id,earnings_
     value["livelink"] = livelink
   }
 
-  // console.log("value  is ", value)
-
   return value;
 };
 
 const axios = require("axios");
 const { literal } = require("sequelize");
 
-// Function to enhance survey data with Gemini AI
 const enhanceDataWithAI = async (originalData) => {
   try {
     
@@ -216,9 +166,6 @@ const enhanceDataWithAI = async (originalData) => {
       { headers: { "Content-Type": "application/json" } }
     );
 
-    // console.log(response.data?.candidates?.[0]?.content?.parts?.[0]?.text);
-
-    // Extract and parse the AI response
     const aiResponse = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
     const jsonMatch = aiResponse?.match(/\[[\s\S]*\]/);
   
@@ -257,7 +204,6 @@ const generateAIPrompt = (originalData) => {
   `;
 };
 
-// `/val` endpoint to fetch and enhance survey questions
 app.get("/val", async (req, res) => {
   try {
     // Fetch question usage data
@@ -337,7 +283,6 @@ app.get("/val", async (req, res) => {
   }
 });
 
-
 app.post("/getResearchSurveys", async (req, res) => {
   try {
     const { score } = req.body;
@@ -359,15 +304,7 @@ app.post("/getResearchSurveys", async (req, res) => {
         "conversion",
         "livelink",
         "testlink",
-        // [
-        //   literal(`(
-        //     SELECT COUNT(DISTINCT sq.question_id)
-        //     FROM research_survey_qualifications AS sq
-        //     WHERE sq.survey_id = "ResearchSurvey"."survey_id"
-        //     AND sq.question_id IN (${scoreList})
-        //   )`),
-        //   'matching_questions_count'
-        // ]
+        
       ],
       include: [
         {
@@ -382,8 +319,7 @@ app.post("/getResearchSurveys", async (req, res) => {
           required: false,
         },
       ],
-      // having: literal(`matching_questions_count = ${arr.length}`),
-      // group: ['ResearchSurvey.survey_id', 'survey_qualifications.survey_id', 'survey_qualifications.question_id'],
+
       limit: 10000,
       order: [
         ["earnings_per_click", "DESC"],

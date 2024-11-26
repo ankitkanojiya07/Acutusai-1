@@ -3,9 +3,10 @@ const sequelize = require("../config");
 
 const SupplyInfo = sequelize.define("SupplyInfo", {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     primaryKey: true,
-    autoIncrement: true,
+    allowNull : null
+  
   },
   SessionID : {
     type : DataTypes.STRING,
