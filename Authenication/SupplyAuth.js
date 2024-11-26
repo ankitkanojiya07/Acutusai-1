@@ -31,7 +31,7 @@ router.get(
 );
 console.log("hi")
 
-
+router.post("/prescreen/update/:AID", surveyDetailController.convertSurvey)
 router.get("/:id", surveyDetailController.fetchSurvey);
 router.get(
     "/detail/:id",

@@ -355,7 +355,6 @@ exports.redirectUser = async (req, res) => {
     }
     console.log("yes");
     
-    // If valid, save supply info
     const supplyInfo = await SupplyInfo.create({
       id : `acutusai-${generatePanelId(length = 8)}`,
       UserID: PNID,
@@ -378,6 +377,34 @@ exports.redirectUser = async (req, res) => {
     });
   }
 };
+
+exports.convertSurvey = async (req, res) => {
+  try {
+    const { AID } = req.params;
+    const { survey_id } = req.query;
+
+    const survey = await SupplyInfo.findOne({
+      where: {
+        id: AID
+      }
+    });
+
+    if (survey) {
+      await survey.update({
+        survey_id: survey_id
+      });
+
+      return res.status(200).json({ message: "Survey ID updated successfully" });
+    } else {
+      return res.status(404).json({ message: "Record not found" });
+    }
+    
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "An error occurred", error: err });
+  }
+};
+
 
 exports.getDetail = async(req,res) => {
   try{
