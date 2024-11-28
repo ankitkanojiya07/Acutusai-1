@@ -6,7 +6,7 @@ const {
 } = require("../../models/association");
 const requestIp = require('request-ip')
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
-
+const { v4: uuidv4 } = require('uuid');
 const SupplyInfo = require("../../models/supModels");
 const axios = require("axios");
 const Supply = require("../../models/supplyModels");
@@ -216,7 +216,7 @@ exports.redirectIndividualCompaign = async (req, res) => {
     }
 
     const supplyInfo = await SupplyInfo.create({
-      id : `acutusai-${generatePanelId(length = 8)}`,
+      id : str(uuid.uuid4()),
       UserID: PNID,
       SupplyID: supplyID,
       SessionID : generatePanelId(length = 8),
@@ -266,7 +266,7 @@ exports.redirectIndividual = async (req, res) => {
     }
 
     const supplyInfo = await SupplyInfo.create({
-      id : `acutusai-${generatePanelId(length = 8)}`,
+      id : str(uuid.uuid4()),
       UserID: generatePanelId(length = 8),
       SupplyID: state,
       SessionID : generatePanelId(length = 8),
@@ -338,7 +338,7 @@ exports.redirectToSurvey = async (req, res) => {
 
     // Save supply information
     const info = await SupplyInfo.create({
-      id : `acutusai-${generatePanelId(length = 8)}`,
+      id : str(uuid.uuid4()),
       UserID: PNID,
       TID: TokenID,
       SupplyID,
@@ -399,7 +399,7 @@ exports.redirectUser = async (req, res) => {
     console.log("yes");
     
     const supplyInfo = await SupplyInfo.create({
-      id : `acutusai-${generatePanelId(length = 8)}`,
+      id : str(uuid.uuid4()),
       UserID: PNID,
       TID : TID,
       SupplyID: SupplyID,
@@ -505,7 +505,6 @@ exports.buyerData = async (req, res) => {
     const { PID, MID, TokenID, ClientStatus, InitialStatus } = req.query;
     const { status } = req.params;
 
-    // Validate required query parameters
     if (!PID || !status) {
       return res.status(400).json({
         status: "error",
@@ -519,7 +518,7 @@ exports.buyerData = async (req, res) => {
       attributes: ['SupplyID']
     });
 
-    // Check if supply exists
+
     if (!supply) {
       return res.status(404).json({
         status: "error",
@@ -527,13 +526,12 @@ exports.buyerData = async (req, res) => {
       });
     }
 
-    // Fetch supplier information
+
     const supplier = await Supply.findOne({
       where: { SupplierID: supply.SupplyID },
       attributes: ['Complete', 'Termination', 'OverQuota', 'Quality']
     });
 
-    // Check if supplier exists
     if (!supplier) {
       return res.status(404).json({
         status: "error",
@@ -549,10 +547,8 @@ exports.buyerData = async (req, res) => {
       ClientStatus
     };
 
-    // Update the supply information
     await SupplyInfo.update(updateData, { where: { id: PID } });
 
-    // Map status to the respective redirect URL
     const statusRedirectMap = {
       'complete': supplier.Complete,
       'terminate': supplier.Termination,
@@ -560,11 +556,9 @@ exports.buyerData = async (req, res) => {
       'default': supplier.Quality
     };
 
-    // Get the redirect URL
-    const redirectUrl = `${statusRedirectMap[status] || statusRedirectMap['default']}?AID=${PID}`;
-
-    // Perform the redirect
-    return res.redirect(redirectUrl);
+    const redirectUrl = `${statusRedirectMap[status].replace("[%AID%]", supply.UserID)}`;
+    console.log(redirectUrl) ;
+    // return res.redirect(redirectUrl);
 
   } catch (err) {
     console.error("Buyer Data Error:", err);
