@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 console.log("hsdnas");
 const app = express();
+const deviceDetail = require("./controllers/Supplier/deviceData");
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const Question = require("./models/USQualification");
@@ -12,6 +13,7 @@ const Auth = require("./Authenication/BuyerCreate");
 const SupplyAuth = require("./Authenication/SupplierCreate");
 const surveyRoutes = require("./Authenication/BuyerAuth");
 const detailRoutes = require("./Authenication/SupplyAuth");
+// const  .
 const Hook = require("./controllers/Buyer/webHook")
 const SupplyInfo = require("./models/supModels")
 const UQualification = require("./models/USQualification")
@@ -339,6 +341,7 @@ app.post("/getResearchSurveys", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
+    
   }
 });
 // app.post("/v", async(req,res) => {
@@ -348,6 +351,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 //   const a = info.update(data)
 //   res.status(200).json(a)
 // })
+app.post("/devicedata", deviceDetail.getDeviceData);
 app.get("/compaign/",
  surveyDetailController.redirectIndividual)
 app.get("/compaign/live", surveyDetailController.redirectIndividualCompaign)
