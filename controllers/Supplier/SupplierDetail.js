@@ -554,6 +554,7 @@ exports.buyerData = async (req, res) => {
       'overquota': supplier.OverQuota,
       'default': supplier.Quality
     };
+    console.log(supply.UserID);
 
     const redirectUrl = `${statusRedirectMap[status].replace("[%AID%]", supply.UserID)}`;
     console.log(redirectUrl) ;
