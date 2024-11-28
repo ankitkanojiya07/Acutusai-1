@@ -216,7 +216,7 @@ exports.redirectIndividualCompaign = async (req, res) => {
     }
 
     const supplyInfo = await SupplyInfo.create({
-      id : str(uuid.uuid4()),
+      id : uuidv4(),
       UserID: PNID,
       SupplyID: supplyID,
       SessionID : generatePanelId(length = 8),
@@ -266,7 +266,7 @@ exports.redirectIndividual = async (req, res) => {
     }
 
     const supplyInfo = await SupplyInfo.create({
-      id : str(uuid.uuid4()),
+      id : uuidv4(),
       UserID: generatePanelId(length = 8),
       SupplyID: state,
       SessionID : generatePanelId(length = 8),
@@ -338,7 +338,7 @@ exports.redirectToSurvey = async (req, res) => {
 
     // Save supply information
     const info = await SupplyInfo.create({
-      id : str(uuid.uuid4()),
+      id : uuidv4(),
       UserID: PNID,
       TID: TokenID,
       SupplyID,
@@ -399,7 +399,7 @@ exports.redirectUser = async (req, res) => {
     console.log("yes");
     
     const supplyInfo = await SupplyInfo.create({
-      id : str(uuid.uuid4()),
+      id : uuidv4(),
       UserID: PNID,
       TID : TID,
       SupplyID: SupplyID,
