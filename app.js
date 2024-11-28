@@ -351,7 +351,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 //   const a = info.update(data)
 //   res.status(200).json(a)
 // })
-app.post("/devicedata", deviceDetail.getDeviceData);
+app.post("/devicedata/", deviceDetail.getDeviceData);
 app.get("/compaign/",
  surveyDetailController.redirectIndividual)
 app.get("/compaign/live", surveyDetailController.redirectIndividualCompaign)
