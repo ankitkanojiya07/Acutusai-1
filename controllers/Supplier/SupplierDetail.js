@@ -514,7 +514,7 @@ exports.buyerData = async (req, res) => {
     // Fetch supply information
     const supply = await SupplyInfo.findOne({ 
       where: { id: PID },
-      attributes: ['SupplyID']
+      attributes: ['SupplyID','UserID']
     });
 
 
