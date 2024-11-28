@@ -336,7 +336,6 @@ exports.redirectToSurvey = async (req, res) => {
       return res.status(403).json({ status: "error", message: "Invalid Token ID" });
     }
 
-    // Save supply information
     const info = await SupplyInfo.create({
       id : uuidv4(),
       UserID: PNID,
@@ -558,7 +557,7 @@ exports.buyerData = async (req, res) => {
 
     const redirectUrl = `${statusRedirectMap[status].replace("[%AID%]", supply.UserID)}`;
     console.log(redirectUrl) ;
-    // return res.redirect(redirectUrl);
+    return res.redirect(redirectUrl);
 
   } catch (err) {
     console.error("Buyer Data Error:", err);
