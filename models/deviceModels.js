@@ -7,7 +7,7 @@ const DeviceInfo = sequelize.define(
     FingerPrintID: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,  // Ensure each fingerprint is unique
+
     },
     UserAgent: {
       type: DataTypes.STRING,
