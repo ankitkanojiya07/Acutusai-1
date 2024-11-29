@@ -6,6 +6,8 @@ const DeviceInfo = sequelize.define(
   {
     FingerPrintID: {
       type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,  // Ensure each fingerprint is unique
     },
     UserAgent: {
       type: DataTypes.STRING,
@@ -16,15 +18,91 @@ const DeviceInfo = sequelize.define(
       allowNull: false,
     },
     Browser: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     IpAddress: {
       type: DataTypes.STRING,
-    }
+      allowNull: false,
+      validate: {
+        isIP: true,  // Validate IP address format
+      },
+    },
+    PanelistId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    OperatingSystem: {
+      type: DataTypes.STRING,
+    },
+    ScreenResolution: {
+      type: DataTypes.STRING,
+    },
+    ColorDepth: {
+      type: DataTypes.INTEGER,
+    },
+    TimeZone: {
+      type: DataTypes.STRING,
+    },
+    Language: {
+      type: DataTypes.STRING,
+    },
+    IsTouchDevice: {
+      type: DataTypes.BOOLEAN,
+    },
+    CookiesEnabled: {
+      type: DataTypes.BOOLEAN,
+    },
+    JavaEnabled: {
+      type: DataTypes.BOOLEAN,
+    },
+    Platform: {
+      type: DataTypes.STRING,
+    },
+    Referrer: {
+      type: DataTypes.STRING,
+      validate: {
+        isUrl: true,  // Validate that the referrer is a URL
+      },
+    },
+    NetworkType: {
+      type: DataTypes.STRING,
+    },
+    DeviceMemory: {
+      type: DataTypes.FLOAT,  // Device memory in GB
+    },
+    HardwareConcurrency: {
+      type: DataTypes.INTEGER,  // Number of logical CPU cores
+    },
+    BatteryLevel: {
+      type: DataTypes.FLOAT,  // Battery level as a percentage
+    },
+    GpuVendor: {
+      type: DataTypes.STRING,
+    },
+    GpuRenderer: {
+      type: DataTypes.STRING,
+    },
+    BrowserPlugins: {
+      type: DataTypes.JSON,  // Array of browser plugin names
+    },
+    CanvasFingerprint: {
+      type: DataTypes.STRING,  // Unique canvas fingerprint
+    },
+    WebGLFingerprint: {
+      type: DataTypes.STRING,  // Unique WebGL fingerprint
+    },
+    AudioFingerprint: {
+      type: DataTypes.STRING,  // Audio fingerprint
+    },
+    Timestamp: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
-    timestamps: true,
+    timestamps: true,  // Automatically add `createdAt` and `updatedAt` fields
   }
 );
 
-module.exports = DeviceInfo; 
+module.exports = DeviceInfo;
