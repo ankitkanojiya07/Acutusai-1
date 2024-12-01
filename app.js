@@ -339,7 +339,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 
     // Save the result in a JSON file
     const filePath = './survey.json';  // Define the file path
-    fs.writeFileSync(filePath, JSON.stringify(result, null, 2), 'utf-8');  // Write data to file
+    fs.writeFileSync(filePath, JSON.stringify(score, null, 2), 'utf-8');  // Write data to file
 
     res.status(200).json(result);
   } catch (error) {
