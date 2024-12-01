@@ -433,7 +433,7 @@ exports.convertSurvey = async (req, res) => {
 
     if (survey) {
       await survey.update({
-        survey_id: survey_id
+        SurveyID: survey_id
       });
 
       return res.status(200).json({ message: "Survey ID updated successfully" });
