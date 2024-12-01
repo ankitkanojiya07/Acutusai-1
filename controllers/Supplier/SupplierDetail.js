@@ -504,17 +504,10 @@ exports.buyerData = async (req, res) => {
     const { PID, MID, TokenID, ClientStatus, InitialStatus } = req.query;
     const { status } = req.params;
 
-    if (!PID || !status) {
-      return res.status(400).json({
-        status: "error",
-        message: "Missing required parameters: PID and status",
-      });
-    }
-
     // Fetch supply information
     const supply = await SupplyInfo.findOne({ 
       where: { id: PID },
-      attributes: ['SupplyID','UserID']
+      attributes: ['SupplyID','UserID', ]
     });
 
 
@@ -530,6 +523,7 @@ exports.buyerData = async (req, res) => {
       where: { SupplierID: supply.SupplyID },
       attributes: ['Complete', 'Termination', 'OverQuota', 'Quality']
     });
+    console.log(supplier, supply.SupplyID)
 
     if (!supplier) {
       return res.status(404).json({
