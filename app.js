@@ -284,6 +284,7 @@ app.get("/val", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+const fs = require('fs'); 
 
 app.post("/getResearchSurveys", async (req, res) => {
   try {
@@ -293,7 +294,7 @@ app.post("/getResearchSurveys", async (req, res) => {
       arr.push(Number(key)); // Convert keys to numbers and store them in arr
     }
     const scoreList = arr.join(',');
-    // console.log(scoreList) // Create a comma-separated string of scores
+    console.log(scoreList) // Create a comma-separated string of scores
 
     const surveys = await ResearchSurvey.findAll({
       where: {
@@ -306,7 +307,6 @@ app.post("/getResearchSurveys", async (req, res) => {
         "conversion",
         "livelink",
         "testlink",
-        
       ],
       include: [
         {
@@ -328,7 +328,7 @@ app.post("/getResearchSurveys", async (req, res) => {
         ["conversion", "DESC"],
       ],
     });
-    console.log(surveys)
+    console.log(surveys);
 
     let result = [];
     for (const item of surveys) {
@@ -337,13 +337,17 @@ app.post("/getResearchSurveys", async (req, res) => {
       if (Object.keys(value).length) result.push(value);
     }
 
+    // Save the result in a JSON file
+    const filePath = '/path/to/your/directory/researchSurveys.json';  // Define the file path
+    fs.writeFileSync(filePath, JSON.stringify(result, null, 2), 'utf-8');  // Write data to file
+
     res.status(200).json(result);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
-    
   }
 });
+
 // app.post("/v", async(req,res) => {
 //   const data = req.body ;
 //   console.log(req.body)
