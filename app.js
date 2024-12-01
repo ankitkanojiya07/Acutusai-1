@@ -135,7 +135,7 @@ const associate = async (value, score, survey_qualifications,survey_id,earnings_
     if (question_id in score ){
       if (precodes.includes(String(score[question_id]))){
         marks += 1
-        console.log(marks)
+        // console.log(marks)
       }
     }
   });
@@ -232,7 +232,7 @@ app.get("/val", async (req, res) => {
         attributes: { exclude: ["id"] },
         where: { question_id: item.question_id , country_language : 9},
       });
-      console.log(questionData)
+      // console.log(questionData)
 
       // Function to process the fetched survey data
       const processedSurvey = (surveyData) => {
@@ -273,10 +273,10 @@ app.get("/val", async (req, res) => {
 
       // Push processed data into the array
       arr.push(...processedSurvey(questionData));
-      console.log(arr)
+      // console.log(arr)
     }
 
-    console.log(arr);
+    // console.log(arr);
     // const enhancedData = enhanceDataWithAI(arr)
     res.status(200).json(arr);
   } catch (error) {
