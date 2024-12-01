@@ -543,16 +543,28 @@ exports.buyerData = async (req, res) => {
     await SupplyInfo.update(updateData, { where: { id: PID } });
 
     const statusRedirectMap = {
-      'complete': supplier.Complete,
-      'terminate': supplier.Termination,
-      'overquota': supplier.OverQuota,
-      'default': supplier.Quality
-    };
-    console.log(supply);
+  complete: supplier.Complete,
+  terminate: supplier.Termination,
+  overquota: supplier.OverQuota,
+  default: supplier.Quality
+};
 
-    const redirectUrl = `${statusRedirectMap[status].replace("[%AID%]", supply.UserID)}`;
-    console.log(redirectUrl) ;
-    return res.redirect(redirectUrl);
+const redirectUrl = statusRedirectMap[status] || statusRedirectMap['default'];
+    console.log(redirectUrl);
+
+if (!redirectUrl) {
+  console.error(`No redirect URL found for status: ${status}`);
+  return res.status(400).json({
+    status: "error",
+    message: `No redirect URL defined for status: ${status}`,
+  });
+}
+
+const finalRedirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
+
+return res.redirect(finalRedirectUrl);
+
+    // return res.redirect(redirectUrl);
 
   } catch (err) {
     console.error("Buyer Data Error:", err);
