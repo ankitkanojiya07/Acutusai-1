@@ -31,6 +31,7 @@ module.exports = (sequelize) => {
         },
       },
     },
+    
     {
      
       tableName: "Qualifications",

@@ -29,8 +29,9 @@ const UQualification = sequelize.define("Qualification", {
     precode: {
       type: DataTypes.TEXT,
     },
-    
-
+    Acutusai :{
+      type: DataTypes.TEXT,
+    } 
   }, {
     tableName: "Qualification",
     timestamps : false

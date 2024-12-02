@@ -1,10 +1,11 @@
-const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
+// const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
 const { RateEntry }= require("../../models/SupplierRateCard");
 const sequelize = require("../../config");
 const { Op } = require("sequelize");
 const crypto = require("crypto");
 const Supply = require('../../models/supplyModels');
+const QualificationModel = require("../../models/USQualification");
 
 function generateApiUrl(
   survey_id,
@@ -211,7 +212,6 @@ exports.getLiveSurveys = async (req, res) => {
 
         // Skip surveys where the value is not greater than CPI.
         if (value >= Number(cut.value)) {
-          console.log(value, surveyData.cpi);
           return null;
         }
 
@@ -219,6 +219,24 @@ exports.getLiveSurveys = async (req, res) => {
         surveyData.revenue_per_interview = value;
         surveyData.livelink = generateApiUrl(surveyData.survey_id);
         surveyData.testlink = generateTestUrl(surveyData.survey_id);
+
+        const qualifications = await Promise.all(
+          surveyData.survey_qualifications.map(async (qualification) => {
+            const questionDetails = await QualificationModel.findOne({
+              where: { question_id: qualification.question_id },
+              attributes: ["name", "question", "question_id", "Acutusai"],
+            });
+
+            return {
+              ...qualification,
+              question_id: questionDetails
+                ? questionDetails.Acutusai || qualification.question_id
+                : qualification.question_id,
+            };
+          })
+        );
+
+        surveyData.survey_qualifications = qualifications;
 
         return surveyData;
       })
@@ -240,6 +258,8 @@ exports.getLiveSurveys = async (req, res) => {
     });
   }
 };
+
+
 
 
 
