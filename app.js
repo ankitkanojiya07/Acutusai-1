@@ -14,6 +14,7 @@ const surveyRoutes = require("./Authenication/BuyerAuth");
 const detailRoutes = require("./Authenication/SupplyAuth");
 const Hook = require("./controllers/Buyer/webHook")
 const SupplyInfo = require("./models/supModels")
+const UserInfo = require("./controllers/Supplier/token");
 const UQualification = require("./models/USQualification")
 console.log(process.memoryUsage());
 app.use(cors());
@@ -346,12 +347,15 @@ app.post("/getResearchSurveys", async (req, res) => {
   }
 });
 
+
 // app.post("/v", async(req,res) => {
 //   const data = req.body ;
 //   console.log(req.body)
 //   const info = await SupplyInfo.findOne({id : data.id})
 //   const a = info.update(data)
 //   res.status(200).json(a)
+app.post("/demo/create", UserInfo.demoCreate)
+app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)
 // })
 app.post("/devicedata/", deviceDetail.getDeviceData);
 app.get("/compaign/",
