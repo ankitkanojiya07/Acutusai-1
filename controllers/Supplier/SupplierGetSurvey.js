@@ -172,13 +172,15 @@ exports.getLiveSurveys = async (req, res) => {
 
   try {
     const Rate = await Supply.findOne({
-      attributes: ["apikey", "RateCard"],
+      attributes: ["apikey", "RateCard", "SupplierID"],
       where: { ApiKey: apiKey },
     });
 
     if (!Rate) {
       return res.status(403).json({ message: "Invalid API key" });
     }
+
+    const { SupplierID: SupplyId, RateCard } = Rate;
 
     const surveys = await ResearchSurvey.findAll({
       attributes: { exclude: ["account_name", "survey_name"] },
@@ -204,22 +206,31 @@ exports.getLiveSurveys = async (req, res) => {
     const processedSurveys = await Promise.all(
       surveys.map(async (survey) => {
         const surveyData = survey.toJSON();
-        const LOI = surveyData.bid_length_of_interview;
-        const IR = surveyData.bid_incidence;
+        const { bid_length_of_interview: LOI, bid_incidence: IR, revenue_per_interview } = surveyData;
+        const cut = JSON.parse(revenue_per_interview);
+        const normalCPI = Number(cut.value);
+        const percent = Math.round(normalCPI * 0.6 * 10) / 10;
 
-        const value = await getRate(Rate.RateCard, LOI, IR);
-        const cut = JSON.parse(surveyData.revenue_per_interview);
+        let value = percent ; 
+        if (SupplyId === 2580) {
+          value = getRate(RateCard, LOI, IR)
+        }
+        
+        
 
         // Skip surveys where the value is not greater than CPI.
-        if (value >= Number(cut.value)) {
+        if (value >= normalCPI && SupplyId == 2580) {
           return null;
         }
 
+        // Assign CPI based on SupplyId
         surveyData.cpi = value;
-        surveyData.revenue_per_interview = value;
+
+        // Generate API and test links
         surveyData.livelink = generateApiUrl(surveyData.survey_id);
         surveyData.testlink = generateTestUrl(surveyData.survey_id);
 
+        // Process qualifications
         const qualifications = await Promise.all(
           surveyData.survey_qualifications.map(async (qualification) => {
             const questionDetails = await QualificationModel.findOne({
@@ -242,7 +253,7 @@ exports.getLiveSurveys = async (req, res) => {
       })
     );
 
-    // Filter out null surveys
+
     const validSurveys = processedSurveys.filter((survey) => survey !== null);
 
     res.status(200).json({

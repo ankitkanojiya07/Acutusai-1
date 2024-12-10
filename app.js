@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-console.log("hsdnas");
 const app = express();
 const deviceDetail = require("./controllers/Supplier/deviceData");
 const { Op } = require("sequelize");
@@ -13,7 +12,6 @@ const Auth = require("./Authenication/BuyerCreate");
 const SupplyAuth = require("./Authenication/SupplierCreate");
 const surveyRoutes = require("./Authenication/BuyerAuth");
 const detailRoutes = require("./Authenication/SupplyAuth");
-// const  .
 const Hook = require("./controllers/Buyer/webHook")
 const SupplyInfo = require("./models/supModels")
 const UQualification = require("./models/USQualification")
