@@ -2,7 +2,7 @@ const OpenAI = require("openai");
 const UserInfo = require("../../models/userbuyer") ;
 require('dotenv').config(); 
 
-console.log(process.env.API_KEY)
+
 
 const openai = new OpenAI({
   apiKey: process.env.API_KEY, 
@@ -10,6 +10,7 @@ const openai = new OpenAI({
 
 async function generatePrescreen(keyword) {
   try {
+    console.log(process.env.API_KEY) ;
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo", 
       messages: [
