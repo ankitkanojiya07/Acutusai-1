@@ -222,11 +222,9 @@ exports.getLiveSurveys = async (req, res) => {
         if (value >= normalCPI && SupplyId == 2580) {
           return null;
         }
-
-        // Assign CPI based on SupplyId
         surveyData.cpi = value;
+        surveyData.revenue_per_interview = null;
 
-        // Generate API and test links
         surveyData.livelink = generateApiUrl(surveyData.survey_id);
         surveyData.testlink = generateTestUrl(surveyData.survey_id);
 
