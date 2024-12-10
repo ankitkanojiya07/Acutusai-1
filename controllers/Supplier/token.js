@@ -1,9 +1,9 @@
-
-
 const OpenAI = require("openai");
 const UserInfo = require("../../models/userbuyer") ;
 require('dotenv').config(); 
-console.log(process.env.API_KEY);
+
+cosole.log(process.env.API_KEY)
+
 const openai = new OpenAI({
   apiKey: process.env.API_KEY, 
 });
@@ -45,7 +45,6 @@ async function generatePrescreen(keyword) {
         {"experience":"3+ years","qualifies":true}
       ]}`
         },
-        
         {
           role: "user",
           content: keyword
@@ -69,7 +68,7 @@ exports.demoCreate = async (req, res) => {
   const response = await UserInfo.create({
     ...body
   });
-  res.status(200).json("how are you");
+  res.status(200).json(response);
 };
 exports.prescreenAvailable = async (req, res) => {
   try {
