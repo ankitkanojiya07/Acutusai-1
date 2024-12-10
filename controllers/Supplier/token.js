@@ -2,7 +2,7 @@ const OpenAI = require("openai");
 const UserInfo = require("../../models/userbuyer") ;
 require('dotenv').config(); 
 
-cosole.log(process.env.API_KEY)
+console.log(process.env.API_KEY)
 
 const openai = new OpenAI({
   apiKey: process.env.API_KEY, 
