@@ -84,6 +84,8 @@ exports.prescreenAvailable = async (req, res) => {
       return res.status(404).json({ message: "No records found" });
     }
     console.log(resp);
+    const record = resp[0].dataValues;
+
 
     const qualifications = JSON.parse(record.qualifications || "[]");
     console.log(qualifications);
