@@ -85,7 +85,7 @@ exports.prescreenAvailable = async (req, res) => {
     }
     console.log(resp);
 
-    const qualifications = resp.qualifications || [];
+    const qualifications = JSON.parse(record.qualifications || "[]");
     console.log(qualifications);
     // if (!Array.isArray(qualifications)) {
     //   return res.status(400).json({ message: "Invalid qualifications format" });
