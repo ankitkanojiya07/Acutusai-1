@@ -83,9 +83,10 @@ exports.prescreenAvailable = async (req, res) => {
     if (resp.length === 0) {
       return res.status(404).json({ message: "No records found" });
     }
+    console.log(resp);
 
     const qualifications = resp.qualifications || [];
-    console.log(qualification);
+    console.log(qualifications);
     // if (!Array.isArray(qualifications)) {
     //   return res.status(400).json({ message: "Invalid qualifications format" });
     // }
