@@ -33,17 +33,17 @@ async function generatePrescreen(keyword) {
       {"prescreening_questions":[
         {
           "question_id":1,
-          "question_text":"What is your relevant experience?",
+          "question_text":"question?",
           "response_options":[
-            {"option_text":"0-2 years","qualifies":false},
-            {"option_text":"3-5 years","qualifies":true},
-            {"option_text":"6-10 years","qualifies":true},
-            {"option_text":"10+ years","qualifies":true}
+            {"option_text":"","qualifies":false},
+            {"option_text":"","qualifies":true},
+            {"option_text":"","qualifies":true},
+            {"option_text":"","qualifies":true}
           ]
         }
       ],
       "qualification_criteria":[
-        {"experience":"3+ years","qualifies":true}
+        {"":","qualifies":true}
       ]}`
         },
         {
@@ -57,7 +57,7 @@ async function generatePrescreen(keyword) {
     });
 
     const prescreenData = JSON.parse(completion.choices[0].message.content);
-    console.log(JSON.stringify(prescreenData, null, 2));
+    // console.log(JSON.stringify(prescreenData, null, 2));
     return prescreenData;
   } catch (error) {
     console.error("Error generating prescreen:", error.message);
