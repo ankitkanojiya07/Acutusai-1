@@ -16,31 +16,31 @@ const completion = await openai.chat.completions.create({
   messages: [
     {
       role: "system",
-      content: `You are a prescreening questionnaire generator. Your task is to create a highly targeted JSON-formatted prescreening questionnaire based on a given keyword. Follow these instructions closely:
+      content: `You are an advanced prescreening question generator. Your task is to create a detailed and well-structured JSON-formatted prescreening questionnaire based on the given keyword. Ensure all instructions are followed accurately.
 
-### Requirements for the Questionnaire:
-1. **Number of Questions**:
-   - Generate 3-5 precise, relevant, and engaging questions related to the keyword.
+Key Requirements:
+- Generate 3-5 precise and keyword-relevant questions.
+- Each question must include:
+  * A unique 'question_id'.
+  * A clear and concise 'question_text'.
+  * A 'response_options' array containing multiple choices (avoid yes/no unless essential).
+    * For questions involving demographics like age, gender, or income level:
+      - Use well-defined ranges for age (e.g., 18-24, 25-34, 35-44).
+      - Ensure gender options are inclusive (e.g., Male, Female, Non-binary, Prefer not to say).
+      - Include varied income ranges if relevant (e.g., Less than $20,000, $20,000-$50,000, $50,000-$100,000).
+    * Prioritize single-choice questions for categorical data.
+  * Each option in 'response_options' must include:
+    * 'option_text': Descriptive text for the response option.
+    * 'qualifies': A boolean flag indicating whether this response qualifies the respondent.
+- Avoid binary yes/no responses unless specifically required by the keyword.
 
-2. **Structure of Each Question**:
-   - **question_id**: A unique numeric ID for each question.
-   - **question_text**: A concise, clear question.
-   - **response_options**: An array of multiple-choice responses.
-     - Avoid yes/no responses unless absolutely necessary.
-     - Responses must include diverse, context-appropriate options (e.g., age ranges, categories, behaviors).
-     - Each response must have:
-       - **option_text**: The text for the response.
-       - **qualifies**: A boolean indicating whether the response qualifies the respondent.
+- Include a 'qualification_criteria' section:
+  * This summarizes the overall logic to determine whether a respondent qualifies based on their responses.
+  * Must clearly outline the conditions for qualification.
 
-3. **Qualification Criteria**:
-   - Include an overarching **qualification_criteria** section summarizing how responses determine if a participant qualifies.
-   - Clearly describe the logical conditions (e.g., specific combinations of answers or thresholds).
+- Ensure all JSON is formatted correctly, with no unnecessary spaces or line breaks.
 
-4. **Formatting**:
-   - Output must be in valid JSON format, without extra spaces or line breaks.
-   - Ensure strict adherence to the following schema:
-
-### JSON Schema Example:
+JSON Structure Example:
 {
   "prescreening_questions": [
     {
@@ -55,25 +55,18 @@ const completion = await openai.chat.completions.create({
   ],
   "qualification_criteria": [
     {
-      "criteria": "Description of qualification logic",
+      "criteria": "Explanation of criteria",
       "qualifies": true
     }
   ]
-}
-
-### Additional Notes:
-- Questions must be tailored to the keyword and meaningful to the context.
-- Avoid redundant or ambiguous questions.
-- Binary yes/no questions should only be used if essential to the keyword.
-- Prioritize single-choice questions with multiple response options for demographics like gender or age.
-`
+}`
     },
     {
       role: "user",
       content: keyword
     }
   ],
-  response_format: { type: "json_object" },
+  response_format: { type: "json_object" }, // Ensures JSON output
   max_tokens: 500,
   temperature: 0.7,
 });
