@@ -5,6 +5,7 @@ require('dotenv').config();
 
 
 const openai = new OpenAI({
+  
   apiKey: process.env.API_KEY, 
 });
 
@@ -88,12 +89,39 @@ exports.demoCreate = async (req, res) => {
   });
   res.status(200).json(response);
 };
+const NodeCache = require("node-cache");
+const cache = new NodeCache({ stdTTL: 86400 }); // Cache TTL of 1 day (86400 seconds)
+
+exports.getDemoSurvey = async(req,res) => {
+  try{
+    const { id } = req.params
+    const data = await UserInfo.findOne({
+      where : {
+        id : id
+      }
+    })
+    res.status(200).json(data)
+
+  }catch(err){
+    console.error(err)
+  }
+}
+
 exports.prescreenAvailable = async (req, res) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
+
+    // Check cache for prescreen data
+    const cachedData = cache.get(id);
+    if (cachedData) {
+      console.log("Returning cached data");
+      return res.status(200).json({ message: "Prescreen retrieved from cache", data: cachedData });
+    }
+
+    // Fetch data from the database
     const resp = await UserInfo.findAll({
       where: {
-        id, 
+        id,
       },
     });
 
@@ -103,23 +131,22 @@ exports.prescreenAvailable = async (req, res) => {
     console.log(resp);
     const record = resp[0].dataValues;
 
-
     const qualifications = JSON.parse(record.qualifications || "[]");
     console.log(qualifications);
-    // if (!Array.isArray(qualifications)) {
-    //   return res.status(400).json({ message: "Invalid qualifications format" });
-    // }
 
     let prescreenInput = "Please answer the following questions: \n";
-      qualifications.forEach((qual) => {
-        Object.entries(qual).forEach(([key, value]) => {
-          prescreenInput += `Q: ${key}, A: ${value}\n`;
-        });
+    qualifications.forEach((qual) => {
+      Object.entries(qual).forEach(([key, value]) => {
+        prescreenInput += `Q: ${key}, A: ${value}\n`;
+      });
     });
-    console.log(prescreenInput) ;
+    console.log(prescreenInput);
 
     generatePrescreen(prescreenInput)
       .then((data) => {
+        // Cache the prescreen data for the given ID
+        cache.set(id, data);
+
         res.status(200).json({ message: "Prescreen generated successfully", data });
       })
       .catch((error) => {
@@ -127,10 +154,10 @@ exports.prescreenAvailable = async (req, res) => {
         res.status(500).json({ message: "Prescreen generation failed", error });
       });
   } catch (error) {
+
     console.error("Error processing request:", error);
     res.status(500).json({ message: "Internal Server Error", error });
   }
 };
-
 
 
