@@ -12,49 +12,62 @@ async function generatePrescreen(keyword) {
   try {
     console.log(process.env.API_KEY) ;
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", 
-      messages: [
-        {
-          role: "system",
-          content: `You are an advanced prescreening question generator. Your task is to create a comprehensive and precise JSON-formatted prescreening questionnaire based on the given keyword.
+  model: "gpt-3.5-turbo",
+  messages: [
+    {
+      role: "system",
+      content: `You are an advanced prescreening question generator. Your task is to create a detailed and well-structured JSON-formatted prescreening questionnaire based on the given keyword. Ensure all instructions are followed accurately.
 
-      Key Requirements:
-      - Generate 3-5 targeted questions
-      - Each question must have:
-        * Unique question_id
-        * Clear question_text
-        * Multiple response_options
-        * Boolean 'qualifies' flag for each option
-      - Include an overall qualification_criteria section
-      - Ensure questions are relevant to the keyword
-      - Format must be exact JSON with no spaces between braces/keys
-      
-      Example Structure:
-      {"prescreening_questions":[
-        {
-          "question_id":1,
-          "question_text":"question?",
-          "response_options":[
-            {"option_text":"","qualifies":false},
-            {"option_text":"","qualifies":true},
-            {"option_text":"","qualifies":true},
-            {"option_text":"","qualifies":true}
-          ]
-        }
-      ],
-      "qualification_criteria":[
-        {"":","qualifies":true}
-      ]}`
-        },
-        {
-          role: "user",
-          content: keyword
-        }
-      ],
-      response_format: { type: "json_object" }, // Ensures JSON output
-      max_tokens: 500,
-      temperature: 0.7,
-    });
+Key Requirements:
+- Generate 3-5 precise and keyword-relevant questions.
+- Each question must include:
+  * A unique 'question_id'.
+  * A clear and concise 'question_text'.
+  * A 'response_options' array containing multiple choices (avoid yes/no unless essential).
+    * If the keyword suggests specific criteria (e.g., age, gender), ensure varied response options.
+    * Prioritize single-choice questions for categorical data (e.g., gender, income level).
+  * Each option in 'response_options' must include:
+    * 'option_text': Descriptive text for the response option.
+    * 'qualifies': A boolean flag indicating whether this response qualifies the respondent.
+- Avoid binary yes/no responses unless specifically required by the keyword.
+
+- Include a 'qualification_criteria' section:
+  * This summarizes the overall logic to determine whether a respondent qualifies based on their responses.
+  * Must clearly outline the conditions for qualification.
+
+- Ensure all JSON is formatted correctly, with no unnecessary spaces or line breaks.
+
+JSON Structure Example:
+{
+  "prescreening_questions": [
+    {
+      "question_id": 1,
+      "question_text": "Sample question?",
+      "response_options": [
+        { "option_text": "Option 1", "qualifies": false },
+        { "option_text": "Option 2", "qualifies": true },
+        { "option_text": "Option 3", "qualifies": true }
+      ]
+    }
+  ],
+  "qualification_criteria": [
+    {
+      "criteria": "Explanation of criteria",
+      "qualifies": true
+    }
+  ]
+}`
+    },
+    {
+      role: "user",
+      content: keyword
+    }
+  ],
+  response_format: { type: "json_object" }, // Ensures JSON output
+  max_tokens: 500,
+  temperature: 0.7,
+});
+
 
     const prescreenData = JSON.parse(completion.choices[0].message.content);
     // console.log(JSON.stringify(prescreenData, null, 2));
