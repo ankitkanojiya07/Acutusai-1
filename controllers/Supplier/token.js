@@ -12,7 +12,7 @@ async function generatePrescreen(keyword) {
   try {
     console.log(process.env.API_KEY) ;
 const completion = await openai.chat.completions.create({
-  model: "gpt-3.5-turbo",
+  model: "gpt-4o-mini",
   messages: [
     {
       role: "system",
