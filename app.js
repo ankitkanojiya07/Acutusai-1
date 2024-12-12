@@ -356,13 +356,11 @@ app.post("/getResearchSurveys", async (req, res) => {
 //   res.status(200).json(a)
 app.post("/demo/create", UserInfo.demoCreate)
 app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)
-// })
+app.get("/get/demo/survey/:id", UserInfo.getDemoSurvey)
 app.post("/devicedata/", deviceDetail.getDeviceData);
-app.get("/compaign/",
- surveyDetailController.redirectIndividual)
+app.get("/compaign/", surveyDetailController.redirectIndividual)
 app.get("/compaign/live", surveyDetailController.redirectIndividualCompaign)
-app.get("/0001012/",
- surveyDetailController.redirectUser)
+app.get("/0001012/", surveyDetailController.redirectUser)
 
  app.use("/api/v1/survey", surveyRoutes);
  app.use("/api/v2/survey", detailRoutes);
