@@ -1,12 +1,10 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config');
 
-// Survey model
 class ResearchSurvey extends Model {}
 
 ResearchSurvey.init({
     id: {
-        
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -29,7 +27,7 @@ ResearchSurvey.init({
     survey_quota_calc_type: DataTypes.STRING,
     is_only_supplier_in_group: DataTypes.BOOLEAN,
     cpi: DataTypes.FLOAT,
-    revenue_per_interview : DataTypes.JSON,
+    revenue_per_interview: DataTypes.JSON,
     total_client_entrants: DataTypes.INTEGER,
     total_remaining: DataTypes.INTEGER,
     completion_percentage: DataTypes.FLOAT,
@@ -37,8 +35,8 @@ ResearchSurvey.init({
     overall_completes: DataTypes.INTEGER,
     mobile_conversion: DataTypes.FLOAT,
     earnings_per_click: DataTypes.FLOAT,
-    livelink : DataTypes.TEXT,
-    testlink : DataTypes.TEXT,
+    livelink: DataTypes.TEXT,
+    testlink: DataTypes.TEXT,
     length_of_interview: DataTypes.INTEGER,
     termination_length_of_interview: DataTypes.INTEGER,
     respondent_pids: DataTypes.JSON,
@@ -46,15 +44,15 @@ ResearchSurvey.init({
 }, {
     sequelize,
     modelName: 'ResearchSurvey',
-    tableName: 'research_surveys',  // Changed table name
+    tableName: 'research_surveys',
     indexes: [
-        {
-            fields: ['survey_id']  // Add index on survey_id for better query performance
-        }
+        { fields: ['survey_id'] },
+        { fields: ['is_live'] },
+        { fields: ['message_reason'] },
+        { fields: ['livelink'] }
     ]
 });
 
-// SurveyQuota model
 class ResearchSurveyQuota extends Model {}
 
 ResearchSurveyQuota.init({
@@ -66,7 +64,7 @@ ResearchSurveyQuota.init({
     survey_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: ResearchSurvey, key: 'survey_id' } // Corrected model reference
+        references: { model: ResearchSurvey, key: 'survey_id' }
     },
     survey_quota_id: {
         type: DataTypes.INTEGER,
@@ -81,11 +79,13 @@ ResearchSurveyQuota.init({
 }, {
     sequelize,
     modelName: 'ResearchSurveyQuota',
-    tableName: 'research_survey_quotas' ,
-    indexes: [{ fields: ['survey_id', 'survey_quota_id'] }]
+    tableName: 'research_survey_quotas',
+    indexes: [
+        { fields: ['survey_id'] },
+        { fields: ['survey_quota_id'] }
+    ]
 });
 
-// SurveyQualification model
 class ResearchSurveyQualification extends Model {}
 
 ResearchSurveyQualification.init({
@@ -97,21 +97,25 @@ ResearchSurveyQualification.init({
     survey_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: ResearchSurvey, key: 'survey_id' } // Corrected model reference
+        references: { model: ResearchSurvey, key: 'survey_id' }
     },
+    
     logical_operator: DataTypes.STRING,
     precodes: DataTypes.JSON,
     question_id: DataTypes.INTEGER
 }, {
     sequelize,
     modelName: 'ResearchSurveyQualification',
-    tableName: 'research_survey_qualifications' 
+    tableName: 'research_survey_qualifications',
+    indexes: [
+        { fields: ['survey_id'] }
+    ]
 });
 
-// Associations
 ResearchSurvey.hasMany(ResearchSurveyQuota, { 
     foreignKey: 'survey_id', 
     sourceKey: 'survey_id', 
+
     as: 'survey_quotas'
 });
 ResearchSurveyQuota.belongsTo(ResearchSurvey, { 

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../models/uniqueSurvey');
 const surveyDetail = require("../controllers/Supplier/SupplierData");
 const surveyGetController = require("../controllers/Supplier/SupplierGetSurvey");
 const surveyDetailController = require("../controllers/Supplier/SupplierDetail");
@@ -23,6 +24,11 @@ const SupplyAuthChecker = async (req, res, next) => {
         res.status(500).json({ message: "Server error", err });
     }
 };
+
+const surveyCacheChecker = async(req,res) => {
+    const {id} = req.params 
+
+}
 
 
 router.get(

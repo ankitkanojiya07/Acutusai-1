@@ -57,7 +57,12 @@ const Supply = sequelize.define(
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
+    indexes: [
+      {
+        fields: ['ApiKey', 'SupplierID'],
+      },
+    ],
   }
 );
 

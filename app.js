@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const compression = require("compression");
 const deviceDetail = require("./controllers/Supplier/deviceData");
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
@@ -21,7 +22,7 @@ app.use(cors());
 app.set("trust proxy", true);
 // app.use(express.json());
 app.use(bodyParser({limit: '50mb'}));
-
+app.use(compression());
 async function fetchLinksFromLucid(survey_id) {
   const url = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
     const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };

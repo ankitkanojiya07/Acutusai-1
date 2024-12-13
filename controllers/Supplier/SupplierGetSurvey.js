@@ -106,8 +106,7 @@ const generateCPI = async (IR, LOI,  apiKey) => {
     console.log(sup.SupplierID)
     const rateCard = await RateCard.findOne({
       where: {
-        IR: LOI,  // IR and LOI should not be mixed here unless intentional
-        
+        IR: LOI,
         SupplyID: sup.SupplierID,
        
       },
@@ -137,6 +136,7 @@ const processSurvey = async (survey, apiKey) => {
     SurveyCPI,  // Append SurveyCPI to the result
   };
 };
+
 async function getRate(rateCard, LOI, IR) {
   try {
     console.log("Transfer", rateCard, LOI, IR);
@@ -163,6 +163,9 @@ async function getRate(rateCard, LOI, IR) {
   }
 }
 
+const NodeCache = require("node-cache");
+const surveyCache = new NodeCache({ stdTTL: 100, checkperiod: 600 }); // Cache with TTL of 1 hour
+
 exports.getLiveSurveys = async (req, res) => {
   const apiKey = req.headers.authorization;
 
@@ -182,81 +185,89 @@ exports.getLiveSurveys = async (req, res) => {
 
     const { SupplierID: SupplyId, RateCard } = Rate;
 
-    const surveys = await ResearchSurvey.findAll({
-      attributes: { exclude: ["account_name", "survey_name"] },
-      where: {
-        is_live: 1,
-        message_reason: { [Op.ne]: "deactivated" },
-        livelink: { [Op.ne]: "" },
-      },
-      include: [
-        {
-          model: ResearchSurveyQuota,
-          as: "survey_quotas",
-          attributes: { exclude: ["quota_cpi"] },
+    const cacheKey = `liveSurveys:${SupplyId}`;
+    let surveys = surveyCache.get(cacheKey);
+
+    if (!surveys) {
+      console.log("Cache miss, fetching from database...");
+  
+      surveys = await ResearchSurvey.findAll({
+        attributes: { exclude: ["account_name", "survey_name"] },
+        where: {
+          is_live: 1,
+          message_reason: { [Op.ne]: "deactivated" },
+          livelink: { [Op.ne]: "" },
         },
-        {
-          model: ResearchSurveyQualification,
-          as: "survey_qualifications",
-        },
-      ],
-      limit: 50,
-    });
+        include: [
+          {
+            model: ResearchSurveyQuota,
+            as: "survey_quotas",
+            attributes: { exclude: ["quota_cpi"] },
+          },
+          {
+            model: ResearchSurveyQualification,
+            as: "survey_qualifications",
+          },
+        ],
+        limit: 200,
+        raw: true
+      });
+      const processedSurveys = await Promise.all(
+        surveys.map(async (survey) => {
+          const { bid_length_of_interview: LOI, bid_incidence: IR, revenue_per_interview } = survey;
+          const cut = JSON.parse(revenue_per_interview);
+          const normalCPI = Number(cut.value);
+      
+          const percent = Math.round(normalCPI * 0.6 * 10) / 10;
+      
+          let value = percent; 
+          if (SupplyId === 2580) {
+            value = await getRate(RateCard, LOI, IR);
+          }
+      
+          // Skip surveys where the value is not greater than CPI.
+          if (value >= normalCPI && SupplyId == 2580) {
+            return null;
+          }
+          survey.cpi = value;
+          survey.revenue_per_interview = null;
+      
+          survey.livelink = generateApiUrl(survey.survey_id);
+          survey.testlink = generateTestUrl(survey.survey_id);
+      
+          // Process qualifications
+          const qualifications = await Promise.all(
+            survey.survey_qualifications.map(async (qualification) => {
+              const questionDetails = await QualificationModel.findOne({
+                where: { question_id: qualification.question_id },
+                attributes: ["name", "question", "question_id", "Acutusai"],
+              });
+      
+              return {
+                ...qualification,
+                question_id: questionDetails
+                  ? questionDetails.Acutusai || qualification.question_id
+                  : qualification.question_id,
+              };
+            })
+          );
+      
+          survey.survey_qualifications = qualifications;
+      
+          return survey;
+        })
+      );
+      const validSurveys = processedSurveys.filter((survey) => survey !== null);
 
-    const processedSurveys = await Promise.all(
-      surveys.map(async (survey) => {
-        const surveyData = survey.toJSON();
-        const { bid_length_of_interview: LOI, bid_incidence: IR, revenue_per_interview } = surveyData;
-        const cut = JSON.parse(revenue_per_interview);
-        const normalCPI = Number(cut.value);
-        const percent = Math.round(normalCPI * 0.6 * 10) / 10;
-
-        let value = percent ; 
-        if (SupplyId === 2580) {
-          value = getRate(RateCard, LOI, IR)
-        }
-        
-        
-
-        // Skip surveys where the value is not greater than CPI.
-        if (value >= normalCPI && SupplyId == 2580) {
-          return null;
-        }
-        surveyData.cpi = value;
-        surveyData.revenue_per_interview = null;
-
-        surveyData.livelink = generateApiUrl(surveyData.survey_id);
-        surveyData.testlink = generateTestUrl(surveyData.survey_id);
-
-        // Process qualifications
-        const qualifications = await Promise.all(
-          surveyData.survey_qualifications.map(async (qualification) => {
-            const questionDetails = await QualificationModel.findOne({
-              where: { question_id: qualification.question_id },
-              attributes: ["name", "question", "question_id", "Acutusai"],
-            });
-
-            return {
-              ...qualification,
-              question_id: questionDetails
-                ? questionDetails.Acutusai || qualification.question_id
-                : qualification.question_id,
-            };
-          })
-        );
-
-        surveyData.survey_qualifications = qualifications;
-
-        return surveyData;
-      })
-    );
-
-
-    const validSurveys = processedSurveys.filter((survey) => survey !== null);
+      surveyCache.set(cacheKey, validSurveys); // Cache the processed surveys
+      surveys = validSurveys;
+    } else {
+      console.log("Cache hit, returning data...");
+    }
 
     res.status(200).json({
       status: "success",
-      data: validSurveys,
+      data: surveys,
     });
   } catch (err) {
     console.error("Error in getLiveSurveys:", err);
@@ -293,29 +304,3 @@ exports.getFinishedSurveys = async (req, res) => {
     });
   }
 };
-
-// exports.getSurveyLink = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const survey = await Survey.findByPk(id);
-//     if (!survey) {
-//       return res.status(404).json({
-//         status: "error",
-//         message: "Survey not found",
-//       });
-//     }
-//     const surveyUrl = generateApiUrl(survey.id);
-//     res.status(200).json({
-//       status: "success",
-//       data: {
-//         liveUrl: surveyUrl,
-//       },
-//     });
-//   } catch (err) {
-//     console.error("Error fetching survey link:", err);
-//     res.status(500).json({
-//       status: "error",
-//       message: "Internal server error",
-//     });
-//   }
-// };

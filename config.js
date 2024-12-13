@@ -5,12 +5,17 @@ const sequelize = new Sequelize('u411184336_acutusaidb', 'u411184336_acutusaidb'
   port: 3306,        
   dialect: 'mysql',
   pool: {
-    max: 75,          
-    min: 10,
-    acquire: 30000,     
-    idle: 10000,        
-    evict: 15000    
+    max: 75,                  
+    min: 0,                   
+    acquire: 30000,           
+    idle: 10000               
   },
+  logging: false,           
+  benchmark: true,         
+  define: {
+    timestamps: true,    
+  },
+  poolLogging: true 
 });
 
 module.exports = sequelize;
