@@ -1,6 +1,6 @@
 // const { Survey, Condition, Quotas, Qualification } = require("../../models/association");
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
-const { RateEntry }= require("../../models/SupplierRateCard");
+const { RateEntry } = require("../../models/SupplierRateCard");
 const sequelize = require("../../config");
 const { Op } = require("sequelize");
 const crypto = require("crypto");
@@ -18,7 +18,7 @@ function generateApiUrl(
   const queryParams = `SupplyID=[%${encodeURIComponent(
     supply_id
   )}%]&PNID=[%${encodeURIComponent(AID)}%]&SessionID=[%${encodeURIComponent(
-    Session_id 
+    Session_id
   )}%]&TID=[%${encodeURIComponent(TID)}%]`;
   return `${baseUrl}/${survey_id}?${queryParams}`;
 }
@@ -94,12 +94,12 @@ exports.getAllSurveys = async (req, res) => {
 // Handle request to get all live surveys
 const RateCard = require("../../models/SupplierRateCard");
 
-const generateCPI = async (IR, LOI,  apiKey) => {
+const generateCPI = async (IR, LOI, apiKey) => {
   try {
-    console.log("hhsd",apiKey);
+    console.log("hhsd", apiKey);
     const sup = await Supply.findOne({
-      where : {
-        ApiKey : apiKey
+      where: {
+        ApiKey: apiKey
       }
     })
 
@@ -108,14 +108,14 @@ const generateCPI = async (IR, LOI,  apiKey) => {
       where: {
         IR: LOI,
         SupplyID: sup.SupplierID,
-       
+
       },
     });
 
     console.log(rateCard);
 
     // Return some calculated CPI based on rateCard
-    return rateCard ? rateCard.get('IR') : null; 
+    return rateCard ? rateCard.get('IR') : null;
   } catch (err) {
     console.error("Error in generateCPI:", err);
     return null; // Return null or a default value in case of error
@@ -165,7 +165,6 @@ async function getRate(rateCard, LOI, IR) {
 
 const NodeCache = require("node-cache");
 const surveyCache = new NodeCache({ stdTTL: 100, checkperiod: 600 }); // Cache with TTL of 1 hour
-
 exports.getLiveSurveys = async (req, res) => {
   const apiKey = req.headers.authorization;
 
@@ -190,7 +189,7 @@ exports.getLiveSurveys = async (req, res) => {
 
     if (!surveys) {
       console.log("Cache miss, fetching from database...");
-  
+
       surveys = await ResearchSurvey.findAll({
         attributes: { exclude: ["account_name", "survey_name"] },
         where: {
@@ -210,56 +209,77 @@ exports.getLiveSurveys = async (req, res) => {
           },
         ],
         limit: 200,
-        raw: true
+        raw: false // Change to raw: false to get model instances
       });
-      const processedSurveys = await Promise.all(
-        surveys.map(async (survey) => {
-          const { bid_length_of_interview: LOI, bid_incidence: IR, revenue_per_interview } = survey;
-          const cut = JSON.parse(revenue_per_interview);
-          const normalCPI = Number(cut.value);
-      
-          const percent = Math.round(normalCPI * 0.6 * 10) / 10;
-      
-          let value = percent; 
-          if (SupplyId === 2580) {
+
+      const processedSurveys = await Promise.all(surveys.map(async (survey) => {
+        const { bid_length_of_interview: LOI, bid_incidence: IR, revenue_per_interview } = survey;
+        
+        // Safely parse revenue_per_interview
+        let normalCPI;
+        try {
+          const cut = JSON.parse(revenue_per_interview || '{"value": 0}');
+          normalCPI = Number(cut.value);
+        } catch (error) {
+          console.error('Error parsing revenue_per_interview:', error);
+          normalCPI = 0;
+        }
+
+        const percent = Math.round(normalCPI * 0.6 * 10) / 10;
+        let value = percent;
+
+        // Calculate rate for specific supplier
+        if (SupplyId === 2580) {
+          try {
             value = await getRate(RateCard, LOI, IR);
+          } catch (rateError) {
+            console.error('Rate calculation error:', rateError);
+            return null; // Skip this survey if rate calculation fails
           }
-      
-          // Skip surveys where the value is not greater than CPI.
-          if (value >= normalCPI && SupplyId == 2580) {
-            return null;
-          }
-          survey.cpi = value;
-          survey.revenue_per_interview = null;
-      
-          survey.livelink = generateApiUrl(survey.survey_id);
-          survey.testlink = generateTestUrl(survey.survey_id);
-      
-          // Process qualifications
-          const qualifications = await Promise.all(
-            survey.survey_qualifications.map(async (qualification) => {
+        }
+
+        // Skip surveys where the value is not greater than CPI for specific supplier
+        if (value >= normalCPI && SupplyId == 2580) {
+          return null;
+        }
+
+        // Process qualifications
+        const qualifications = await Promise.all(
+          (survey.survey_qualifications || []).map(async (qualification) => {
+            try {
               const questionDetails = await QualificationModel.findOne({
                 where: { question_id: qualification.question_id },
                 attributes: ["name", "question", "question_id", "Acutusai"],
               });
-      
+
               return {
-                ...qualification,
+                ...qualification.toJSON(),
                 question_id: questionDetails
                   ? questionDetails.Acutusai || qualification.question_id
                   : qualification.question_id,
               };
-            })
-          );
-      
-          survey.survey_qualifications = qualifications;
-      
-          return survey;
-        })
-      );
-      const validSurveys = processedSurveys.filter((survey) => survey !== null);
+            } catch (qualError) {
+              console.error('Qualification processing error:', qualError);
+              return qualification.toJSON();
+            }
+          })
+        );
 
-      surveyCache.set(cacheKey, validSurveys); // Cache the processed surveys
+        // Create a new survey object with processed data
+        return {
+          ...survey.toJSON(),
+          cpi: value,
+          revenue_per_interview: null,
+          livelink: generateApiUrl(survey.survey_id),
+          testlink: generateTestUrl(survey.survey_id),
+          survey_qualifications: qualifications,
+        };
+      }));
+
+      // Filter out null values
+      const validSurveys = processedSurveys.filter(survey => survey !== null);
+
+      surveyCache.set(cacheKey, validSurveys);
       surveys = validSurveys;
     } else {
       console.log("Cache hit, returning data...");
@@ -278,9 +298,6 @@ exports.getLiveSurveys = async (req, res) => {
     });
   }
 };
-
-
-
 
 
 exports.getFinishedSurveys = async (req, res) => {
