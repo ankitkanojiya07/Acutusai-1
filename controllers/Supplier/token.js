@@ -13,65 +13,65 @@ async function generatePrescreen(keyword) {
   try {
     console.log(process.env.API_KEY);
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `You are a skilled prescreening questionnaire designer. Your task is to generate a well-structured JSON-formatted questionnaire based on the given keyword, ensuring all questions are meaningful, clear, and non-binary. Follow these key guidelines:
-    
-    Key Requirements:
-    - Generate 2-3 questions related to the provided keyword.
-    - Each question must have the following:
-      * A unique 'question_id'.
-      * A concise, clear 'question_text'.
-      * A 'response_options' array containing a list of multiple response choices (avoid yes/no questions).
-        * For questions involving demographics (age, gender, income, etc.):
-          - Provide well-defined ranges for age (e.g., 18-24, 25-34, etc.).
-          - Ensure gender options are inclusive (e.g., Male, Female, Non-binary, Prefer not to say).
-          - Use varied income ranges if applicable (e.g., Less than $20,000, $20,000-$50,000, etc.).
-        * Prioritize multiple-choice responses with descriptive, non-binary options.
-      * Each option in 'response_options' must contain:
-        * 'option_text': Descriptive text for the option.
-        * 'qualifies': A boolean flag indicating whether this response qualifies the respondent based on predefined criteria.
-    - Avoid yes/no answers or any binary responses unless explicitly necessary for the keyword.
-    
-    - Include a 'qualification_criteria' section:
-      * This summarizes the qualification logic, explaining the conditions under which a respondent qualifies.
-      * Clearly define what responses are considered qualifying.
-    
-    Ensure all output is in valid JSON format with no extraneous spaces or line breaks.
-    
-    JSON Structure Example:
+  model: "gpt-3.5-turbo",
+  messages: [
     {
-      "prescreening_questions": [
-        {
-          "question_id": 1,
-          "question_text": "Sample question about the topic?",
-          "response_options": [
-            { "option_text": "Option 1", "qualifies": false },
-            { "option_text": "Option 2", "qualifies": true },
-            { "option_text": "Option 3", "qualifies": true }
-          ]
-        }
-      ],
-      "qualification_criteria": [
-        {
-          "criteria": "Respondent qualifies if they select option 2 or 3.",
-          "qualifies": true
-        }
-      ]
-    }`
-        },
-        {
-          role: "user",
-          content: keyword
-        }
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 500,
-      temperature: 0.7,
-    });
-    
+      role: "system",
+      content: `You are a skilled prescreening questionnaire designer. Your task is to generate a well-structured JSON-formatted questionnaire based on the given keyword, ensuring all questions are meaningful, clear, and non-binary. Follow these key guidelines:
+
+      Key Requirements:
+      - Generate 2-3 questions related to the provided keyword.
+      - Each question must have the following:
+        * A unique 'question_id'.
+        * A concise, clear 'question_text'.
+        * A 'response_options' array containing a list of multiple response choices (avoid yes/no questions).
+          * For questions involving items like toothpaste, cars, bikes, demographics (age, gender, income, etc.):
+            - Include multiple relevant options based on the keyword (e.g., different brands or types for toothpaste, different bike models, car brands, etc.).
+            - Ensure that options are descriptive, non-binary, and inclusive.
+            - Avoid yes/no answers or binary responses unless explicitly necessary for the keyword.
+        * Each option in 'response_options' must contain:
+          * 'option_text': Descriptive text for the option.
+          * 'qualifies': A boolean flag indicating whether this response qualifies the respondent based on predefined criteria.
+      - Avoid yes/no answers or any binary responses unless explicitly necessary for the keyword.
+
+      - Include a 'qualification_criteria' section:
+        * This summarizes the qualification logic, explaining the conditions under which a respondent qualifies.
+        * Clearly define what responses are considered qualifying.
+
+      Ensure all output is in valid JSON format with no extraneous spaces or line breaks.
+
+      JSON Structure Example:
+      {
+        "prescreening_questions": [
+          {
+            "question_id": 1,
+            "question_text": "Which types of [KEYWORD] do you use or have access to?",
+            "response_options": [
+              { "option_text": "Brand A", "qualifies": true },
+              { "option_text": "Brand B", "qualifies": false },
+              { "option_text": "Brand C", "qualifies": true },
+              { "option_text": "Brand D", "qualifies": false },
+              { "option_text": "Other", "qualifies": true }
+            ]
+          }
+        ],
+        "qualification_criteria": [
+          {
+            "criteria": "Respondent qualifies if they select Brand A, Brand C, or Other.",
+            "qualifies": true
+          }
+        ]
+      }`
+    },
+    {
+      role: "user",
+      content: keyword
+    }
+  ],
+  response_format: { type: "json_object" },
+  max_tokens: 500,
+  temperature: 0.7,
+});
 
 
     const prescreenData = JSON.parse(completion.choices[0].message.content);
