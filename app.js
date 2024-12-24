@@ -10,6 +10,7 @@ const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = req
 const bodyParser = require('body-parser');
 const surveyDetailController = require("./controllers/Supplier/SupplierDetail");
 const Auth = require("./Authenication/BuyerCreate");
+const reportingInfo = require("./controllers/Supplier/reporting")
 const SupplyAuth = require("./Authenication/SupplierCreate");
 const surveyRoutes = require("./Authenication/BuyerAuth");
 const detailRoutes = require("./Authenication/SupplyAuth");
@@ -350,13 +351,12 @@ app.post("/getResearchSurveys", async (req, res) => {
 
 
 // app.post("/v", async(req,res) => {
-//   const data = req.body ;
+//   const data = req.body 
 //   console.log(req.body)
 //   const info = await SupplyInfo.findOne({id : data.id})
 //   const a = info.update(data)
 //   res.status(200).json(a)
-app.post("/demo/create", UserInfo.demoCreate)
-app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)
+app.get("/getReport", reportingInfo.gettingReport)
 app.get("/get/demo/survey/:id", UserInfo.getDemoSurvey)
 app.post("/devicedata/", deviceDetail.getDeviceData);
 app.get("/compaign/", surveyDetailController.redirectIndividual)
