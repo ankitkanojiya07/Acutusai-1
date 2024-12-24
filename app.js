@@ -357,6 +357,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 //   const a = info.update(data)
 //   res.status(200).json(a)
 app.get("/getReport", reportingInfo.gettingReport)
+app.post("/demo/create", UserInfo.demoCreate)
 app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)
 app.get("/get/demo/survey/:id", UserInfo.getDemoSurvey)
 app.post("/devicedata/", deviceDetail.getDeviceData);
