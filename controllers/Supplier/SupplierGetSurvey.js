@@ -22,6 +22,7 @@ function generateApiUrl(
   )}%]&TID=[%${encodeURIComponent(TID)}%]`;
   return `${baseUrl}/${survey_id}?${queryParams}`;
 }
+
 function generateTestUrl(
   survey_id,
   supply_id = "SupplyID",

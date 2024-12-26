@@ -286,6 +286,7 @@ app.get("/val", async (req, res) => {
   }
 });
 const fs = require('fs'); 
+const { SurveyQuota } = require("./models/hookSurveyModels");
 
 app.post("/getResearchSurveys", async (req, res) => {
   try {
@@ -355,7 +356,8 @@ app.post("/getResearchSurveys", async (req, res) => {
 //   console.log(req.body)
 //   const info = await SupplyInfo.findOne({id : data.id})
 //   const a = info.update(data)
-//   res.status(200).json(a)
+//   res.status(200).json(
+app.get("/chanel/survey", surveyDetailController.getChanel)
 app.get("/getReport", reportingInfo.gettingReport)
 app.post("/demo/create", UserInfo.demoCreate)
 app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)

@@ -35,6 +35,33 @@ function sendTokenAndUrl(TID, url, hashingKey) {
   // Compare TID with the encrypted URL
   return TID === encryptedUrl;
 }
+
+function generatePanelId(length) {
+  return Math.random().toString(36).substring(2, 2 + length);
+}
+exports.getChanel = async(req,res) => {
+  try{
+    const { PNID } = req.query ;
+    const survey = ResearchSurvey.findOne({
+      where : {
+        survey_id : 909090909
+      }
+    })
+    const id = generateApiUrl(12) ;
+
+    const response = SupplyInfo.create({
+      SurveyID : 909090909,
+      UserID : PNID,
+      id : id,
+      SupplyID : 9090
+    })
+  
+    res.redirect(`http://localhost:5173/${id}?prescreen=False`)
+  }catch(err){
+    console.log(err)
+  }
+}
+
 function generateApiUrl(
   surveyID,
   supplyID = "%SupplyID%",
