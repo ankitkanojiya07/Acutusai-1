@@ -39,28 +39,44 @@ function sendTokenAndUrl(TID, url, hashingKey) {
 function generatePanelId(length) {
   return Math.random().toString(36).substring(2, 2 + length);
 }
-exports.getChanel = async(req,res) => {
-  try{
-    const { PNID } = req.query ;
-    const survey = ResearchSurvey.findOne({
-      where : {
-        survey_id : 909090909
-      }
-    })
-    const id = generateApiUrl(12) ;
+exports.getChanel = async (req, res) => {
+  try {
+    const { PNID } = req.query;
 
-    const response = SupplyInfo.create({
-      SurveyID : 909090909,
-      UserID : PNID,
-      id : id,
-      SupplyID : 9090
-    })
-  
-    res.redirect(`http://localhost:5173/${response.id}?prescreen=False`)
-  }catch(err){
-    console.log(err)
+    // Validate query parameter
+    if (!PNID) {
+      return res.status(400).json({ error: 'PNID is required' });
+    }
+
+    // Fetch the survey
+    const survey = await ResearchSurvey.findOne({
+      where: {
+        survey_id: 909090909,
+      },
+    });
+
+    if (!survey) {
+      return res.status(404).json({ error: 'Survey not found' });
+    }
+
+    // Generate a unique API ID
+    const id = generateApiUrl(12);
+
+    // Create the supply information
+    const supplyInfo = await SupplyInfo.create({
+      SurveyID: 909090909,
+      UserID: PNID,
+      id: id,
+      SupplyID: 9090,
+    });
+
+    // Redirect the user
+    res.redirect(`http://localhost:5173/${supplyInfo.id}?prescreen=False`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An internal server error occurred' });
   }
-}
+};
 
 function generateApiUrl(
   surveyID,
