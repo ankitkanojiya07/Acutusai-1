@@ -74,7 +74,7 @@ exports.getChanel = async (req, res) => {
     });
 
     // Redirect the user
-    res.redirect(`http://localhost:5173/${supplyInfo.id}?prescreen=False`);
+    res.redirect(`https://assent.qmapi.com/${supplyInfo.id}?prescreen=False`);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'An internal server error occurred' });
