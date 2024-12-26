@@ -42,6 +42,9 @@ function generatePanelId(length) {
 exports.getChanel = async (req, res) => {
   try {
     const { PNID } = req.query;
+    function generatePanelId(length) {
+      return Math.random().toString(36).substring(2, 2 + length);
+  }
 
     // Validate query parameter
     if (!PNID) {
@@ -60,7 +63,7 @@ exports.getChanel = async (req, res) => {
     }
 
     // Generate a unique API ID
-    const id = generateApiUrl(12);
+    const id = generatePanelId(12);
 
     // Create the supply information
     const supplyInfo = await SupplyInfo.create({
