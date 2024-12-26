@@ -56,7 +56,7 @@ exports.getChanel = async(req,res) => {
       SupplyID : 9090
     })
   
-    res.redirect(`http://localhost:5173/${id}?prescreen=False`)
+    res.redirect(`http://localhost:5173/${response.id}?prescreen=False`)
   }catch(err){
     console.log(err)
   }
