@@ -557,7 +557,7 @@ exports.buyerData = async (req, res) => {
     if (!PID) {
       return res.status(400).json({
         status: "error",
-        message: "PID or PNID is required",
+        message: "PID or pnid is required",
       });
     }
 
@@ -627,7 +627,6 @@ exports.buyerData = async (req, res) => {
     });
   }
 };
-
 
 
 // const finalRedirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
