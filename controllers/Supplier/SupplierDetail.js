@@ -546,12 +546,12 @@ exports.getSurveyQuota = async (req, res) => {
 const { Op } = require("sequelize");
 exports.buyerData = async (req, res) => {
   try {
-    const { PID: queryPID, MID, TokenID, ClientStatus, InitialStatus, PNID } = req.query;
+    const { PID: queryPID, MID, TokenID, ClientStatus, InitialStatus, pnid } = req.query;
     const { status } = req.params;
     let PID = queryPID;
 
-    if (!PID && PNID) {
-      PID = PNID;
+    if (!PID && pnid) {
+      PID = pnid;
     }
 
     if (!PID) {
