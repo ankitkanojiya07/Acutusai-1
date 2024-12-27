@@ -613,27 +613,11 @@ exports.buyerData = async (req, res) => {
       });
     }
 
-    return res.status(200).json({
-      status: "success",
-      message: "Supply info updated successfully",
-      redirectUrl
-    });
+    // Replace [%AID%] in the redirect URL with the UserID from supply
+    const finalRedirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
 
-  } catch (error) {
-    console.error("Error in buyerData:", error);
-    return res.status(500).json({
-      status: "error",
-      message: "Internal server error",
-    });
-  }
-};
-
-
-const finalRedirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
-
-return res.redirect(finalRedirectUrl);
-
-    // return res.redirect(redirectUrl);
+    // Redirect the user
+    return res.redirect(finalRedirectUrl);
 
   } catch (err) {
     console.error("Buyer Data Error:", err);
@@ -643,6 +627,23 @@ return res.redirect(finalRedirectUrl);
     });
   }
 };
+
+
+
+// const finalRedirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
+
+// return res.redirect(finalRedirectUrl);
+
+//     // return res.redirect(redirectUrl);
+
+//   } catch (err) {
+//     console.error("Buyer Data Error:", err);
+//     return res.status(500).json({
+//       status: "error",
+//       message: "Internal server error",
+//     });
+//   }
+// };
 
 
 exports.detail = async (req, res) => {
