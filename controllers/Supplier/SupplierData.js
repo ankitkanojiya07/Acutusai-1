@@ -1,6 +1,33 @@
 const SupplyInfo = require('../../models/supModels');
+const UserEmail = require('../../models/UserEmail') ;
 const sequelize = require("../../config");
 const { where } = require('sequelize');
+
+const UserInfo = async (req, res) => {
+    try {
+        const { firstName, lastName, email } = req.body; // Destructuring the body
+        // Ensure all required fields are provided and valid
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        // Create a new entry in the UserEmail model
+        const user = await UserEmail.create({
+            firstName,
+            lastName,
+            email,
+        });
+
+        // Return success response
+        return res.status(201).json({
+            message: "User email created successfully",
+            user,
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "An error occurred while creating the user" });
+    }
+};
 
 const sendSupplyData = async (req, res) => {
     try {
