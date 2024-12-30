@@ -355,7 +355,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 app.get("/chanel/survey", surveyDetailController.getChanel)
 app.get("/chanel/fc/survey", surveyDetailController.getFacebookChanel)
 app.get("/getReport", reportingInfo.gettingReport)
-app.get("/mail/user/", supplierData.UserInfo)
+app.post("/mail/user/", supplierData.UserInfo)
 app.post("/demo/create", UserInfo.demoCreate)
 app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)
 app.get("/get/demo/survey/:id", UserInfo.getDemoSurvey)
