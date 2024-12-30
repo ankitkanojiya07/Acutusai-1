@@ -615,8 +615,10 @@ exports.buyerData = async (req, res) => {
       });
     }
     console.log( supply.UserID) ;
+    
     // Replace [%AID%] in the redirect URL with the UserID from supply
     const finalRedirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
+    console.log(finalRedirectUrl)
     // return res.redirect(finalRedirectUrl);
 
   } catch (err) {
