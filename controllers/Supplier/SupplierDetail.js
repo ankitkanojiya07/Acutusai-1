@@ -68,7 +68,7 @@ exports.getChanel = async (req, res) => {
     // Create the supply information
     const supplyInfo = await SupplyInfo.create({
       SurveyID: 909090909,
-      UserID: "facebook_user",
+      UserID: PNID,
       id: id,
       SupplyID: 9090,
     });
@@ -101,7 +101,7 @@ exports.getFacebookChanel = async (req, res) => {
 
     const supplyInfo = await SupplyInfo.create({
       SurveyID: 909090909,
-      UserID: PNID,
+      UserID: "Facebook_user",
       id: id,
       SupplyID: 78293,
     });
