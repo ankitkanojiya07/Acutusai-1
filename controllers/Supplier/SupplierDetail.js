@@ -613,9 +613,9 @@ if (!redirectUrl) {
     message: `No redirect URL defined for status: ${status}`,
   });
 }
-
+const userid = supply.UserID ;
 // Replace [%AID%] in the redirect URL with the UserID from supply
-redirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
+redirectUrl = redirectUrl.replace("[%AID%]", userid);
 console.log("Final Redirect URL:", redirectUrl);
 
     
