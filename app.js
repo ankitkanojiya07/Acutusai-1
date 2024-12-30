@@ -352,16 +352,10 @@ app.post("/getResearchSurveys", async (req, res) => {
 });
 
 
-// app.post("/v", async(req,res) => {
-//   const data = req.body 
-//   console.log(req.body)
-//   const info = await SupplyInfo.findOne({id : data.id})
-//   const a = info.update(data)
-//   res.status(200).json(
 app.get("/chanel/survey", surveyDetailController.getChanel)
 app.get("/chanel/fc/survey", surveyDetailController.getFacebookChanel)
 app.get("/getReport", reportingInfo.gettingReport)
-app.get("/mail/user/", supplierData.UserEmail)
+app.get("/mail/user/", supplierData.UserInfo)
 app.post("/demo/create", UserInfo.demoCreate)
 app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)
 app.get("/get/demo/survey/:id", UserInfo.getDemoSurvey)
