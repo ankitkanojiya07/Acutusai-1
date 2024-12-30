@@ -619,7 +619,7 @@ redirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
 console.log("Final Redirect URL:", redirectUrl);
 
     
-    // return res.redirect(finalRedirectUrl);
+    return res.redirect(redirectUrl);
 
   } catch (err) {
     console.error("Buyer Data Error:", err);
