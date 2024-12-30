@@ -9,13 +9,9 @@ const UserEmail = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    firstName: {
+    name: {
       type: DataTypes.STRING,
       allowNull: true, // first name is optional
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      allowNull: true, // last name is optional
     },
     email: {
       type: DataTypes.STRING,
