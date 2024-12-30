@@ -80,6 +80,39 @@ exports.getChanel = async (req, res) => {
     res.status(500).json({ error: 'An internal server error occurred' });
   }
 };
+exports.getFacebookChanel = async (req, res) => {
+  try {
+    
+    function generatePanelId(length) {
+      return Math.random().toString(36).substring(2, 2 + length);
+  }
+
+    const survey = await ResearchSurvey.findOne({
+      where: {
+        survey_id: 909090909,
+      },
+    });
+
+    if (!survey) {
+      return res.status(404).json({ error: 'Survey not found' });
+    }
+
+    const id = generatePanelId(12);
+
+    const supplyInfo = await SupplyInfo.create({
+      SurveyID: 909090909,
+      UserID: PNID,
+      id: id,
+      SupplyID: 78293,
+    });
+
+    // Redirect the user
+    res.redirect(`https://adhoc.qmapi.com/${supplyInfo.id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An internal server error occurred' });
+  }
+};
 
 function generateApiUrl(
   surveyID,
