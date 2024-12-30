@@ -605,7 +605,7 @@ exports.buyerData = async (req, res) => {
     };
 
     const redirectUrl = statusRedirectMap[status] || statusRedirectMap['default'];
-    console.log(redirectUrl) ;
+    
 
     if (!redirectUrl) {
       console.error(`No redirect URL found for status: ${status}`);
@@ -614,11 +614,12 @@ exports.buyerData = async (req, res) => {
         message: `No redirect URL defined for status: ${status}`,
       });
     }
-    console.log( supply.UserID) ;
+    
     
     // Replace [%AID%] in the redirect URL with the UserID from supply
     const finalRedirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
-    console.log(finalRedirectUrl)
+    console.log(finalRedirectUrl);
+    
     // return res.redirect(finalRedirectUrl);
 
   } catch (err) {
