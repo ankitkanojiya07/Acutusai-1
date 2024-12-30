@@ -5,7 +5,7 @@ const { where } = require('sequelize');
 
 const UserInfo = async (req, res) => {
     try {
-        const { firstName, lastName, email } = req.body; // Destructuring the body
+        const { name, email } = req.body; // Destructuring the body
         // Ensure all required fields are provided and valid
         if (!email) {
             return res.status(400).json({ message: "Email is required" });
@@ -13,8 +13,7 @@ const UserInfo = async (req, res) => {
 
         // Create a new entry in the UserEmail model
         const user = await UserEmail.create({
-            firstName,
-            lastName,
+            name,
             email,
         });
 
