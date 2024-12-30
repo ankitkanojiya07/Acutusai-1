@@ -74,7 +74,7 @@ exports.getChanel = async (req, res) => {
     });
 
     // Redirect the user
-    res.redirect(`https://assent.qmapi.com/${supplyInfo.id}?prescreen=False`);
+    res.redirect(`https://adhoc.qmapi.com/${supplyInfo.id}`);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'An internal server error occurred' });
@@ -604,7 +604,7 @@ exports.buyerData = async (req, res) => {
       default: supplier.Quality
     };
 
-    let redirectUrl = statusRedirectMap[status] || statusRedirectMap['default'];
+    let redirectUrl = statusRedirectMap[status];
 
 if (!redirectUrl) {
   console.error(`No redirect URL found for status: ${status}`);
