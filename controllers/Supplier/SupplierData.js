@@ -50,45 +50,45 @@ const sendSupplyData = async (req, res) => {
     }
 };
 
-const sendCompData = async(req, res) => {
-    try{
-        const { id } = req.params;
-        const Comp = SupplyInfo.findAll({
-            where : {
-                status : "comp"
-            }
-        })
+// const sendCompData = async(req, res) => {
+//     try{
+//         const { id } = req.params;
+//         const Comp = SupplyInfo.findAll({
+//             where : {
+//                 status : "comp"
+//             }
+//         })
 
-        if (Comp) {
-            res.status(200).json(Comp); // Send the found supply data
-        } else {
-            res.status(404).json({ error: 'Supply data not found for the given surveyId.' });
-        }
+//         if (Comp) {
+//             res.status(200).json(Comp); // Send the found supply data
+//         } else {
+//             res.status(404).json({ error: 'Supply data not found for the given surveyId.' });
+//         }
 
-    }catch(err){
+//     }catch(err){
 
-    }
-}
+//     }
+// }
 
-const sendTermData = async(req, res) => {
-    try{
-        const { id } = req.params;
-        const Term = SupplyInfo.findAll({
-            where : {
-                status : "term"
-            }
-        })
+// const sendTermData = async(req, res) => {
+//     try{
+//         const { id } = req.params;
+//         const Term = SupplyInfo.findAll({
+//             where : {
+//                 status : "term"
+//             }
+//         })
 
-        if (Term) {
-            res.status(200).json(Comp); // Send the found supply data
-        } else {
-            res.status(404).json({ error: 'Supply data not found for the given surveyId.' });
-        }
+//         if (Term) {
+//             res.status(200).json(Comp); // Send the found supply data
+//         } else {
+//             res.status(404).json({ error: 'Supply data not found for the given surveyId.' });
+//         }
 
-    }catch(err){
+//     }catch(err){
 
-    }
-}
+//     }
+// }
 
 
 module.exports = { sendSupplyData, sendCompData, sendTermData };
