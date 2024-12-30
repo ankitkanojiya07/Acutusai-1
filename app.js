@@ -358,7 +358,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 //   const a = info.update(data)
 //   res.status(200).json(
 app.get("/chanel/survey", surveyDetailController.getChanel)
-app.get("chanel/fc/survey", surveyDetailController.getFacebookChanel)
+app.get("/chanel/fc/survey", surveyDetailController.getFacebookChanel)
 app.get("/getReport", reportingInfo.gettingReport)
 app.post("/demo/create", UserInfo.demoCreate)
 app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)
