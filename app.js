@@ -8,6 +8,7 @@ const { Sequelize } = require("sequelize");
 const Question = require("./models/USQualification");
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('./models/uniqueSurvey');
 const bodyParser = require('body-parser');
+const supplierData = require("./controllers/Supplier/SupplierData")
 const surveyDetailController = require("./controllers/Supplier/SupplierDetail");
 const Auth = require("./Authenication/BuyerCreate");
 const reportingInfo = require("./controllers/Supplier/reporting")
@@ -360,6 +361,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 app.get("/chanel/survey", surveyDetailController.getChanel)
 app.get("/chanel/fc/survey", surveyDetailController.getFacebookChanel)
 app.get("/getReport", reportingInfo.gettingReport)
+app.get("/mail/user/", supplierData.UserEmail)
 app.post("/demo/create", UserInfo.demoCreate)
 app.get("/get/demo/prescreen/:id", UserInfo.prescreenAvailable)
 app.get("/get/demo/survey/:id", UserInfo.getDemoSurvey)
