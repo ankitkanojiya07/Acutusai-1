@@ -543,6 +543,7 @@ exports.getSurveyQuota = async (req, res) => {
   }
 };
 
+
 const { Op } = require("sequelize");
 exports.buyerData = async (req, res) => {
   try {
@@ -612,11 +613,9 @@ exports.buyerData = async (req, res) => {
         message: `No redirect URL defined for status: ${status}`,
       });
     }
-
+    console.log( supply.UserID) ;
     // Replace [%AID%] in the redirect URL with the UserID from supply
     const finalRedirectUrl = redirectUrl.replace("[%AID%]", supply.UserID);
-
-    // Redirect the user
     return res.redirect(finalRedirectUrl);
 
   } catch (err) {
