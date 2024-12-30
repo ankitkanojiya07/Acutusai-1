@@ -92,4 +92,4 @@ console.log(err) ;
 }
 
 
-module.exports = { sendSupplyData, sendCompData, sendTermData };
+module.exports = { sendSupplyData, sendCompData, sendTermData, UserInfo };
