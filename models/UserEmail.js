@@ -13,6 +13,10 @@ const UserEmail = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true, // first name is optional
     },
+    panelistId : {
+       type: DataTypes.STRING,
+      allowNull: true,
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false, // email is compulsory
