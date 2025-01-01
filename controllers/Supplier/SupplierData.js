@@ -1,5 +1,6 @@
 const SupplyInfo = require('../../models/supModels');
 const UserEmail = require('../../models/UserEmail') ;
+const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
 const sequelize = require("../../config");
 const { where } = require('sequelize');
 exports.getSurveyOpiniomea = async (req, res) => {
@@ -9,6 +10,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
           s_live: 1,
           message_reason: { [Op.ne]: "deactivated" },
           livelink: { [Op.ne]: "" },
+
         },
         limit: 10,
       });
