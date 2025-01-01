@@ -2,7 +2,32 @@ const SupplyInfo = require('../../models/supModels');
 const UserEmail = require('../../models/UserEmail') ;
 const sequelize = require("../../config");
 const { where } = require('sequelize');
-
+exports.getSurveyOpiniomea = async (req, res) => {
+    try {
+      const survey = await ResearchSurvey.findAll({
+        where: {
+          s_live: 1,
+          message_reason: { [Op.ne]: "deactivated" },
+          livelink: { [Op.ne]: "" },
+        },
+        limit: 10,
+      });
+  
+      // Check if surveys exist
+      if (survey.length === 0) {
+        return res.status(404).json({ message: "No surveys found" });
+      }
+  
+      // Respond with survey data
+      res.status(200).json(survey);
+    } catch (err) {
+      console.error("Error fetching surveys:", err.message);
+  
+      // Respond with error status and message
+      res.status(500).json({ error: "Internal Server Error", details: err.message });
+    }
+  };
+  
 const UserInfo = async (req, res) => {
     try {
         const { name, email,panelistId } = req.body; // Destructuring the body

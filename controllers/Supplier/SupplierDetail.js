@@ -14,6 +14,27 @@ const sequelize = require("../../config");
 const crypto = require("crypto");
 const Cookies = require("../../models/cookies");
 
+
+exports.getSurveyOpiniomea = async(req,res) => {
+  try{
+    const survey = await ResearchSurvey.findAll({
+      where : {
+        s_live: 1,
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink: { [Op.ne]: "" },
+      },
+      limit : 10,
+    })
+
+    res.status(200).json(survey)
+
+  }catch(err) {
+    console.log(err);
+
+  }
+}
+
+
 function encryptUrl(url, hashingKey) {
   const hmac = crypto.createHmac("sha256", hashingKey); // Using HMAC with SHA-256
   hmac.update(url);
