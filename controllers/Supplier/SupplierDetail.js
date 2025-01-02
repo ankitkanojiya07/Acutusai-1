@@ -18,6 +18,7 @@ const Cookies = require("../../models/cookies");
 exports.getSurveyOpiniomea = async(req,res) => {
   try{
     const survey = await ResearchSurvey.findAll({
+      attributes : ["bid_length_of_interview", "is_live", "livelink", "bid_incidence", "survey_name", "survey_id", "cpi"],
       where : {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
