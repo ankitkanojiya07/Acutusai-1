@@ -7,7 +7,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
     try {
       const survey = await ResearchSurvey.findAll({
         where: {
-          s_live: 1,
+          is_live: 1,
           message_reason: { [Op.ne]: "deactivated" },
           livelink: { [Op.ne]: "" },
 
