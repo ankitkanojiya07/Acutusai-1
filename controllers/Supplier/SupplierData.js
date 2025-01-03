@@ -12,7 +12,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
           livelink: { [Op.ne]: "" },
 
         },
-        limit: 10,
+        limit: 5,
       });
   
       // Check if surveys exist
