@@ -24,7 +24,7 @@ exports.getSurveyOpiniomea = async(req,res) => {
         message_reason: { [Op.ne]: "deactivated" },
         livelink: { [Op.ne]: "" },
       },
-      limit : 10,
+      limit : 5,
     })
 
     res.status(200).json(survey)
