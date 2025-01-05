@@ -390,6 +390,59 @@ exports.redirectIndividualCompaign = async (req, res) => {
   }
 };
 
+exports.redirectopiniomea = async (req, res) => {
+  try {
+    const { PNID, SupplyID } = req.query;
+
+    // Validate required query parameters
+    if (!PNID || !SupplyID) {
+      return res.status(400).json({
+        status: "error",
+        message: "PNID and SupplyID are required",
+      });
+    }
+
+    console.log("Client IP Address:", req.ip);
+
+    // Fetch the supply details
+    const supply = await SupplyPrice.findOne({
+      where: { SupplierID: SupplyID },
+    });
+
+    if (!supply) {
+      return res.status(404).json({
+        status: "error",
+        message: "Supply not found",
+      });
+    }
+
+    console.log("Supply found:", supply);
+
+    // Create a new supply info record
+    const supplyInfo = await SupplyInfo.create({
+      id: uuidv4(),
+      UserID: PNID,
+      SupplyID,
+      IPAddress: req.ip,
+    });
+
+    const recordId = supplyInfo.id;
+    console.log("Generated record ID:", recordId);
+
+    // Redirect to the consent URL
+    const redirectUrl = `https://consent.qmapi.com/${recordId}?prescreen=true`;
+    console.log("Redirecting to:", redirectUrl);
+    res.redirect(redirectUrl);
+
+  } catch (err) {
+    console.error("Error during redirection:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
 exports.redirectIndividual = async (req, res) => {
   try {
     // const { sid } = req.params;
