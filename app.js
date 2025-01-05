@@ -351,6 +351,9 @@ app.post("/getResearchSurveys", async (req, res) => {
   }
 });
 
+app.get("/opiniomea/entry", surveyDetailController.redirectopiniomea)
+
+
 app.get("/opiniomea/survey", surveyDetailController.getSurveyOpiniomea)
 app.get("/chanel/survey", surveyDetailController.getChanel)
 app.get("/chanel/fc/survey", surveyDetailController.getFacebookChanel)
