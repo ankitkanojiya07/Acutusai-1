@@ -23,7 +23,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
         livelink: { [Op.ne]: "" },
-        price: { [Op.lt]: 1 }, // Price less than $1
+        cpi: { [Op.lt]: 1 }, // Price less than $1
       },
     });
 
