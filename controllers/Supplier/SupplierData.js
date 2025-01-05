@@ -4,31 +4,77 @@ const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = req
 const sequelize = require("../../config");
 const { where } = require('sequelize');
 exports.getSurveyOpiniomea = async (req, res) => {
-    try {
-      const survey = await ResearchSurvey.findAll({
-        where: {
-          is_live: 1,
-          message_reason: { [Op.ne]: "deactivated" },
-          livelink: { [Op.ne]: "" },
+  try {
+    // Fetch one survey for each price range
+    const survey1Dollar = await ResearchSurvey.findOne({
+      where: {
+        is_live: 1,
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink: { [Op.ne]: "" },
+        price: { [Op.lt]: 1 }, // Price less than $1
+      },
+    });
 
-        },
-        limit: 5,
-      });
-  
-      // Check if surveys exist
-      if (survey.length === 0) {
-        return res.status(404).json({ message: "No surveys found" });
-      }
-  
-      // Respond with survey data
-      res.status(200).json(survey);
-    } catch (err) {
-      console.error("Error fetching surveys:", err.message);
-  
-      // Respond with error status and message
-      res.status(500).json({ error: "Internal Server Error", details: err.message });
+    const survey2Dollar = await ResearchSurvey.findOne({
+      where: {
+        is_live: 1,
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink: { [Op.ne]: "" },
+        price: { [Op.between]: [1, 2] }, // Price between $1 and $2
+      },
+    });
+
+    const survey3Dollar = await ResearchSurvey.findOne({
+      where: {
+        is_live: 1,
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink: { [Op.ne]: "" },
+        price: { [Op.between]: [2, 3] }, // Price between $2 and $3
+      },
+    });
+
+    const survey4Dollar = await ResearchSurvey.findOne({
+      where: {
+        is_live: 1,
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink: { [Op.ne]: "" },
+        price: { [Op.between]: [3, 4] }, // Price between $3 and $4
+      },
+    });
+
+    const survey5Dollar = await ResearchSurvey.findOne({
+      where: {
+        is_live: 1,
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink: { [Op.ne]: "" },
+        price: { [Op.between]: [4, 5] }, // Price between $4 and $5
+      },
+    });
+
+    // Combine surveys into a single list
+    const surveys = [
+      survey1Dollar,
+      survey2Dollar,
+      survey3Dollar,
+      survey4Dollar,
+      survey5Dollar,
+    ].filter(Boolean); // Filter out any null values if a survey is not found
+
+    // Check if any surveys exist
+    if (surveys.length === 0) {
+      return res.status(404).json({ message: "No surveys found" });
     }
-  };
+
+    // Respond with survey data
+    res.status(200).json(surveys);
+  } catch (err) {
+    console.error("Error fetching surveys:", err.message);
+
+    // Respond with error status and message
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  }
+};
+
   
 const UserInfo = async (req, res) => {
     try {
