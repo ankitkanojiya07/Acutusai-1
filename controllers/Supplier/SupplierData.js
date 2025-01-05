@@ -20,7 +20,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
         livelink: { [Op.ne]: "" },
-        price: { [Op.between]: [1, 2] }, // Price between $1 and $2
+        cpi: { [Op.between]: [1, 2] }, // Price between $1 and $2
       },
     });
 
@@ -29,7 +29,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
         livelink: { [Op.ne]: "" },
-        price: { [Op.between]: [2, 3] }, // Price between $2 and $3
+        cpi: { [Op.between]: [2, 3] }, // Price between $2 and $3
       },
     });
 
@@ -38,7 +38,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
         livelink: { [Op.ne]: "" },
-        price: { [Op.between]: [3, 4] }, // Price between $3 and $4
+        cpi: { [Op.between]: [3, 4] }, // Price between $3 and $4
       },
     });
 
@@ -47,7 +47,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
         livelink: { [Op.ne]: "" },
-        price: { [Op.between]: [4, 5] }, // Price between $4 and $5
+        cpi: { [Op.between]: [4, 5] }, // Price between $4 and $5
       },
     });
 
@@ -74,6 +74,7 @@ exports.getSurveyOpiniomea = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 };
+
 
   
 const UserInfo = async (req, res) => {
