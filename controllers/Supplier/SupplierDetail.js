@@ -13,7 +13,22 @@ const Supply = require("../../models/supplyModels");
 const sequelize = require("../../config");
 const crypto = require("crypto");
 const Cookies = require("../../models/cookies");
+const supplier = require("../../models/supplerInformation")
 
+
+exports.createSupplier = async (req, res) => {
+  try {
+    const body = req.body;
+    const response = await supplier.create({
+      ...body
+    });
+    
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error creating supplier:", error);
+    res.status(500).json({ error: "Failed to create supplier" });
+  }
+};
 
 exports.getSurveyOpiniomea = async (req, res) => {
   try {
