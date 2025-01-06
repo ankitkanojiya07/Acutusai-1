@@ -10,6 +10,8 @@ const generateTokens = (userId) => ({
     "idea",
     { expiresIn: '30d' }
   ),
+
+
   refreshToken: jwt.sign(
     { userId },
     "idea",
@@ -101,7 +103,6 @@ const updateProfile = async (req, res) => {
     if (!userProfile) {
       return res.status(404).json({ message: 'User profile not found' });
     }
-
     await userProfile.update(data);
     res.status(200).json({ message: 'User profile updated successfully' });
   } catch (err) {
@@ -131,6 +132,8 @@ const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
     });
+
+    console.log(newUser);
 
     const tokens = generateTokens(newUser.id);
 

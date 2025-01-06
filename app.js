@@ -22,14 +22,30 @@ const Hook = require("./controllers/Buyer/webHook")
 const SupplyInfo = require("./models/supModels")
 const UserInfo = require("./controllers/Supplier/token");
 const UQualification = require("./models/USQualification")
-const { addStatus, updateRedirectStatus, registerUser } = require('./controllers/Supplier/SupplierOpiniomea');
+const { addStatus, updateRedirectStatus, getProfile, updateProfile, registerUser, loginUser } = require('./controllers/Supplier/SupplierOpiniomea');
+
+
 
 console.log(process.memoryUsage());
 app.use(cors());
 app.set("trust proxy", true);
-// app.use(express.json());
+// app.use(express.json()
 app.use(bodyParser({limit: '50mb'}));
 app.use(compression());
+
+console.log("343")
+app.post('/api/status/:id', addStatus);
+
+app.get('/api/redirect/:status', updateRedirectStatus);
+
+app.get('/api/profiles', getProfile);
+// app.get('/api/info/:id', 
+app.post('/api/p/profiles', updateProfile);
+
+app.post('/api/register', registerUser);
+
+app.post('/api/login', loginUser);
+
 async function fetchLinksFromLucid(survey_id) {
   const url = `https://api.samplicio.us/Supply/v1/SupplierLinks/BySurveyNumber/${survey_id}/6588`;
     const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };
@@ -369,17 +385,6 @@ app.post("/getResearchSurveys", async (req, res) => {
   }
 });
 
-app.post('auth/api/status/:id', async (req, res) => {
-  await addStatus(req, res);
-});
-
-app.get('auth/api/redirect/:status', async (req, res) => {
-  await updateRedirectStatus(req, res);
-});
-
-app.post('auth/api/register', async (req, res) => {
-  await registerUser(req, res);
-});
 app.get("/opiniomea/entry", surveyDetailController.redirectopiniomea)
 app.get('/supplies', fetchAllSupplies);
 app.post('/suppliers', createSupplier);

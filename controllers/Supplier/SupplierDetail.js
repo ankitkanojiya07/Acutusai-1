@@ -74,11 +74,11 @@ exports.getSurveyOpiniomea = async (req, res) => {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
         livelink: { [Op.ne]: "" },
-        cpi: { [Op.between]: [4, 5] }, // Price between $4 and $5
+        cpi: { [Op.between]: [4, 5] }, // Price between $4 and 
       },
     });
 
-    // Combine surveys into a single list
+    // Combine surveys into a single l
     const surveys = [
       survey1Dollar,
       survey2Dollar,
