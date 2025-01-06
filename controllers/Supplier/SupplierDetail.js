@@ -412,7 +412,7 @@ exports.redirectIndividualCompaign = async (req, res) => {
     console.log(id);
 
     // console.log(redirectUrl);
-    res.redirect(`https://consent.qmapi.com/${id}?prescreen=true`);
+    res.redirect(`https://screensurvey.qmapi.com/${id}?prescreen=true`);
   } catch (err) {
     console.error("Error during redirection:", err);
     res.status(500).json({
