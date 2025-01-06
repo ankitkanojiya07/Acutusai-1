@@ -216,9 +216,6 @@ app.get("/val", async (req, res) => {
     const { bid_length_of_interview } = req.query;
 
     // Validate bid_length_of_interview
-    if (!bid_length_of_interview) {
-      return res.status(400).json({ error: "bid_length_of_interview is required" });
-    }
 
     // Fetch question usage data
     const questionUsage = await ResearchSurveyQualification.findAll({
