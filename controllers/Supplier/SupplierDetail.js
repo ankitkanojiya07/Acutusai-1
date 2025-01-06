@@ -87,6 +87,38 @@ exports.getSurveyOpiniomea = async (req, res) => {
   }
 };
 
+exports.fetchAllSupplies = async (req, res) => {
+  try {
+    const { supplierId } = req.query; // Use query params for filtering
+    const whereCondition = supplierId ? { SupplierID: supplierId } : {};
+
+    const supplies = await Supply.findAll({
+      where: whereCondition,
+    });
+
+    return res.status(200).json({ data: supplies });
+  } catch (err) {
+    console.error("Error fetching supplies:", err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+
+exports.fetchSupplyInfo = async (req,res) =>  {
+  try {
+    const { supplierId } = req.query; // Use query params for filtering
+    const whereCondition = supplierId ? { SupplierID: supplierId } : {};
+
+    const supplies = await SupplyInfo.findAll({
+      where: whereCondition,
+    });
+
+    return res.status(200).json({ data: supplies });
+  } catch (err) {
+    console.error("Error fetching supplies:", err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
 
 function encryptUrl(url, hashingKey) {
   const hmac = crypto.createHmac("sha256", hashingKey); // Using HMAC with SHA-256
