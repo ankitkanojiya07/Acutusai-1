@@ -439,7 +439,7 @@ exports.redirectIndividualCompaign = async (req, res) => {
 
 exports.redirectopiniomea = async (req, res) => {
   try {
-    const { PNID, SupplyID } = req.query;
+    const { PNID, SupplyID, loi_min, loi_max } = req.query;
 
     // Validate required query parameters
     if (!PNID || !SupplyID) {
@@ -477,7 +477,7 @@ exports.redirectopiniomea = async (req, res) => {
     console.log("Generated record ID:", recordId);
 
     // Redirect to the consent URL
-    const redirectUrl = `https://screensurvey.qmapi.com/${recordId}?prescreen=true`;
+    const redirectUrl = `https://screensurvey.qmapi.com/${recordId}?loi_min=${loi_min}&loi_max=${loi_max}`;
     console.log("Redirecting to:", redirectUrl);
     res.redirect(redirectUrl);
 
