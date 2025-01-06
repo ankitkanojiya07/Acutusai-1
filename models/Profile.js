@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('./config'); // Import the correct sequelize instance
+const sequelize = require('../config'); // Import the correct sequelize instance
 
 const UserProfile = sequelize.define('UserProfile', {
     id  : {
