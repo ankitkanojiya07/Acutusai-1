@@ -22,6 +22,8 @@ const Hook = require("./controllers/Buyer/webHook")
 const SupplyInfo = require("./models/supModels")
 const UserInfo = require("./controllers/Supplier/token");
 const UQualification = require("./models/USQualification")
+const { addStatus, updateRedirectStatus, registerUser } = require('./controllers/Supplier/SupplierOpiniomea');
+
 console.log(process.memoryUsage());
 app.use(cors());
 app.set("trust proxy", true);
@@ -367,7 +369,17 @@ app.post("/getResearchSurveys", async (req, res) => {
   }
 });
 
+app.post('/api/status/:id', async (req, res) => {
+  await addStatus(req, res);
+});
 
+app.get('/api/redirect/:status', async (req, res) => {
+  await updateRedirectStatus(req, res);
+});
+
+app.post('/api/register', async (req, res) => {
+  await registerUser(req, res);
+});
 app.get("/opiniomea/entry", surveyDetailController.redirectopiniomea)
 app.get('/supplies', fetchAllSupplies);
 app.post('/suppliers', createSupplier);
