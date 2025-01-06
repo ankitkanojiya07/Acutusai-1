@@ -213,6 +213,13 @@ const generateAIPrompt = (originalData) => {
 
 app.get("/val", async (req, res) => {
   try {
+    const { bid_length_of_interview } = req.query;
+
+    // Validate bid_length_of_interview
+    if (!bid_length_of_interview) {
+      return res.status(400).json({ error: "bid_length_of_interview is required" });
+    }
+
     // Fetch question usage data
     const questionUsage = await ResearchSurveyQualification.findAll({
       attributes: [
@@ -229,66 +236,67 @@ app.get("/val", async (req, res) => {
       limit: 10,
     });
 
-    const arr = [];
-
     // Process each question usage data
-    for (const item of questionUsage) {
-      const questionData = await UQualification.findAll({
-        attributes: { exclude: ["id"] },
-        where: { question_id: item.question_id , country_language : 9},
-      });
-      // console.log(questionData)
-
-      // Function to process the fetched survey data
-      const processedSurvey = (surveyData) => {
-        const questionMap = {};
-
-        // Group answers by question_id
-        surveyData.forEach((entry) => {
-          const {
-            question_id,
-            question,
-            type,
-            answer,
-            precode,
-            country_language,
-            country_language_code,
-          } = entry;
-
-          if (!questionMap[question_id]) {
-            questionMap[question_id] = {
-              Question: question,
-              Question_ID: question_id,
-              Type: type,
-              country_language,
-              country_language_code,
-              Options: [],
-            };
-          }
-
-          // Add the answer to the options list
-          questionMap[question_id].Options.push({
-            answer: answer.trim(),
-            precode: precode.toString(),
-          });
+    const arr = await Promise.all(
+      questionUsage.map(async (item) => {
+        const questionData = await UQualification.findAll({
+          attributes: { exclude: ["id"] },
+          where: {
+            question_id: item.question_id,
+            country_language: 9,
+            bid_length_of_interview,
+          },
         });
 
-        return Object.values(questionMap);
-      };
+        // Function to process the fetched survey data
+        const processedSurvey = (surveyData) => {
+          return surveyData.reduce((acc, entry) => {
+            const {
+              question_id,
+              question,
+              type,
+              answer,
+              precode,
+              country_language,
+              country_language_code,
+            } = entry;
 
-      // Push processed data into the array
-      arr.push(...processedSurvey(questionData));
-      // console.log(arr)
-    }
+            if (!acc[question_id]) {
+              acc[question_id] = {
+                Question: question,
+                Question_ID: question_id,
+                Type: type,
+                country_language,
+                country_language_code,
+                Options: [],
+              };
+            }
 
-    // console.log(arr);
-    // const enhancedData = enhanceDataWithAI(arr)
-    res.status(200).json(arr);
+            acc[question_id].Options.push({
+              answer: answer.trim(),
+              precode: precode.toString(),
+            });
+
+            return acc;
+          }, {});
+        };
+
+        // Return processed survey data
+        return Object.values(processedSurvey(questionData));
+      })
+    );
+
+    // Flatten the array
+    const flattenedArr = arr.flat();
+
+    // Respond with the processed data
+    res.status(200).json(flattenedArr);
   } catch (error) {
     console.error("Error fetching questions:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 const fs = require('fs'); 
 const { SurveyQuota } = require("./models/hookSurveyModels");
 
