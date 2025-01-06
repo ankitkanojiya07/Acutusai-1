@@ -369,15 +369,15 @@ app.post("/getResearchSurveys", async (req, res) => {
   }
 });
 
-app.post('/api/status/:id', async (req, res) => {
+app.post('auth/api/status/:id', async (req, res) => {
   await addStatus(req, res);
 });
 
-app.get('/api/redirect/:status', async (req, res) => {
+app.get('auth/api/redirect/:status', async (req, res) => {
   await updateRedirectStatus(req, res);
 });
 
-app.post('/api/register', async (req, res) => {
+app.post('auth/api/register', async (req, res) => {
   await registerUser(req, res);
 });
 app.get("/opiniomea/entry", surveyDetailController.redirectopiniomea)
