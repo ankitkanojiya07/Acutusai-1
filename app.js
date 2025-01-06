@@ -291,7 +291,6 @@ app.get("/val", async (req, res) => {
 const fs = require('fs'); 
 const { SurveyQuota } = require("./models/hookSurveyModels");
 
-const { Op } = require("sequelize"); 
 
 app.post("/getResearchSurveys", async (req, res) => {
   try {
