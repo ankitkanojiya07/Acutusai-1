@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const {  fetchAllSupplies } = require('./controllers/Supplier/SupplierDetail');
+const { fetchSupplyInfo} = require('./controllers/Supplier/SupplierDetail');
 const compression = require("compression");
 const deviceDetail = require("./controllers/Supplier/deviceData");
 const { Op } = require("sequelize");
@@ -352,8 +354,8 @@ app.post("/getResearchSurveys", async (req, res) => {
 });
 
 app.get("/opiniomea/entry", surveyDetailController.redirectopiniomea)
-
-
+app.get('/supplies', fetchAllSupplies);
+app.get('/userinfo', fetchSupplyInfo)
 app.get("/opiniomea/survey", surveyDetailController.getSurveyOpiniomea)
 app.get("/chanel/survey", surveyDetailController.getChanel)
 app.get("/chanel/fc/survey", surveyDetailController.getFacebookChanel)
