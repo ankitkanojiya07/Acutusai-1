@@ -291,10 +291,13 @@ app.get("/val", async (req, res) => {
 const fs = require('fs'); 
 const { SurveyQuota } = require("./models/hookSurveyModels");
 
+const { Op } = require("sequelize"); 
+
 app.post("/getResearchSurveys", async (req, res) => {
   try {
     const { loi_min, loi_max } = req.query;   
     const { score } = req.body;
+
     let arr = [];
     for (const key in score) {
       arr.push(Number(key)); 
@@ -302,13 +305,21 @@ app.post("/getResearchSurveys", async (req, res) => {
     const scoreList = arr.join(',');
     console.log(scoreList);
 
+    // Create a condition for `bid_length_of_interview` dynamically
+    const bidLengthCondition =
+      loi_min || loi_max
+        ? {
+            bid_length_of_interview: {
+              [Op.between]: [loi_min || 0, loi_max || 1000],
+            },
+          }
+        : {};
+
     const surveys = await ResearchSurvey.findAll({
       where: {
         is_live: 1,
         message_reason: { [Op.ne]: "deactivated" },
-        bid_length_of_interview: {
-          [Op.between]: [loi_min || 0, loi_max || 1000], // Default range if loi_min or loi_max is not provided
-        },
+        ...bidLengthCondition, 
       },
       attributes: [
         "survey_id",
@@ -325,7 +336,7 @@ app.post("/getResearchSurveys", async (req, res) => {
           attributes: ["question_id", "precodes"],
           where: {
             question_id: {
-              [Op.in]: arr, // Use the array here
+              [Op.in]: arr, 
             },
           },
           required: false,
@@ -347,9 +358,8 @@ app.post("/getResearchSurveys", async (req, res) => {
       if (Object.keys(value).length) result.push(value);
     }
 
-    // Save the result in a JSON file
-    const filePath = './survey.json';  // Define the file path
-    fs.writeFileSync(filePath, JSON.stringify(result, null, 2), 'utf-8');  // Write data to file
+    const filePath = './survey.json';  
+    fs.writeFileSync(filePath, JSON.stringify(result, null, 2), 'utf-8'); 
 
     res.status(200).json(result);
   } catch (error) {
@@ -357,6 +367,7 @@ app.post("/getResearchSurveys", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 app.get("/opiniomea/entry", surveyDetailController.redirectopiniomea)
 app.get('/supplies', fetchAllSupplies);
