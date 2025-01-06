@@ -213,11 +213,6 @@ const generateAIPrompt = (originalData) => {
 
 app.get("/val", async (req, res) => {
   try {
-    const { bid_length_of_interview } = req.query;
-
-    // Validate bid_length_of_interview
-
-    // Fetch question usage data
     const questionUsage = await ResearchSurveyQualification.findAll({
       attributes: [
         "question_id",
@@ -241,7 +236,6 @@ app.get("/val", async (req, res) => {
           where: {
             question_id: item.question_id,
             country_language: 9,
-            bid_length_of_interview,
           },
         });
 
@@ -299,18 +293,22 @@ const { SurveyQuota } = require("./models/hookSurveyModels");
 
 app.post("/getResearchSurveys", async (req, res) => {
   try {
+    const { loi_min, loi_max } = req.query;   
     const { score } = req.body;
     let arr = [];
     for (const key in score) {
-      arr.push(Number(key)); // Convert keys to numbers and store them in arr
+      arr.push(Number(key)); 
     }
     const scoreList = arr.join(',');
-    console.log(scoreList) // Create a comma-separated string of scores
+    console.log(scoreList);
 
     const surveys = await ResearchSurvey.findAll({
       where: {
         is_live: 1,
-        message_reason: { [Op.ne]: "deactivated" }
+        message_reason: { [Op.ne]: "deactivated" },
+        bid_length_of_interview: {
+          [Op.between]: [loi_min || 0, loi_max || 1000], // Default range if loi_min or loi_max is not provided
+        },
       },
       attributes: [
         "survey_id",
@@ -318,6 +316,7 @@ app.post("/getResearchSurveys", async (req, res) => {
         "conversion",
         "livelink",
         "testlink",
+        "bid_length_of_interview"
       ],
       include: [
         {
@@ -333,7 +332,7 @@ app.post("/getResearchSurveys", async (req, res) => {
         },
       ],
 
-      limit: 10000,
+      limit: 1000,
       order: [
         ["earnings_per_click", "DESC"],
         ["conversion", "DESC"],
