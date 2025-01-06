@@ -6,6 +6,7 @@ const { fetchSupplyInfo} = require('./controllers/Supplier/SupplierDetail');
 const compression = require("compression");
 const deviceDetail = require("./controllers/Supplier/deviceData");
 const { Op } = require("sequelize");
+const {createSupplier} = require("./controllers/Supplier/SupplierDetail")
 const { Sequelize } = require("sequelize");
 const Question = require("./models/USQualification");
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('./models/uniqueSurvey');
@@ -355,6 +356,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 
 app.get("/opiniomea/entry", surveyDetailController.redirectopiniomea)
 app.get('/supplies', fetchAllSupplies);
+app.post('/suppliers', createSupplier);
 app.get('/userinfo', fetchSupplyInfo)
 app.get("/opiniomea/survey", surveyDetailController.getSurveyOpiniomea)
 app.get("/chanel/survey", surveyDetailController.getChanel)
