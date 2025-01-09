@@ -14,6 +14,7 @@ const sequelize = require("../../config");
 const crypto = require("crypto");
 const Cookies = require("../../models/cookies");
 const supplier = require("../../models/supplerInformation")
+const UserProfile = require("../../models/Profile")
 
 
 exports.createSupplier = async (req, res) => {
@@ -102,21 +103,44 @@ exports.getSurveyOpiniomea = async (req, res) => {
   }
 };
 
+
+exports.fetchAllUserProfiles = async (req, res) => {
+  try {
+    const { email } = req.query; // Use query params for filtering
+    const whereCondition = email ? { email } : {};
+
+    const userProfiles = await UserProfile.findAll({
+      where: whereCondition,
+    });
+
+    return res.status(200).json({ data: userProfiles });
+  } catch (err) {
+    console.error("Error fetching user profiles:", err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+
 exports.fetchAllSupplies = async (req, res) => {
   try {
     const { supplierId } = req.query; // Use query params for filtering
     const whereCondition = supplierId ? { SupplierID: supplierId } : {};
 
+    // Fetch supplies data based on supplierId if provided
     const supplies = await Supply.findAll({
       where: whereCondition,
     });
 
-    return res.status(200).json({ data: supplies });
+    // Fetch data from the 'supp' model
+    const rest = await supp.findAll(); // Fetch from 'supp' model
+
+    return res.status(200).json({ data: [...rest, ...supplies] });
   } catch (err) {
     console.error("Error fetching supplies:", err);
     return res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 
 exports.fetchSupplyInfo = async (req,res) =>  {
