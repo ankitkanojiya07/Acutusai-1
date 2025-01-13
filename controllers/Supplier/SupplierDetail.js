@@ -132,7 +132,7 @@ exports.fetchAllSupplies = async (req, res) => {
     });
 
     // Fetch data from the 'supp' model
-    const rest = await supp.findAll(); // Fetch from 'supp' model
+    const rest = await Supply.findAll(); // Fetch from 'supp' model
 
     return res.status(200).json({ data: [...rest, ...supplies] });
   } catch (err) {
