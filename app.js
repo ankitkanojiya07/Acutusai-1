@@ -34,7 +34,7 @@ app.set("trust proxy", true);
 app.use(bodyParser({limit: '50mb'}));
 app.use(compression());
 
-console.log("343")
+// console.log("343")
 app.post('/api/status/:id', addStatus);
 
 app.get('/api/redirect/:status', updateRedirectStatus);
