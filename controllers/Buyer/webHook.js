@@ -1,5 +1,5 @@
 const axios = require('axios');
-const PQueue = require('p-queue');
+const PQueue = require('p-queue').default;
 const { Survey, SurveyQuota, SurveyQualification } = require('../../models/hookSurveyModels');
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
 
