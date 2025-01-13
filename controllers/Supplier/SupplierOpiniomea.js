@@ -96,13 +96,18 @@ const updateProfile = async (req, res) => {
   try {
     const { email } = req.query;
     const decodedEmail = decodeURIComponent(email);
-    const data = req.body;
+    let data = req.body;
+
+    if (data.password) delete data.password;
+    if (data.point) delete data.point;
+    if (data.email) delete data.email;
 
     const userProfile = await UserProfile.findOne({ where: { email: decodedEmail } });
 
     if (!userProfile) {
       return res.status(404).json({ message: 'User profile not found' });
     }
+
     await userProfile.update(data);
     res.status(200).json({ message: 'User profile updated successfully' });
   } catch (err) {
