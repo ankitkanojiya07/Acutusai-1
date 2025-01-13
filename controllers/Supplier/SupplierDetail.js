@@ -10,6 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 const SupplyInfo = require("../../models/supModels");
 const axios = require("axios");
 const Supply = require("../../models/supplyModels");
+const supp = require("../../models/supplerInformation")
 const sequelize = require("../../config");
 const crypto = require("crypto");
 const Cookies = require("../../models/cookies");
@@ -132,7 +133,7 @@ exports.fetchAllSupplies = async (req, res) => {
     });
 
     // Fetch data from the 'supp' model
-    const rest = await Supply.findAll(); // Fetch from 'supp' model
+    const rest = await supp.findAll(); // Fetch from 'supp' model
 
     return res.status(200).json({ data: [...rest, ...supplies] });
   } catch (err) {
