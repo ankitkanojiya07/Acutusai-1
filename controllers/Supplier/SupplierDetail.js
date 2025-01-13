@@ -16,6 +16,24 @@ const crypto = require("crypto");
 const Cookies = require("../../models/cookies");
 const supplier = require("../../models/supplerInformation")
 const UserProfile = require("../../models/Profile")
+const SurveyStatus = require('../../models/status'); // Import the SurveyStatus model
+
+exports.fetchAllSurveyStatuses = async (req, res) => {
+  try {
+    const { status } = req.query; // Use query params for filtering by status
+    const whereCondition = status ? { status } : {}; // Filter based on status if provided
+
+    const surveyStatuses = await SurveyStatus.findAll({
+      where: whereCondition,
+    });
+
+    return res.status(200).json({ data: surveyStatuses });
+  } catch (err) {
+    console.error("Error fetching survey statuses:", err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
 
 
 exports.createSupplier = async (req, res) => {
