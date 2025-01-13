@@ -7,7 +7,7 @@ const surveyDetailController = require("../controllers/Supplier/SupplierDetail")
 const surveyPriceController = require("../controllers/Supplier/SupplierPriceCard");
 
 const Supply = require("../models/supplyModels"); 
-console.log("hi")
+// console.log("hi")
 const SupplyAuthChecker = async (req, res, next) => {
     console.log(req.headers);
     const ApiKey = req.headers["authorization"];
@@ -35,7 +35,7 @@ router.get(
     "/price",
     surveyPriceController.createRateCard
 );
-console.log("hi")
+// console.log("hi")
 
 router.post("/prescreen/update/:AID", surveyDetailController.convertSurvey)
 router.get("/:id", surveyDetailController.fetchSurvey);
@@ -44,12 +44,12 @@ router.get(
     SupplyAuthChecker,
     surveyDetailController.getAllSurveysDetail
 );
-console.log("hi")
+// console.log("hi")
 
 router.get("/detaillive/:id", surveyDetailController.getDetail);
 
 
-console.log("hi")
+// console.log("hi")
 
 // router.get("/live", SupplyAuthChecker, surveyGetController.);
 router.get("/", SupplyAuthChecker, surveyGetController.getLiveSurveys);
@@ -58,13 +58,13 @@ router.get(
     SupplyAuthChecker,
     surveyGetController.getFinishedSurveys
 );
-console.log("h")
+// console.log("h")
 
 
 
 router.post("/cookies/:id", surveyDetailController.CookiesDetail)
 router.get("/redirect/:sid",  surveyDetailController.redirectToSurvey);
-console.log("hds")
+// console.log("hds")
 
 router.get("/redirect/:sid/test",  surveyDetailController.redirectToSurvey);
 router.get(
