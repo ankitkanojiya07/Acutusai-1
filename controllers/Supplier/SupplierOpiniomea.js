@@ -77,6 +77,7 @@ const updateRedirectStatus = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const { email } = req.query;
+    
     const decodedEmail = decodeURIComponent(email);
 
     const profile = await UserProfile.findOne({ where: { email: decodedEmail } });
@@ -97,12 +98,15 @@ const updateProfile = async (req, res) => {
     const { email } = req.query;
     const decodedEmail = decodeURIComponent(email);
     let data = req.body;
+    console.log(data);
 
     if (data.password) delete data.password;
     if (data.point) delete data.point;
     if (data.email) delete data.email;
 
     const userProfile = await UserProfile.findOne({ where: { email: decodedEmail } });
+    console.log(serProfile)
+
 
     if (!userProfile) {
       return res.status(404).json({ message: 'User profile not found' });
