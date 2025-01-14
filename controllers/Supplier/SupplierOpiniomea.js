@@ -103,7 +103,7 @@ const updateProfile = async (req, res) => {
 
     // Combine fields into a data object
     const data = { firstName, lastName, phoneNumber, city, state, country, address, gender };
-    console.log(data) ;
+    console.log("data is provided by the opiniomea is a ", data) ;
 
     const userProfile = await UserProfile.findOne({ where: { email: decodedEmail } });
 
