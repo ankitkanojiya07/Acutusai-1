@@ -103,6 +103,7 @@ const updateProfile = async (req, res) => {
 
     // Combine fields into a data object
     const data = { firstName, lastName, phoneNumber, city, state, country, address, gender };
+    console.log(data) ;
 
     const userProfile = await UserProfile.findOne({ where: { email: decodedEmail } });
 
@@ -112,7 +113,7 @@ const updateProfile = async (req, res) => {
 
     // Update user profile
     const u = await userProfile.update(data);
-    console.log(u)
+    console.log(u, userProfile) ;
 
     res.status(200).json({ message: 'User profile updated successfully' });
   } catch (err) {
