@@ -105,7 +105,7 @@ const updateProfile = async (req, res) => {
     if (data.email) delete data.email;
 
     const userProfile = await UserProfile.findOne({ where: { email: decodedEmail } });
-    console.log(serProfile)
+    console.log(userProfile)
 
 
     if (!userProfile) {
