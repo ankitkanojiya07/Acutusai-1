@@ -97,28 +97,30 @@ const updateProfile = async (req, res) => {
   try {
     const { email } = req.query;
     const decodedEmail = decodeURIComponent(email);
-    let data = req.body;
-    console.log(data);
 
-    if (data.password) delete data.password;
-    if (data.point) delete data.point;
-    if (data.email) delete data.email;
+    // Extract fields from req.body
+    const { firstName, lastName, phoneNumber, city, state, country, address, gender } = req.body;
+
+    // Combine fields into a data object
+    const data = { firstName, lastName, phoneNumber, city, state, country, address, gender };
 
     const userProfile = await UserProfile.findOne({ where: { email: decodedEmail } });
-    console.log(userProfile)
-
 
     if (!userProfile) {
       return res.status(404).json({ message: 'User profile not found' });
     }
 
-    await userProfile.update(data);
+    // Update user profile
+    const u = await userProfile.update(data);
+    console.log(u)
+
     res.status(200).json({ message: 'User profile updated successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 const registerUser = async (req, res) => {
   try {
