@@ -50,19 +50,19 @@ async function processSurvey(surveyData) {
     let existingSurvey = await ResearchSurvey.findOne({ where: { survey_id } });
 
     if (existingSurvey && message_reason === "reactivated") {
-        console.log("Reactivating survey...");
+        // console.log("Reactivating survey...");
         await existingSurvey.update({ message_reason });
         return existingSurvey;
     }
 
     if (existingSurvey && message_reason === "deactivated") {
-        console.log("Deactivating survey...");
+        // console.log("Deactivating survey...");
         await existingSurvey.update({ message_reason });
         return existingSurvey;
     }
 
     if (existingSurvey && message_reason === "updated") {
-        console.log("Updating existing survey...");
+        // console.log("Updating existing survey...");
         await existingSurvey.update({
             survey_name, account_name, country_language, industry, study_type,
             bid_length_of_interview, revenue_per_interview, bid_incidence, collects_pii, survey_group_ids, is_live,
@@ -90,7 +90,7 @@ async function processSurvey(surveyData) {
     }
 
     if (!existingSurvey && message_reason === "new") {
-        console.log("Creating new survey...");
+        // console.log("Creating new survey...");
 
         const links = await fetchLinksFromLucid(survey_id);
         if (!links || links.livelink === null || links.livelink === "Not") {
@@ -132,7 +132,7 @@ async function processSurvey(surveyData) {
 async function createSurvey(req, res) {
     try {
         const surveys = req.body;
-        console.log(`Received ${surveys.length} surveys for processing.`);
+        // console.log(`Received ${surveys.length} surveys for processing.`);
 
         // Add all surveys to the queue
         const results = await Promise.all(surveys.map(survey => surveyQueue.add(() => processSurvey(survey))));
