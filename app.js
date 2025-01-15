@@ -41,7 +41,7 @@ app.post('/api/status/:id', addStatus);
 app.get('/api/redirect/:status', updateRedirectStatus);
 
 app.get('/api/profiles', getProfile);
-app.get('/api/p/profiles/delete', getProfile);
+app.delete('/api/p/profiles/delete', getProfile);
 // app.get('/api/info/:id', 
 app.post('/api/p/profiles', updateProfile);
 
