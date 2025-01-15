@@ -52,7 +52,7 @@ const addStatus = async (req, res) => {
   }
 };
 
- const deleteAccount = async (req, res) => {
+const deleteAccount = async (req, res) => {
   const { email } = req.query;
 
   if (!email) {
@@ -71,7 +71,7 @@ const addStatus = async (req, res) => {
     console.error("Error deleting account:", error);
     res.status(500).json({ error: "Failed to delete account. Please try again later." });
   }
-});
+};
 
 const updateRedirectStatus = async (req, res) => {
   try {
