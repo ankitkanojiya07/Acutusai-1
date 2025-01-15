@@ -54,13 +54,14 @@ const addStatus = async (req, res) => {
 
 const deleteAccount = async (req, res) => {
   const { email } = req.query;
-
+console.log(email) ;
   if (!email) {
     return res.status(400).json({ error: "Email is required for account deletion." });
   }
 
   try {
     const deletedUser = await UserProfile.findOneAndDelete({ email });
+    console.log(deletedUser);
 
     if (!deletedUser) {
       return res.status(404).json({ error: "User not found." });
