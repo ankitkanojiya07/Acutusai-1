@@ -24,7 +24,7 @@ const UserInfo = require("./controllers/Supplier/token");
 const UQualification = require("./models/USQualification")
 const { fetchAllUserProfiles } = require("./controllers/Supplier/SupplierDetail")
 const { fetchAllSurveyStatuses } = require('./controllers/Supplier/SupplierDetail');
-const { addStatus, updateRedirectStatus, getProfile, updateProfile, registerUser, loginUser } = require('./controllers/Supplier/SupplierOpiniomea');
+const { addStatus, updateRedirectStatus, getProfile, updateProfile, registerUser, loginUser, deleteAccount } = require('./controllers/Supplier/SupplierOpiniomea');
 
 
 
@@ -41,6 +41,7 @@ app.post('/api/status/:id', addStatus);
 app.get('/api/redirect/:status', updateRedirectStatus);
 
 app.get('/api/profiles', getProfile);
+app.get('/api/profiles/delete', getProfile);
 // app.get('/api/info/:id', 
 app.post('/api/p/profiles', updateProfile);
 
