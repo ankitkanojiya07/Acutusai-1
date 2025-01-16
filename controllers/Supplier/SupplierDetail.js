@@ -811,6 +811,7 @@ exports.buyerData = async (req, res) => {
         message: "PID or pnid is required",
       });
     }
+    // if()
 
     // Fetch supply information
     const supply = await SupplyInfo.findOne({ 
@@ -824,6 +825,7 @@ exports.buyerData = async (req, res) => {
         message: "Supply not found",
       });
     }
+    
 
     const supplier = await Supply.findOne({
       where: { SupplierID: supply.SupplyID },
@@ -845,9 +847,21 @@ exports.buyerData = async (req, res) => {
       InitialStatus,
       ClientStatus
     };
+    try {
+  if (supply.SupplyID === 6000) {
+    await SurveyStatus.update(updateData, { where: { id: PID } });
+  } else {
     await SupplyInfo.update(updateData, { where: { id: PID } });
+  }
+} catch (err) {
+  console.error("Error updating supply info:", err);
+  return res.status(500).json({
+    status: "error",
+    message: "Error updating supply info",
+  });
+}
 
-    // Map status to redirect URL
+
     const statusRedirectMap = {
       complete: supplier.Complete,
       terminate: supplier.Termination,
