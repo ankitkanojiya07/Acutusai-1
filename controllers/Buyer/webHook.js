@@ -54,7 +54,7 @@ async function processSurvey(surveyData) {
         await existingSurvey.update({ message_reason });
         return existingSurvey;
     }
-    console.log(surveyQueue) ;
+    // console.log(surveyQueue) ;
     if (existingSurvey && message_reason === "deactivated") {
         // console.log("Deactivating survey...");
         await existingSurvey.update({ message_reason });
