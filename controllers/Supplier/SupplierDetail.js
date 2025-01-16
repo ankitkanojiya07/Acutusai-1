@@ -856,7 +856,7 @@ exports.buyerData = async (req, res) => {
     };
 
     let redirectUrl = statusRedirectMap[status];
-    console.log(redirectUrl);
+    console.log(redirectUrl,statusRedirectMap[status],statusRedirectMap.status, statusRedirectMap);
 
 if (!redirectUrl) {
   console.error(`No redirect URL found for status: ${status}`);
