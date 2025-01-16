@@ -831,7 +831,7 @@ exports.buyerData = async (req, res) => {
       where: { SupplierID: supply.SupplyID },
       attributes: ['Complete', 'Termination', 'OverQuota', 'Quality']
     });
-    console.log(supplier);
+    // console.log(supplier);
 
     if (!supplier) {
       return res.status(404).json({
@@ -848,10 +848,10 @@ exports.buyerData = async (req, res) => {
       ClientStatus
     };
     try {
-  if (supply.SupplyID === 6000) {
-    await SurveyStatus.update(updateData, { where: { id: PID } });
-  } else {
-    await SupplyInfo.update(updateData, { where: { id: PID } });
+        if (supply.SupplyID === 6000) {
+            await SurveyStatus.update(updateData, { where: { id: PID } });
+      } else {
+          await SupplyInfo.update(updateData, { where: { id: PID } });
   }
 } catch (err) {
   console.error("Error updating supply info:", err);
