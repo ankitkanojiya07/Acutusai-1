@@ -34,7 +34,7 @@ async function fetchLinksFromLucid(survey_id) {
     }
 }
 
-const surveyQueue = new PQueue({ concurrency: 5 });
+const surveyQueue = new PQueue({ concurrency: 20 });
 
 // Function to process a single survey
 async function processSurvey(surveyData) {
@@ -54,7 +54,7 @@ async function processSurvey(surveyData) {
         await existingSurvey.update({ message_reason });
         return existingSurvey;
     }
-
+    console.log(surveyQueue) ;
     if (existingSurvey && message_reason === "deactivated") {
         // console.log("Deactivating survey...");
         await existingSurvey.update({ message_reason });
