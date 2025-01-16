@@ -852,7 +852,7 @@ exports.buyerData = async (req, res) => {
       complete: supplier.Complete,
       terminate: supplier.Termination,
       overquota: supplier.OverQuota,
-      default: supplier.Quality
+      quality: supplier.Quality
     };
 
     let redirectUrl = statusRedirectMap[status];
