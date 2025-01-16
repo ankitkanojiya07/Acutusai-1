@@ -829,6 +829,7 @@ exports.buyerData = async (req, res) => {
       where: { SupplierID: supply.SupplyID },
       attributes: ['Complete', 'Termination', 'OverQuota', 'Quality']
     });
+    console.log(supplier);
 
     if (!supplier) {
       return res.status(404).json({
@@ -855,6 +856,7 @@ exports.buyerData = async (req, res) => {
     };
 
     let redirectUrl = statusRedirectMap[status];
+    console.log(redirectUrl);
 
 if (!redirectUrl) {
   console.error(`No redirect URL found for status: ${status}`);
