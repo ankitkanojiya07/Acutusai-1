@@ -153,21 +153,35 @@ const updateRedirectStatus = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const { email } = req.query;
-    
-    const decodedEmail = decodeURIComponent(email);
 
-    const profile = await UserProfile.findOne({ where: { email: decodedEmail } });
-
-    if (!profile) {
-      return res.status(404).json({ message: 'User profile not found' });
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
     }
 
-    res.status(200).json(profile);
+    const decodedEmail = decodeURIComponent(email);
+
+    // Use findOrCreate to fetch or create the profile
+    const [profile, created] = await UserProfile.findOrCreate({
+      where: { email: decodedEmail },
+      defaults: {
+        // Add default values for a new profile
+        name: 'New User', // Example default value
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+
+    if (created) {
+      console.log('New profile created for:', decodedEmail);
+    }
+
+    res.status(200).json(profile,value : created);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 const updateProfile = async (req, res) => {
   try {
