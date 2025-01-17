@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Status = require("../../models/status");
 const UserProfile = require('../../models/Profile');
-const { UserDetail } = require('../../models/userDetail');
+const  UserDetail  = require('../../models/userDetail');
 
 const generateTokens = (userId) => ({
   accessToken: jwt.sign(
@@ -78,7 +78,7 @@ console.log(email) ;
 
 // const { UserDetail } = require('./models'); // Adjust the path to where your model is defined
 
-const adddata = async (req, res) => {
+const addData = async (req, res) => {
   try {
     // Extracting data from the request body
     const {
