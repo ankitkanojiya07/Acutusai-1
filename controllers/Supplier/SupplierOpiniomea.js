@@ -122,7 +122,7 @@ const updateProfile = async (req, res) => {
 
     // Extract fields from req.body
     const { firstName, lastName, phoneNumber, city, state, country, address, gender } = req.body;
-
+    console.log(req.body) ;
     // Combine fields into a data object
     const data = { firstName, lastName, phoneNumber, city, state, country, address, gender };
     console.log("data is provided by the opiniomea is a ", data) ;
