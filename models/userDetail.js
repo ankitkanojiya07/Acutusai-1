@@ -5,8 +5,15 @@ const UserDetail = sequelize.define(
   'UserDetail',
   {
     firebaseInfo: {
-      type: DataTypes.JSONB,
+      type: DataTypes.TEXT, // Store JSON as a string
       allowNull: true,
+      get() {
+        const value = this.getDataValue('firebaseInfo');
+        return value ? JSON.parse(value) : null; // Automatically parse when accessing
+      },
+      set(value) {
+        this.setDataValue('firebaseInfo', JSON.stringify(value)); // Automatically stringify when setting
+      },
     },
     token: {
       type: DataTypes.STRING,
@@ -25,24 +32,52 @@ const UserDetail = sequelize.define(
       allowNull: false,
     },
     identities: {
-      type: DataTypes.JSONB,
+      type: DataTypes.TEXT, // Store JSON as a string
       allowNull: false,
+      get() {
+        const value = this.getDataValue('identities');
+        return value ? JSON.parse(value) : null; // Automatically parse when accessing
+      },
+      set(value) {
+        this.setDataValue('identities', JSON.stringify(value)); // Automatically stringify when setting
+      },
     },
     idToken: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
     network: {
-      type: DataTypes.JSONB,
+      type: DataTypes.TEXT, // Store JSON as a string
       allowNull: true,
+      get() {
+        const value = this.getDataValue('network');
+        return value ? JSON.parse(value) : null; // Automatically parse when accessing
+      },
+      set(value) {
+        this.setDataValue('network', JSON.stringify(value)); // Automatically stringify when setting
+      },
     },
     deviceInfo: {
-      type: DataTypes.JSONB,
+      type: DataTypes.TEXT, // Store JSON as a string
       allowNull: true,
+      get() {
+        const value = this.getDataValue('deviceInfo');
+        return value ? JSON.parse(value) : null; // Automatically parse when accessing
+      },
+      set(value) {
+        this.setDataValue('deviceInfo', JSON.stringify(value)); // Automatically stringify when setting
+      },
     },
     sessionInfo: {
-      type: DataTypes.JSONB,
+      type: DataTypes.TEXT, // Store JSON as a string
       allowNull: true,
+      get() {
+        const value = this.getDataValue('sessionInfo');
+        return value ? JSON.parse(value) : null; // Automatically parse when accessing
+      },
+      set(value) {
+        this.setDataValue('sessionInfo', JSON.stringify(value)); // Automatically stringify when setting
+      },
     },
   },
   {
