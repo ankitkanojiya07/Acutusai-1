@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Status = require("../../models/status");
 const UserProfile = require('../../models/Profile');
+const { UserDetail } = require('../../models/userData');
 
 const generateTokens = (userId) => ({
   accessToken: jwt.sign(
@@ -73,6 +74,57 @@ console.log(email) ;
     res.status(500).json({ error: "Failed to delete account. Please try again later." });
   }
 };
+
+
+const { UserDetail } = require('./models'); // Adjust the path to where your model is defined
+
+const adddata = async (req, res) => {
+  try {
+    // Extracting data from the request body
+    const {
+      firebaseInfo,
+      token,
+      status,
+      userId,
+      timestamp,
+      identities,
+      idToken,
+      network,
+      deviceInfo,
+      sessionInfo,
+    } = req.body;
+
+    // Saving data to the database
+    const userDetail = await UserDetail.create({
+      firebaseInfo,
+      token,
+      status,
+      userId,
+      timestamp,
+      identities,
+      idToken,
+      network,
+      deviceInfo,
+      sessionInfo,
+    });
+
+    // Sending success response
+    return res.status(201).json({
+      success: true,
+      message: 'Data added successfully',
+      data: userDetail,
+    });
+  } catch (error) {
+    // Sending error response
+    console.error('Error saving data:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to add data',
+      error: error.message,
+    });
+  }
+};
+
 
 const updateRedirectStatus = async (req, res) => {
   try {
