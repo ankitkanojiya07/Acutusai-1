@@ -122,7 +122,7 @@ const updateProfile = async (req, res) => {
 
     // Extract fields from req.body
     const { profile } = req.body;
-    const { firstName, lastName, phoneNumber, city, state, country, address, gender, profile } = profile ;
+    const { firstName, lastName, phoneNumber, city, state, country, address, gender} = profile ;
     console.log(req.body, decodedEmail) ;
     // Combine fields into a data object
     const data = { firstName, lastName, phoneNumber, city, state, country, address, gender };
