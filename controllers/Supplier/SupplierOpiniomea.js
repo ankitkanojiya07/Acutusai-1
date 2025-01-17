@@ -166,7 +166,7 @@ const getProfile = async (req, res) => {
 
     });
 
-    const tokens = generateTokens(newUser.id);
+    const tokens = generateTokens(profile.id);
 
     if (created) {
       console.log('New profile created for:', decodedEmail);
