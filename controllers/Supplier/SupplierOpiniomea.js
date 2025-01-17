@@ -120,12 +120,11 @@ const updateProfile = async (req, res) => {
     const { email } = req.query;
     const decodedEmail = decodeURIComponent(email);
 
-    // Extract fields from req.body
     const { firstName, lastName, phoneNumber, city, state, country, address, gender } = req.body;
 
-    // Combine fields into a data object
+
     const data = { firstName, lastName, phoneNumber, city, state, country, address, gender };
-    console.log("data is provided by the opiniomea is a ", data) ;
+    console.log("data is provided by the opiniomea is a ", data) ;      
 
     const userProfile = await UserProfile.findOne({ where: { email: decodedEmail } });
 
