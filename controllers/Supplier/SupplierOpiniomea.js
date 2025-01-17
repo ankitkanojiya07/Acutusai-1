@@ -162,13 +162,8 @@ const getProfile = async (req, res) => {
 
     // Use findOrCreate to fetch or create the profile
     const [profile, created] = await UserProfile.findOrCreate({
-      where: { email: decodedEmail },
-      defaults: {
-        // Add default values for a new profile
-        name: 'New User', // Example default value
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      where: { email: decodedEmail }
+
     });
 
     const tokens = generateTokens(newUser.id);
