@@ -173,9 +173,10 @@ const getProfile = async (req, res) => {
 
     if (created) {
       console.log('New profile created for:', decodedEmail);
+      return res.status(203).json(profile)
     }
 
-    res.status(200).json(profile,"value" : created);
+    res.status(200).json(profile);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
