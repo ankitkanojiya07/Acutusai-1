@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Status = require("../../models/status");
 const UserProfile = require('../../models/Profile');
-const { UserDetail } = require('../../models/userData');
+const { UserDetail } = require('../../models/userDetail');
 
 const generateTokens = (userId) => ({
   accessToken: jwt.sign(
