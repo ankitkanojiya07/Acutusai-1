@@ -117,24 +117,23 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { email } = req.query;
-    const decodedEmail = decodeURIComponent(email);
+    // const { email } = req.query;
+    // const decodedEmail = decodeURIComponent(email);
 
     // Extract fields from req.body
-    const { profile } = req.body;
+    const { profile, email } = req.body;
     const { firstName, lastName, phoneNumber, city, state, country, address, gender} = profile ;
-    console.log(req.body, decodedEmail) ;
+    console.log(req.body) ;
     // Combine fields into a data object
     const data = { firstName, lastName, phoneNumber, city, state, country, address, gender };
     console.log("data is provided by the opiniomea is a ", data) ;
 
-    const userProfile = await UserProfile.findOne({ where: { email: decodedEmail } });
+    const userProfile = await UserProfile.findOne({ where: { email } });
 
     if (!userProfile) {
       return res.status(404).json({ message: 'User profile not found' });
     }
 
-    // Update user profile
     const u = await userProfile.update(data);
     console.log(u, userProfile) ;
 
