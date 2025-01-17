@@ -1,53 +1,59 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config");
+const sequelize = require("../config"); // Adjust the path as needed
 
-const UserInfo = sequelize.define(
-  "UserInfo",
+const UserDetail = sequelize.define(
+  "UserDetail", // Model name
   {
     id: {
-      type: DataTypes.INTEGER, // Define the data type
+      type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    surveyName: {
-      type: DataTypes.STRING,
-    },
-    liveUrl: {
-      type: DataTypes.STRING,
+    firebaseInfo: {
+      type: DataTypes.JSONB, // Storing the firebaseInfo object as JSON
       allowNull: true,
     },
-    testUrl: {
+    token: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    userId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    timestamp: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    identities: {
+      type: DataTypes.JSONB, // Storing the identities array as JSON
+      allowNull: false,
+    },
+    idToken: {
+      type: DataTypes.TEXT, // For longer JWT tokens
+      allowNull: false,
+    },
+    network: {
+      type: DataTypes.JSONB, // Storing network object as JSON
       allowNull: true,
     },
-    quota: {
-      type: DataTypes.STRING,
+    deviceInfo: {
+      type: DataTypes.JSONB, // Storing deviceInfo object as JSON
       allowNull: true,
     },
-    surveyStatus: {
-      type: DataTypes.STRING,
-      defaultValue: "1",
-    },
-    ir: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    loi: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    industries: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    qualifications: {
-      type: DataTypes.JSON, 
+    sessionInfo: {
+      type: DataTypes.JSONB, // Storing sessionInfo object as JSON
       allowNull: true,
     },
   },
   {
-    timestamps: true, 
+    tableName: "user_details", // Custom table name
+    timestamps: false, // Disable Sequelize's automatic timestamps
   }
 );
 
-module.exports = UserInfo;
+module.exports = UserDetail;
