@@ -122,10 +122,10 @@ const updateProfile = async (req, res) => {
 
     // Extract fields from req.body
     const { profile, email } = req.body;
-    const { firstName, lastName, phoneNumber, city, state, country, address, gender, postalCode} = profile ;
+    const { firstName, lastName, phoneNumber, city, state, country, address, gender, postalCode, dateOfBirth} = profile ;
     console.log(req.body) ;
     // Combine fields into a data object
-    const data = { firstName, lastName, phoneNumber, city, state, country, address, gender,postalCode };
+    const data = { firstName, lastName, phoneNumber, city, state, country, address, gender,postalCode,dateOfBirth };
     console.log("data is provided by the opiniomea is a ", data) ;
 
     const userProfile = await UserProfile.findOne({ where: { email } });
