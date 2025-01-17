@@ -76,7 +76,7 @@ console.log(email) ;
 };
 
 
-const { UserDetail } = require('./models'); // Adjust the path to where your model is defined
+// const { UserDetail } = require('./models'); // Adjust the path to where your model is defined
 
 const adddata = async (req, res) => {
   try {
@@ -107,6 +107,8 @@ const adddata = async (req, res) => {
       deviceInfo,
       sessionInfo,
     });
+
+    console.log(userDetail) ;
 
     // Sending success response
     return res.status(201).json({
