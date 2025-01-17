@@ -203,7 +203,7 @@ const registerUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    validateAuthInput(email, password);
+    // validateAuthInput(email, password);
 
     const existingUser = await UserProfile.findOne({ where: { email } });
     if (existingUser) {
@@ -244,7 +244,7 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    validateAuthInput(email, password);
+    // validateAuthInput(email, password);
 
     const user = await UserProfile.findOne({ where: { email } });
     if (!user) {
