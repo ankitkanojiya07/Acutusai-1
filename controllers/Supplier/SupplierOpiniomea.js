@@ -162,24 +162,23 @@ const getProfile = async (req, res) => {
 
     // Use findOrCreate to fetch or create the profile
     const [profile, created] = await UserProfile.findOrCreate({
-      where: { email: decodedEmail }
-
+      where: { email: decodedEmail },
     });
 
+    // Generate tokens for the profile
     const tokens = generateTokens(profile.id);
 
     if (created) {
       console.log('New profile created for:', decodedEmail);
-      return res.status(203).json(profile, ...tokens)
+      return res.status(201).json({ profile, tokens });
     }
 
-    res.status(200).json(profile, ...tokens);
+    res.status(200).json({ profile, tokens });
   } catch (err) {
-    console.error(err);
+    console.error('Error in getProfile:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 const updateProfile = async (req, res) => {
   try {
