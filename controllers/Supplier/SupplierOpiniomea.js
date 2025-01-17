@@ -171,12 +171,14 @@ const getProfile = async (req, res) => {
       },
     });
 
+    const tokens = generateTokens(newUser.id);
+
     if (created) {
       console.log('New profile created for:', decodedEmail);
-      return res.status(203).json(profile)
+      return res.status(203).json(profile, ...tokens)
     }
 
-    res.status(200).json(profile);
+    res.status(200).json(profile, ...tokens);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
