@@ -61,7 +61,9 @@ console.log(email) ;
   }
 
   try {
-    const deletedUser = await UserProfile.findOneAndDelete({ email });
+    const deletedUser = await UserProfile.destroy({ where : {
+      email : email
+    } });
     console.log(deletedUser);
 
     if (!deletedUser) {
