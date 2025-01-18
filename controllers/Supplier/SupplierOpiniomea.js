@@ -165,6 +165,8 @@ const getProfile = async (req, res) => {
       where: { email: decodedEmail },
     });
 
+    console.log(created, profile) ;
+
     // Generate tokens for the profile
     const tokens = generateTokens(profile.id);
 
