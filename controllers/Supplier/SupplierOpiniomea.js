@@ -292,5 +292,6 @@ module.exports = {
   registerUser,
   loginUser,
   deleteAccount,
-  
+  addData
+
 };
