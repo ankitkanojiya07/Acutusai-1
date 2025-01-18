@@ -42,7 +42,7 @@ app.get('/api/redirect/:status', updateRedirectStatus);
 // app.post('/api/opiniomea/data', addData);
 
 app.get('/api/profiles', getProfile);
-app.delete('/api/p/profiles/delete', getProfile);
+app.delete('/api/p/profiles/delete', deleteAccount);
 // app.get('/api/info/:id', 
 app.post('/api/p/profiles', updateProfile);
 
