@@ -291,4 +291,7 @@ module.exports = {
   updateProfile,
   registerUser,
   loginUser,
+  deleteAccount,
+  addData
+
 };
