@@ -1,37 +1,28 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const Status = require("../../models/status");
-const UserProfile = require('../../models/Profile');
-const  UserDetail  = require('../../models/userDetail');
+const UserProfile = require("../../models/Profile");
+const UserDetail = require("../../models/userDetail");
 
 const generateTokens = (userId) => ({
-  accessToken: jwt.sign(
-    { userId },
-    "idea",
-    { expiresIn: '30d' }
-  ),
+  accessToken: jwt.sign({ userId }, "idea", { expiresIn: "30d" }),
 
-
-  refreshToken: jwt.sign(
-    { userId },
-    "idea",
-    { expiresIn: '30d' }
-  )
+  refreshToken: jwt.sign({ userId }, "idea", { expiresIn: "30d" }),
 });
 
 const validateAuthInput = (email, password) => {
   if (!email || !password) {
-    throw new Error('Email and password are required');
+    throw new Error("Email and password are required");
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    throw new Error('Invalid email format');
+    throw new Error("Invalid email format");
   }
 
   if (password.length < 8) {
-    throw new Error('Password must be at least 8 characters long');
+    throw new Error("Password must be at least 8 characters long");
   }
 };
 
@@ -46,24 +37,28 @@ const addStatus = async (req, res) => {
       points,
     });
 
-    res.status(201).json({ message: 'Status added successfully' });
+    res.status(201).json({ message: "Status added successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 const deleteAccount = async (req, res) => {
   const { email } = req.query;
-console.log(email) ;
+  console.log(email);
   if (!email) {
-    return res.status(400).json({ error: "Email is required for account deletion." });
+    return res
+      .status(400)
+      .json({ error: "Email is required for account deletion." });
   }
 
   try {
-    const deletedUser = await UserProfile.destroy({ where : {
-      email : email
-    } });
+    const deletedUser = await UserProfile.destroy({
+      where: {
+        email: email,
+      },
+    });
     console.log(deletedUser);
 
     if (!deletedUser) {
@@ -73,10 +68,11 @@ console.log(email) ;
     res.status(200).json({ message: "Account deleted successfully." });
   } catch (error) {
     console.error("Error deleting account:", error);
-    res.status(500).json({ error: "Failed to delete account. Please try again later." });
+    res
+      .status(500)
+      .json({ error: "Failed to delete account. Please try again later." });
   }
 };
-
 
 // const { UserDetail } = require('./models'); // Adjust the path to where your model is defined
 
@@ -110,25 +106,24 @@ const addData = async (req, res) => {
       sessionInfo,
     });
 
-    console.log(userDetail) ;
+    console.log(userDetail);
 
     // Sending success response
     return res.status(201).json({
       success: true,
-      message: 'Data added successfully',
+      message: "Data added successfully",
       data: userDetail,
     });
   } catch (error) {
     // Sending error response
-    console.error('Error saving data:', error);
+    console.error("Error saving data:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to add data',
+      message: "Failed to add data",
       error: error.message,
     });
   }
 };
-
 
 const updateRedirectStatus = async (req, res) => {
   try {
@@ -140,15 +135,17 @@ const updateRedirectStatus = async (req, res) => {
 
     if (status === "complete") {
       const point = pointUpdate.points;
-      const ProfileUpdate = await UserProfile.findOne({ where: { id: pointUpdate.userId } });
+      const ProfileUpdate = await UserProfile.findOne({
+        where: { id: pointUpdate.userId },
+      });
       const availablePoint = ProfileUpdate.point;
       await ProfileUpdate.update({ point: availablePoint + point });
 
-      res.status(200).json({ message: 'Points added successfully' });
+      res.status(200).json({ message: "Points added successfully" });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -157,7 +154,7 @@ const getProfile = async (req, res) => {
     const { email } = req.query;
 
     if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
+      return res.status(400).json({ message: "Email is required" });
     }
 
     const decodedEmail = decodeURIComponent(email);
@@ -167,20 +164,20 @@ const getProfile = async (req, res) => {
       where: { email: decodedEmail },
     });
 
-    console.log(created, profile) ;
+    console.log(created, profile);
 
     // Generate tokens for the profile
     const tokens = generateTokens(profile.id);
 
     if (created) {
-      console.log('New profile created for:', decodedEmail);
+      console.log("New profile created for:", decodedEmail);
       return res.status(201).json({ profile, tokens });
     }
 
     res.status(200).json({ profile, tokens });
   } catch (err) {
-    console.error('Error in getProfile:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error in getProfile:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -191,28 +188,49 @@ const updateProfile = async (req, res) => {
 
     // Extract fields from req.body
     const { profile, email } = req.body;
-    const { firstName, lastName, phoneNumber, city, state, country, address, gender, postalCode, dateOfBirth} = profile ;
-    console.log(req.body) ;
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      city,
+      state,
+      country,
+      address,
+      gender,
+      postalCode,
+      dateOfBirth,
+    } = profile;
+    console.log(req.body);
     // Combine fields into a data object
-    const data = { firstName, lastName, phoneNumber, city, state, country, address, gender,postalCode,dateOfBirth };
-    console.log("data is provided by the opiniomea is a ", data) ;
+    const data = {
+      firstName,
+      lastName,
+      phoneNumber,
+      city,
+      state,
+      country,
+      address,
+      gender,
+      postalCode,
+      dateOfBirth,
+    };
+    console.log("data is provided by the opiniomea is a ", data);
 
     const userProfile = await UserProfile.findOne({ where: { email } });
 
     if (!userProfile) {
-      return res.status(404).json({ message: 'User profile not found' });
+      return res.status(404).json({ message: "User profile not found" });
     }
 
     const u = await userProfile.update(data);
-    console.log(u, userProfile) ;
+    console.log(u, userProfile);
 
-    res.status(200).json({ message: 'User profile updated successfully' });
+    res.status(200).json({ message: "User profile updated successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 const registerUser = async (req, res) => {
   try {
@@ -224,7 +242,7 @@ const registerUser = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: 'Email already registered',
+        message: "Email already registered",
       });
     }
 
@@ -242,15 +260,15 @@ const registerUser = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful',
+      message: "Registration successful",
       ...tokens,
       email: newUser.email,
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error("Registration error:", error);
     res.status(500).json({
       success: false,
-      message: 'Registration failed. Please try again later.',
+      message: "Registration failed. Please try again later.",
     });
   }
 };
@@ -265,7 +283,7 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials',
+        message: "Invalid credentials",
       });
     }
 
@@ -273,15 +291,15 @@ const loginUser = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       ...tokens,
       email: user.email,
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      message: 'Login failed. Please try again later.',
+      message: "Login failed. Please try again later.",
     });
   }
 };
@@ -294,6 +312,5 @@ module.exports = {
   registerUser,
   loginUser,
   deleteAccount,
-  addData
-
+  addData,
 };
