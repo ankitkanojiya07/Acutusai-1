@@ -209,7 +209,7 @@ exports.getLiveSurveys = async (req, res) => {
             as: "survey_qualifications",
           },
         ],
-
+        limit : 200,
         raw: false // Change to raw: false to get model instances
       });
 
