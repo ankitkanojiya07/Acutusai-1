@@ -183,10 +183,6 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    // const { email } = req.query;
-    // const decodedEmail = decodeURIComponent(email);
-
-    // Extract fields from req.body
     const { profile, email } = req.body;
     const {
       firstName,
@@ -200,21 +196,26 @@ const updateProfile = async (req, res) => {
       postalCode,
       dateOfBirth,
     } = profile;
+
     console.log(req.body);
-    // Combine fields into a data object
-    const data = {
-      firstName,
-      lastName,
-      phoneNumber,
-      city,
-      state,
-      country,
-      address,
-      gender,
-      postalCode,
-      dateOfBirth,
-    };
-    console.log("data is provided by the opiniomea is a ", data);
+
+    // Filter out null/undefined fields
+    const data = Object.fromEntries(
+      Object.entries({
+        firstName,
+        lastName,
+        phoneNumber,
+        city,
+        state,
+        country,
+        address,
+        gender,
+        postalCode,
+        dateOfBirth,
+      }).filter(([_, value]) => value != null) // Exclude null or undefined values
+    );
+
+    console.log("Filtered data provided by the user:", data);
 
     const userProfile = await UserProfile.findOne({ where: { email } });
 
@@ -222,8 +223,7 @@ const updateProfile = async (req, res) => {
       return res.status(404).json({ message: "User profile not found" });
     }
 
-    const u = await userProfile.update(data);
-    console.log(u, userProfile);
+    await userProfile.update(data);
 
     res.status(200).json({ message: "User profile updated successfully" });
   } catch (err) {
@@ -231,6 +231,7 @@ const updateProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 const registerUser = async (req, res) => {
   try {
