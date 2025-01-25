@@ -3,7 +3,6 @@ const PQueue = require('p-queue').default;
 const { Survey, SurveyQuota, SurveyQualification } = require('../../models/hookSurveyModels');
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
 
-// Function to fetch livelink and testlink from Lucid API
 async function fetchLinksFromLucid(survey_id) {
     const postUrl = `https://api.samplicio.us/Supply/v1/SupplierLinks/Create/${survey_id}/6588`;
     const params = { 'SupplierLinkTypeCode': 'OWS', 'TrackingTypeCode': 'NONE' };
