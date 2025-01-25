@@ -1,9 +1,3 @@
-const {
-  Survey,
-  Condition,
-  Quotas,
-  Qualification,
-} = require("../../models/association");
 const requestIp = require('request-ip')
 const { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification } = require('../../models/uniqueSurvey');
 const { v4: uuidv4 } = require('uuid');
