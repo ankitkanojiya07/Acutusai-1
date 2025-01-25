@@ -23,10 +23,10 @@ const BuyerAuthChecker = async (req, res, next) => {
     }
 }
 
-router.post('/create', BuyerAuthChecker, surveyCreateController.surveyCreate);
-router.put('/update/:id', BuyerAuthChecker, surveyUpdateController.updateSurvey);
-router.post('/reconcillation/:SurveyId', BuyerAuthChecker, Recon.reconciliation);
-router.get('/feasibility', Feasibility.getTierPrice);
+// router.post('/create', BuyerAuthChecker, surveyCreateController.surveyCreate);
+// router.put('/update/:id', BuyerAuthChecker, surveyUpdateController.updateSurvey);
+// router.post('/reconcillation/:SurveyId', BuyerAuthChecker, Recon.reconciliation);
+// router.get('/feasibility', Feasibility.getTierPrice);
 // router.post('/callback', Hook.createSurvey)
 
 module.exports = router;
