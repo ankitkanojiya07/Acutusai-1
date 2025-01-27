@@ -46,12 +46,14 @@ ResearchSurvey.init({
     modelName: 'ResearchSurvey',
     tableName: 'research_surveys',
     indexes: [
-    { fields: ['survey_id'] },
-    { fields: ['is_live'] },
-    { fields: ['message_reason'] },
-    { fields: ['livelink'], length: [255] } // Add a key length
-]
-
+        { fields: ['survey_id'] },
+        { fields: ['is_live'] },
+        { fields: ['message_reason'] },
+        { 
+            fields: [{ name: 'livelink', length: 255 }],
+            name: 'research_surveys_livelink'
+        }
+    ]
 });
 
 class ResearchSurveyQuota extends Model {}
@@ -100,7 +102,6 @@ ResearchSurveyQualification.init({
         allowNull: false,
         references: { model: ResearchSurvey, key: 'survey_id' }
     },
-    
     logical_operator: DataTypes.STRING,
     precodes: DataTypes.JSON,
     question_id: DataTypes.INTEGER
@@ -113,12 +114,13 @@ ResearchSurveyQualification.init({
     ]
 });
 
+// Define relationships
 ResearchSurvey.hasMany(ResearchSurveyQuota, { 
     foreignKey: 'survey_id', 
     sourceKey: 'survey_id', 
-
     as: 'survey_quotas'
 });
+
 ResearchSurveyQuota.belongsTo(ResearchSurvey, { 
     foreignKey: 'survey_id',
     targetKey: 'survey_id'
@@ -129,9 +131,15 @@ ResearchSurvey.hasMany(ResearchSurveyQualification, {
     sourceKey: 'survey_id', 
     as: 'survey_qualifications'
 });
+
 ResearchSurveyQualification.belongsTo(ResearchSurvey, { 
     foreignKey: 'survey_id', 
     targetKey: 'survey_id'
 });
 
-module.exports = { ResearchSurvey, ResearchSurveyQuota, ResearchSurveyQualification };
+
+module.exports = { 
+    ResearchSurvey, 
+    ResearchSurveyQuota, 
+    ResearchSurveyQualification 
+};
