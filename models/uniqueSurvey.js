@@ -46,11 +46,12 @@ ResearchSurvey.init({
     modelName: 'ResearchSurvey',
     tableName: 'research_surveys',
     indexes: [
-        { fields: ['survey_id'] },
-        { fields: ['is_live'] },
-        { fields: ['message_reason'] },
-        { fields: ['livelink'] }
-    ]
+    { fields: ['survey_id'] },
+    { fields: ['is_live'] },
+    { fields: ['message_reason'] },
+    { fields: ['livelink'], length: [255] } // Add a key length
+]
+
 });
 
 class ResearchSurveyQuota extends Model {}
