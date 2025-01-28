@@ -5,10 +5,10 @@ const sequelize = new Sequelize('acutusdb', 'acutusdbadmin', 'THJuOs3i9i2FA7z', 
   port: 3306,        
   dialect: 'mysql',
   pool: {
-    max: 75,                  
-    min: 0,                   
-    acquire: 30000,           
-    idle: 10000               
+    max: 100,                  
+    min: 4,                   
+    acquire: 10000,           
+    idle: 5000               
   },
   logging: false,           
   benchmark: true,         
