@@ -22,6 +22,7 @@ const Hook = require("./controllers/Buyer/webHook")
 const SupplyInfo = require("./models/supModels")
 const UserInfo = require("./controllers/Supplier/token");
 const UQualification = require("./models/USQualification")
+const { fetchAllResearchSurveys } = require('./controllers/Supplier/SupplierDetail')
 const { fetchAllUserProfiles } = require("./controllers/Supplier/SupplierDetail")
 const { fetchAllSurveyStatuses } = require('./controllers/Supplier/SupplierDetail');
 const { addStatus, updateRedirectStatus, getProfile, updateProfile, registerUser, loginUser, deleteAccount, addData, getPoint } = require('./controllers/Supplier/SupplierOpiniomea');
@@ -383,6 +384,7 @@ app.post("/getResearchSurveys", async (req, res) => {
 
 app.get("/opiniomea/entry", surveyDetailController.redirectopiniomea)
 app.get('/opiniomea/user', fetchAllSurveyStatuses);
+app.get('/research-surveys', fetchAllResearchSurveys);
 app.get('/supplies', fetchAllSupplies);
 app.get("/user-profiles",fetchAllUserProfiles);  
 app.post('/suppliers', createSupplier);
