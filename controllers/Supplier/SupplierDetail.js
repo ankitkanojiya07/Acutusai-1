@@ -15,17 +15,37 @@ const SurveyStatus = require('../../models/status'); // Import the SurveyStatus 
 
 
 
+
 exports.fetchAllResearchSurveys = async (req, res) => {
   try {
-    const { is_live } = req.query; // Use query params for filtering by is_live status
-    const whereCondition = is_live !== undefined ? { is_live: 1 === 'true' } : {};
+    // Extract query parameters with defaults
+    const { 
+      is_live,
+      page = 1,
+      limit = 200
+    } = req.query;
 
-    const researchSurveys = await ResearchSurvey.findAll({
-      where: {
-        is_live: 1,
-        message_reason: { [Op.ne]: "deactivated" },
-        livelink: { [Op.ne]: "" },
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit;
+
+    // Build where condition
+    const whereCondition = {
+      message_reason: {
+        [Op.ne]: "deactivated"
       },
+      livelink: {
+        [Op.ne]: ""
+      }
+    };
+
+    // Add is_live filter if provided
+    if (is_live !== undefined) {
+      whereCondition.is_live = is_live === 'true' ? 1 : 0;
+    }
+
+    // Fetch surveys with pagination
+    const { count, rows: researchSurveys } = await ResearchSurvey.findAndCountAll({
+      where: whereCondition,
       include: [
         {
           model: ResearchSurveyQuota,
@@ -35,13 +55,34 @@ exports.fetchAllResearchSurveys = async (req, res) => {
           model: ResearchSurveyQualification,
           as: 'survey_qualifications',
         }
-      ]
+      ],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
     });
 
-    return res.status(200).json({ data: researchSurveys });
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(count / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
+    return res.status(200).json({
+      data: researchSurveys,
+      pagination: {
+        total: count,
+        totalPages,
+        currentPage: parseInt(page),
+        pageSize: parseInt(limit),
+        hasNextPage,
+        hasPreviousPage
+      }
+    });
+
   } catch (err) {
     console.error("Error fetching research surveys:", err);
-    return res.status(500).json({ message: 'Server error', error: err.message });
+    return res.status(500).json({
+      error: "Failed to fetch research surveys",
+      message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
   }
 };
 
