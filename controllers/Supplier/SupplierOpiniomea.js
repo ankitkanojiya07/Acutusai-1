@@ -303,6 +303,31 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getPoint = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const decodedEmail = decodeURIComponent(email);
+
+    // Use findOrCreate to fetch or create the profile
+    const profile = await UserProfile.findOne({
+      where: { email: decodedEmail },
+    });
+
+    console.log(profile);
+
+
+    res.status(200).json({ profile });
+  } catch (err) {
+    console.error("Error in getProfile:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   addStatus,
   updateRedirectStatus,
@@ -312,4 +337,5 @@ module.exports = {
   loginUser,
   deleteAccount,
   addData,
+  getPoint
 };
