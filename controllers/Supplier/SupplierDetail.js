@@ -12,6 +12,41 @@ const supplier = require("../../models/supplerInformation")
 const UserProfile = require("../../models/Profile")
 const SurveyStatus = require('../../models/status'); // Import the SurveyStatus model
 
+
+
+
+exports.fetchAllResearchSurveys = async (req, res) => {
+  try {
+    const { is_live } = req.query; // Use query params for filtering by is_live status
+    const whereCondition = is_live !== undefined ? { is_live: 1 === 'true' } : {};
+
+    const researchSurveys = await ResearchSurvey.findAll({
+      where: {
+        is_live: 1,
+        message_reason: { [Op.ne]: "deactivated" },
+        livelink: { [Op.ne]: "" },
+      },
+      include: [
+        {
+          model: ResearchSurveyQuota,
+          as: 'survey_quotas',
+        },
+        {
+          model: ResearchSurveyQualification,
+          as: 'survey_qualifications',
+        }
+      ]
+    });
+
+    return res.status(200).json({ data: researchSurveys });
+  } catch (err) {
+    console.error("Error fetching research surveys:", err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+
+
 exports.fetchAllSurveyStatuses = async (req, res) => {
   try {
     const { status } = req.query; // Use query params for filtering by status
